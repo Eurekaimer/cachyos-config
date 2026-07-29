@@ -1,0 +1,17 @@
+# Local credentials and machine-only overrides
+.env
+.env.*
+!.env.example
+private/
+secrets/
+*.local
+
+# Recovery output
+backups/
+*.tmp
+*.log
+
+# Editor and OS noise
+.DS_Store
+.idea/
+.vscode/

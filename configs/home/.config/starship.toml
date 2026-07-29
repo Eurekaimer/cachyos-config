@@ -1,0 +1,41 @@
+add_newline = false
+format = "$username$directory$git_branch$git_status$time$line_break$character"
+
+[username]
+show_always = true
+format = "[ ○ $user@komari ](fg:#ffffff bg:#2563eb)[](fg:#2563eb bg:#db2777)"
+
+[directory]
+format = "[ $path ](fg:#ffffff bg:#db2777)[](fg:#db2777 bg:#111827)"
+truncation_length = 3
+truncate_to_repo = false
+read_only = " 󰌾"
+read_only_style = "fg:#fef3c7 bg:#db2777"
+
+[git_branch]
+symbol = " "
+format = "[ $symbol$branch ](fg:#1e1e2e bg:#a6e3a1)"
+
+[git_status]
+format = "[$all_status$ahead_behind](fg:#1e1e2e bg:#a6e3a1)[](fg:#a6e3a1 bg:#111827)"
+conflicted = "= "
+ahead = "⇡ "
+behind = "⇣ "
+diverged = "⇕ "
+up_to_date = ""
+untracked = "? "
+stashed = "$ "
+modified = "! "
+staged = "+ "
+renamed = "» "
+deleted = "x "
+
+[time]
+disabled = false
+use_12hr = false
+format = "[  $time ](fg:#f8fafc bg:#111827)[](fg:#111827)"
+time_format = "%H:%M"
+
+[character]
+success_symbol = "[❯](bold fg:#2563eb) "
+error_symbol = "[❯](bold fg:#ef4444) "

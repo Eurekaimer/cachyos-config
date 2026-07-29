@@ -1,0 +1,150 @@
+binds {
+
+    // ────────────── Keybindings ──────────────
+    // https://github.com/YaLTeR/niri/wiki/Configuration:-Key-Bindings
+
+    // ─── noctalia-shell keybinds ───
+    // https://docs.noctalia.dev/getting-started/keybinds/
+
+    Mod+Shift+ESCAPE                    hotkey-overlay-title="显示快捷键总览" { show-hotkey-overlay; }
+    Mod+Shift+Slash                     hotkey-overlay-title="显示中文快捷键手册" { spawn "/home/eurekaimer/.local/bin/niri-hotkeys-zh"; }
+
+    // ─── Applications ───
+    Mod+Return                          hotkey-overlay-title="打开终端：Kitty" { spawn "kitty"; }
+    Mod+CTRL+Return                     hotkey-overlay-title=null { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+    Mod+Space                           repeat=false hotkey-overlay-title="打开应用启动器：Noctalia" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+    Mod+R                               hotkey-overlay-title="切换中文输入法：Fcitx5" { spawn "fcitx5-remote" "-t"; }
+    Mod+B                               hotkey-overlay-title="打开 VS Code" { spawn "code"; }
+    Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "yazi"; }
+    Mod+ALT+L                           hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
+    Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+
+    // Keep the original GNOME file manager as the primary graphical browser.
+    Mod+E                               hotkey-overlay-title="打开文件管理器：Nautilus" { spawn "nautilus"; }
+
+    // ─── Media Controls ───
+    XF86AudioRaiseVolume                allow-when-locked=true hotkey-overlay-title="提高音量" { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
+    XF86AudioLowerVolume                allow-when-locked=true hotkey-overlay-title="降低音量" { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
+    XF86AudioMute                       allow-when-locked=true hotkey-overlay-title="静音或恢复输出" { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
+    XF86AudioMicMute                    allow-when-locked=true hotkey-overlay-title="静音或恢复麦克风" { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
+    XF86AudioNext                       allow-when-locked=true hotkey-overlay-title="下一首媒体" { spawn-sh "qs -c noctalia-shell ipc call media next"; }
+    XF86AudioPrev                       allow-when-locked=true hotkey-overlay-title="上一首媒体" { spawn-sh "qs -c noctalia-shell ipc call media previous"; }
+    XF86AudioPlay                       allow-when-locked=true hotkey-overlay-title="播放或暂停媒体" { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
+    XF86AudioPause                      allow-when-locked=true hotkey-overlay-title=null { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
+
+    // ─── Brightness Controls ───
+    XF86MonBrightnessUp                 allow-when-locked=true hotkey-overlay-title="提高屏幕亮度" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
+    XF86MonBrightnessDown               allow-when-locked=true hotkey-overlay-title="降低屏幕亮度" { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
+
+    // ─── Window Movement and Focus ───
+    Mod+Q                               allow-inhibiting=false hotkey-overlay-title="关闭当前窗口" { close-window; }
+
+    Mod+Left                            hotkey-overlay-title=null { focus-column-left; }
+    Mod+H                               hotkey-overlay-title="聚焦左侧列（H / ←）" { focus-column-left; }
+    Mod+Right                           hotkey-overlay-title=null { focus-column-right; }
+    Mod+L                               hotkey-overlay-title="聚焦右侧列（L / →）" { focus-column-right; }
+    Mod+Up                              hotkey-overlay-title=null { focus-window-up; }
+    Mod+K                               hotkey-overlay-title="聚焦上方窗口（K / ↑）" { focus-window-up; }
+    Mod+Down                            hotkey-overlay-title=null { focus-window-down; }
+    Mod+J                               hotkey-overlay-title="聚焦下方窗口（J / ↓）" { focus-window-down; }
+
+    // Arrow chords keep movement; Vim chords perform fine-grained resizing.
+    Mod+CTRL+Left                       hotkey-overlay-title="向左移动列（Ctrl + ←）" { move-column-left; }
+    Mod+CTRL+H                          hotkey-overlay-title="缩小当前列宽度 2%" { set-column-width "-2%"; }
+    Mod+CTRL+Right                      hotkey-overlay-title="向右移动列（Ctrl + →）" { move-column-right; }
+    Mod+CTRL+L                          hotkey-overlay-title="增大当前列宽度 2%" { set-column-width "+2%"; }
+    Mod+CTRL+UP                         hotkey-overlay-title="向上移动窗口（Ctrl + ↑）" { move-window-up; }
+    Mod+CTRL+K                          hotkey-overlay-title="增大当前窗口高度 2%" { set-window-height "+2%"; }
+    Mod+CTRL+Down                       hotkey-overlay-title="向下移动窗口（Ctrl + ↓）" { move-window-down; }
+    Mod+CTRL+J                          hotkey-overlay-title="缩小当前窗口高度 2%" { set-window-height "-2%"; }
+
+    Mod+Home                            hotkey-overlay-title="聚焦第一列" { focus-column-first; }
+    Mod+End                             hotkey-overlay-title="聚焦最后一列" { focus-column-last; }
+    Mod+CTRL+Home                       hotkey-overlay-title="将列移到最前" { move-column-to-first; }
+    Mod+CTRL+End                        hotkey-overlay-title="将列移到最后" { move-column-to-last; }
+
+    Mod+Shift+Left                      hotkey-overlay-title="聚焦左侧显示器" { focus-monitor-left; }
+    Mod+Shift+Right                     hotkey-overlay-title="聚焦右侧显示器" { focus-monitor-right; }
+    Mod+Shift+UP                        hotkey-overlay-title="聚焦上方显示器" { focus-monitor-up; }
+    Mod+Shift+Down                      hotkey-overlay-title="聚焦下方显示器" { focus-monitor-down; }
+
+    Mod+Shift+CTRL+Left                 hotkey-overlay-title="将列移到左侧显示器" { move-column-to-monitor-left; }
+    Mod+Shift+CTRL+Right                hotkey-overlay-title="将列移到右侧显示器" { move-column-to-monitor-right; }
+    Mod+Shift+CTRL+UP                   hotkey-overlay-title="将列移到上方显示器" { move-column-to-monitor-up; }
+    Mod+Shift+CTRL+Down                 hotkey-overlay-title="将列移到下方显示器" { move-column-to-monitor-down; }
+
+    // ─── Workspace Switching ───
+    Mod+WheelScrollDown                 cooldown-ms=150 hotkey-overlay-title="切换到下一个工作区" { focus-workspace-down; }
+    Mod+WheelScrollUp                   cooldown-ms=150 hotkey-overlay-title="切换到上一个工作区" { focus-workspace-up; }
+    Mod+CTRL+WheelScrollDown            cooldown-ms=150 hotkey-overlay-title="将列移到下一个工作区" { move-column-to-workspace-down; }
+    Mod+CTRL+WheelScrollUp              cooldown-ms=150 hotkey-overlay-title="将列移到上一个工作区" { move-column-to-workspace-up; }
+
+    Mod+WheelScrollRight                hotkey-overlay-title=null { focus-column-right; }
+    Mod+WheelScrollLeft                 hotkey-overlay-title=null { focus-column-left; }
+    Mod+CTRL+WheelScrollRight           hotkey-overlay-title=null { move-column-right; }
+    Mod+CTRL+WheelScrollLeft            hotkey-overlay-title=null { move-column-left; }
+
+    Mod+Shift+WheelScrollDown           hotkey-overlay-title=null { focus-column-right; }
+    Mod+Shift+WheelScrollUp             hotkey-overlay-title=null { focus-column-left; }
+    Mod+CTRL+Shift+WheelScrollDown      hotkey-overlay-title=null { move-column-right; }
+    Mod+CTRL+Shift+WheelScrollUp        hotkey-overlay-title=null { move-column-left; }
+
+    Mod+1                               hotkey-overlay-title="切换工作区（1…9）" { focus-workspace 1; }
+    Mod+2                               hotkey-overlay-title=null { focus-workspace 2; }
+    Mod+3                               hotkey-overlay-title=null { focus-workspace 3; }
+    Mod+4                               hotkey-overlay-title=null { focus-workspace 4; }
+    Mod+5                               hotkey-overlay-title=null { focus-workspace 5; }
+    Mod+6                               hotkey-overlay-title=null { focus-workspace 6; }
+    Mod+7                               hotkey-overlay-title=null { focus-workspace 7; }
+    Mod+8                               hotkey-overlay-title=null { focus-workspace 8; }
+    Mod+9                               hotkey-overlay-title=null { focus-workspace 9; }
+
+    Mod+CTRL+1                          hotkey-overlay-title="将列移到工作区（1…9）" { move-column-to-workspace 1; }
+    Mod+CTRL+2                          hotkey-overlay-title=null { move-column-to-workspace 2; }
+    Mod+CTRL+3                          hotkey-overlay-title=null { move-column-to-workspace 3; }
+    Mod+CTRL+4                          hotkey-overlay-title=null { move-column-to-workspace 4; }
+    Mod+CTRL+5                          hotkey-overlay-title=null { move-column-to-workspace 5; }
+    Mod+CTRL+6                          hotkey-overlay-title=null { move-column-to-workspace 6; }
+    Mod+CTRL+7                          hotkey-overlay-title=null { move-column-to-workspace 7; }
+    Mod+CTRL+8                          hotkey-overlay-title=null { move-column-to-workspace 8; }
+    Mod+CTRL+9                          hotkey-overlay-title=null { move-column-to-workspace 9; }
+
+    Mod+TAB                             hotkey-overlay-title="切回上一个工作区" { focus-workspace-previous; }
+
+    // ─── Layout Controls ───
+    Mod+CTRL+F                          hotkey-overlay-title="将列扩展到可用宽度" { expand-column-to-available-width; }
+    Mod+C                               hotkey-overlay-title="居中当前列" { center-column; }
+    Mod+CTRL+C                          hotkey-overlay-title="居中所有可见列" { center-visible-columns; }
+    Mod+BracketLeft                     hotkey-overlay-title="与左侧列合并/分离，并自动均分可用高度" { spawn "/home/eurekaimer/.local/bin/niri-stack-column" "left"; }
+    Mod+BracketRight                    hotkey-overlay-title="与右侧列合并/分离，并自动均分可用高度" { spawn "/home/eurekaimer/.local/bin/niri-stack-column" "right"; }
+    Mod+Shift+5                         hotkey-overlay-title="将当前窗口设为四分之一屏" { spawn-sh "niri msg action set-column-width '50%' && niri msg action set-window-height '50%'"; }
+    Mod+Minus                           hotkey-overlay-title="缩小列宽" { set-column-width "-10%"; }
+    Mod+Equal                           hotkey-overlay-title="增大列宽" { set-column-width "+10%"; }
+    Mod+Shift+Minus                     hotkey-overlay-title="降低窗口高度" { set-window-height "-10%"; }
+    Mod+Shift+Equal                     hotkey-overlay-title="增加窗口高度" { set-window-height "+10%"; }
+
+    // ─── Modes ───
+    Mod+T                               hotkey-overlay-title="切换窗口浮动状态" { toggle-window-floating; }
+    Mod+F                               hotkey-overlay-title="最大化窗口并保留顶栏" { maximize-column; }
+    Mod+Shift+F                         hotkey-overlay-title="真正全屏并隐藏顶栏" { fullscreen-window; }
+    Mod+W                               hotkey-overlay-title="切换列标签页布局" { toggle-column-tabbed-display; }
+
+    // ─── Screenshots ───
+    Print                               hotkey-overlay-title="截取选定区域并保存" { screenshot; }
+    CTRL+Print                          hotkey-overlay-title="截取整个屏幕并保存" { screenshot-screen; }
+    ALT+Print                           hotkey-overlay-title="截取当前窗口并保存" { screenshot-window; }
+    CTRL+Shift+1                        hotkey-overlay-title="截取选定区域" { screenshot; }
+    CTRL+Shift+2                        hotkey-overlay-title="截取整个屏幕" { screenshot-screen; }
+    CTRL+Shift+3                        hotkey-overlay-title="截取当前窗口" { screenshot-window; }
+
+    // ─── Emergency Escape Key ───
+    // Use this when a fullscreen app blocks your keybinds.
+    // It disables any active keyboard shortcut inhibitor, restoring control.
+    Mod+ESCAPE                          allow-inhibiting=false hotkey-overlay-title="解除应用快捷键拦截" { toggle-keyboard-shortcuts-inhibit; }
+
+    // ─── Exit / Power ───
+    CTRL+ALT+Delete                     hotkey-overlay-title="退出 Niri" { quit; }
+    Mod+Shift+P                         hotkey-overlay-title="关闭显示器电源" { power-off-monitors; }
+    Mod+O                               repeat=false hotkey-overlay-title="打开 Obsidian" { spawn "obsidian"; }
+    Mod+CTRL+O                          repeat=false hotkey-overlay-title="打开 Niri 总览" { toggle-overview; }
+}

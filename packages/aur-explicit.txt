@@ -1,0 +1,13 @@
+clash-verge-rev-bin
+feishu-bin
+github-desktop-bin
+google-chrome
+linuxqq
+peazip-qt-bin
+sioyek-appimage
+ttf-lxgw-wenkai
+ttf-lxgw-wenkai-mono-nerd
+virtio-win
+visual-studio-code-bin
+wechat-bin
+zoom

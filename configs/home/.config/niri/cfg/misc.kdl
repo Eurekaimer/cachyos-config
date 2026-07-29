@@ -1,0 +1,47 @@
+    prefer-no-csd
+    screenshot-path "~/Pictures/Screenshots/Screenshot_%Y-%m-%d_%H-%M-%S.png"
+
+    environment {
+    ELECTRON_OZONE_PLATFORM_HINT "auto"
+    QT_QPA_PLATFORM "wayland"
+    QT_QPA_PLATFORMTHEME "gtk3"
+    QT_WAYLAND_DISABLE_WINDOWDECORATION "1"
+    XDG_CURRENT_DESKTOP "niri"
+    XDG_SESSION_TYPE "wayland"
+    TERMINAL "kitty"
+    SHELL "/usr/bin/zsh"
+    XCURSOR_THEME "capitaine-cursors-light"
+    XCURSOR_SIZE "36"
+
+    GTK_IM_MODULE "fcitx"
+    QT_IM_MODULE "fcitx"
+    SDL_IM_MODULE "fcitx"
+    GLFW_IM_MODULE "ibus"
+    INPUT_METHOD "fcitx"
+    XMODIFIERS "@im=fcitx"
+
+    http_proxy "http://127.0.0.1:7897"
+    https_proxy "http://127.0.0.1:7897"
+    all_proxy "socks5h://127.0.0.1:7897"
+
+    HTTP_PROXY "http://127.0.0.1:7897"
+    HTTPS_PROXY "http://127.0.0.1:7897"
+    ALL_PROXY "socks5h://127.0.0.1:7897"
+
+    no_proxy "localhost,127.0.0.1,::1,.local"
+    NO_PROXY "localhost,127.0.0.1,::1,.local"
+    }
+    
+    cursor {
+        xcursor-theme "capitaine-cursors-light"
+        xcursor-size 36
+    }
+
+    debug {
+        // Allows notification actions and window activation from Noctalia.
+        honor-xdg-activation-with-invalid-serial
+    }
+
+    hotkey-overlay {
+       skip-at-startup
+    }

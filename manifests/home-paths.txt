@@ -1,0 +1,28 @@
+# Paths relative to the target user's home directory.
+.zshrc
+.bashrc
+.bash_profile
+.bash_logout
+.gitconfig
+.config/QtProject.conf
+.config/starship.toml
+.config/user-dirs.dirs
+.config/user-dirs.locale
+.config/mimeapps.list
+.config/cachyos-hello.json
+.config/kitty
+.config/niri
+.config/noctalia
+.config/fastfetch
+.config/mpv
+.config/fcitx5
+.config/gtk-3.0
+.config/gtk-4.0
+.config/micro/settings.json
+.config/micro/colorschemes
+.config/autostart/Clash Verge.desktop
+.local/share/applications/neovim-markdown.desktop
+.local/bin/niri-hotkeys-zh
+.local/bin/niri-stack-column
+Pictures/Wallpapers
+.face

@@ -1,0 +1,17 @@
+# Safe to restore on another CachyOS installation after review.
+etc/pacman.conf
+etc/makepkg.conf
+etc/mkinitcpio.conf
+etc/locale.conf
+etc/locale.gen
+etc/vconsole.conf
+etc/environment
+etc/modules-load.d/i2c-dev.conf
+etc/X11/xorg.conf.d/00-keyboard.conf
+etc/default/ufw
+etc/ufw/ufw.conf
+etc/ufw/user.rules
+etc/ufw/user6.rules
+etc/snapper/configs/root
+etc/conf.d/snapper
+etc/libvirt/qemu/networks/default.xml

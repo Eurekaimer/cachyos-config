@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/fastfetch-cli/fastfetch/raw/master/doc/json_schema.json",
+  "logo": {
+    "source": "/home/eurekaimer/Pictures/Wallpapers/Bingo.jpg",
+    "type": "kitty",
+    "width": 24,
+    "preserveAspectRatio": true,
+    "padding": {
+      "top": 1,
+      "left": 1,
+      "right": 1
+    }
+  },
+  "display": {
+    "separator": " -> ",
+    "disableLinewrap": true,
+    "color": {
+      "keys": "magenta",
+      "title": "blue"
+    }
+  },
+  "modules": [
+    "title",
+    "separator",
+    { "type": "os", "key": " OS" },
+    { "type": "kernel", "key": " Kernel" },
+    { "type": "shell", "key": " Shell" },
+    { "type": "wm", "key": " WM" },
+    { "type": "terminal", "key": " Terminal" },
+    { "type": "cpu", "key": " CPU", "format": "{vendor} {cores-logical}T" },
+    { "type": "gpu", "key": "󰾲 GPU", "format": "{name}" },
+    { "type": "memory", "key": " RAM" }
+  ]
+}

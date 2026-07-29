@@ -1,0 +1,2 @@
+# Generated, location-specific state kept for comparison only.
+etc/pacman.d/mirrorlist
