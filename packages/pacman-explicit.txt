@@ -196,6 +196,7 @@ ttf-meslo-nerd
 ttf-opensans
 ufw
 ufw-extras
+umu-launcher
 unrar
 unzip
 usb_modeswitch

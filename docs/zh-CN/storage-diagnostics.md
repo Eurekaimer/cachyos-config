@@ -1,5 +1,7 @@
 # 外置 SSD 传输速度诊断
 
+[English](../en/storage-diagnostics.md)
+
 ## 已确认根因
 
 当前外置盘：

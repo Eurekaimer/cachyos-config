@@ -58,6 +58,12 @@ binds {
     Mod+CTRL+Down                       hotkey-overlay-title="向下移动窗口（Ctrl + ↓）" { move-window-down; }
     Mod+CTRL+J                          hotkey-overlay-title="缩小当前窗口高度 2%" { set-window-height "-2%"; }
 
+    // WASD movement chord
+    Mod+CTRL+W                          hotkey-overlay-title="向上移动窗口（Ctrl + W）" { move-window-up; }
+    Mod+CTRL+A                          hotkey-overlay-title="向左移动列（Ctrl + A）" { move-column-left; }
+    Mod+CTRL+S                          hotkey-overlay-title="向下移动窗口（Ctrl + S）" { move-window-down; }
+    Mod+CTRL+D                          hotkey-overlay-title="向右移动列（Ctrl + D）" { move-column-right; }
+
     Mod+Home                            hotkey-overlay-title="聚焦第一列" { focus-column-first; }
     Mod+End                             hotkey-overlay-title="聚焦最后一列" { focus-column-last; }
     Mod+CTRL+Home                       hotkey-overlay-title="将列移到最前" { move-column-to-first; }

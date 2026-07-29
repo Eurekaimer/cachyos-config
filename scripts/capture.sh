@@ -48,7 +48,8 @@ capture_group / "$config_root/system/portable" "$manifest_root/system-portable-p
 capture_group / "$config_root/system/hardware" "$manifest_root/system-hardware-paths.txt"
 capture_group / "$config_root/system/reference" "$manifest_root/system-reference-paths.txt"
 
-# Runtime history is not configuration and may expose filenames.
+# Runtime history and caches are not configuration and may expose filenames.
+rm -rf -- "$config_root/home/.config/mpv/cache"
 rm -f -- "$config_root/home/.config/mpv/memo-history.log"
 
 # Keep the public snapshot useful without publishing the account email.

@@ -1,5 +1,7 @@
 # 新机器 Agent 恢复规范
 
+[English](../en/recovery.md)
+
 本文件是给自动化 Agent 的操作合同。目标：在全新 CachyOS 上恢复软件、配置和服务，同时避免把旧磁盘 UUID 写入新机器。
 
 ## 不变量

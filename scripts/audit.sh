@@ -24,6 +24,12 @@ for forbidden in .ssh .gnupg .aws .kube .omp google-chrome mozilla NetworkManage
     fi
 done
 
+for runtime_path in \
+    configs/home/.config/mpv/cache \
+    configs/home/.config/mpv/memo-history.log; do
+    [[ ! -e "$REPO_ROOT/$runtime_path" ]] || fail "Runtime snapshot path found: $runtime_path"
+done
+
 log "Checking secret-shaped content"
 secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authorization:[[:space:]]*Bearer|(^|[^[:alnum:]_])(password|passwd|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"']{8,}"
 while IFS= read -r match; do

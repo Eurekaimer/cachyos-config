@@ -1,4 +1,4 @@
-captured_at=2026-07-29T05:25:21+08:00
+captured_at=2026-07-29T22:31:32+08:00
 kernel=Linux 7.1.5-1-cachyos x86_64 GNU/Linux
 shell=/bin/fish
 NAME="CachyOS Linux"
