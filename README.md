@@ -2,6 +2,8 @@
 
 CachyOS 工作站的可审计、可重复恢复包。配置快照、软件清单和执行脚本彼此分离；既能单独恢复某一层，也能由总脚本完整恢复。
 
+下面的内容都是ChatGPT 5.6Sol写的，主要是为了方便复原而已，基本上除了架构没有什么参考价值。
+
 ## 快速恢复
 
 ```bash
@@ -54,22 +56,6 @@ cachyos-config/
     └── agent-recovery.md     # 新机器上交给 Agent 的操作规范
 ```
 
-## 覆盖与备份语义
-
-恢复不是“合并”。脚本严格按照 `manifests/*.txt`：
-
-1. 将目标已有文件/目录复制到备份目录；
-2. 删除目标路径；
-3. 将仓库快照原样复制到对应 FHS/XDG 位置；
-4. 用户名变化时，只在受管文本文件内把旧 `$HOME` 改为新 `$HOME`。
-
-默认备份位置：
-
-- 用户配置：`~/.local/state/cachyos-config/backups/<时间>/home/`
-- 系统配置：`/var/backups/cachyos-config/<时间>/`
-
-可用 `--no-backup` 关闭备份，但不建议。
-
 ## 单独执行
 
 ```bash
@@ -89,16 +75,6 @@ cachyos-config/
 ```
 
 采集脚本只读取白名单。要新增配置，应先把相对路径加入 `manifests/`，不要在脚本里散落硬编码复制命令。
-
-## 开源安全边界
-
-以下内容不会采集：密码、SSH/GPG 私钥、浏览器资料、Clash 配置、NetworkManager 连接、Cookie、缓存、日志及 `.omp` 运行时数据库。Git 邮箱也会在采集时移除；恢复后手动执行：
-
-```bash
-git config --global user.email '你的邮箱'
-```
-
-公开前必须执行 `./scripts/audit.sh`，并人工检查 `configs/` 和 `state/`。软件清单会暴露已安装应用名称；壁纸快照可能涉及版权，公开前需自行确认许可。
 
 ## 当前软件快照
 
@@ -157,28 +133,3 @@ niri msg action load-config-file
 ```
 
 然后彻底退出并重新打开 Chrome 等已有进程；已运行的进程不会追溯继承新环境。仓库只保存本机回环地址和端口，不采集 Clash 节点、订阅或凭据。
-
-## 当前桌面行为
-
-- `Super+E`：恢复为原来的 Nautilus 文件管理器；Thunar 仍安装但不再作为默认快捷键目标。
-- 双击 Markdown：在新的 Niri 列中用 Kitty + Neovim 打开。
-- 双击图片：在新的 Niri 列中用 imv 打开。
-- `Super+[` / `Super+]`：合并或分离窗口；由 Niri 按顶栏实际占用区和 16 px 间距自动均分列高。实测两窗口各 671.33 px、三窗口各 442 px，底部边框完整。
-- `Super+Ctrl+H/L`：当前列宽度以 2% 微调。
-- `Super+Ctrl+J/K`：当前窗口高度以 2% 微调。
-- `Super+Ctrl+方向键`：保留原来的列/窗口移动功能。
-- MPV 设置 `keepaspect-window=no`，平铺时允许合成器独立调整窗口比例；视频内容仍保持自身比例并留黑边。已打开的 MPV 需重启一次才读取该设置。
-- Noctalia 夜间模式已强制启用，色温为 4000 K；安装 `wlsunset` 后立即生效。
-- 外接 HP27UI 通过 DDC/CI 控制亮度，当前为 35%，每次按亮度键调整 5%。`ddcutil`、`i2c-dev` 和开机模块加载配置均已纳入恢复包。
-
-## 外置 SSD 当前诊断
-
-`/dev/sda` 的 RTL9210 NVMe 硬盘盒当前只协商到 USB 2.0 `480 Mbit/s`，使用 `usb-storage` 且队列深度为 1；这就是约 20 MB/s 的根因。SSD SMART 健康、40°C、无介质错误。必须换到 USB 3.x/10G 端口并使用带 SuperSpeed 数据线的线缆；软件参数无法提升物理协商速率。
-
-重插后验证：
-
-```bash
-./scripts/diagnostics/storage-link.sh /dev/sda
-```
-
-预期为 `5000` 或 `10000 Mbit/s`，通常驱动为 `uas`。完整证据和处理流程见 `docs/storage-diagnostics.md`。
