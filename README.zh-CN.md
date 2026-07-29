@@ -11,7 +11,7 @@
 
 全新安装时，请从 [CachyOS 官方下载页](https://cachyos.org/download/)获取 ISO，建议使用种子（torrent）下载；完成基础系统安装后再使用本仓库恢复配置。
 
-[](/home/eurekaimer/Documents/GitHub/cachyos-config/system.png)
+[](system.png)
 
 ## 架构
 
