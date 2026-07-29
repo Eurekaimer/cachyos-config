@@ -11,6 +11,9 @@ An auditable and repeatable recovery kit for a personal CachyOS workstation. It 
 
 For a fresh installation, download the CachyOS ISO from the [official download page](https://cachyos.org/download/)—the torrent is recommended—then return here after the base system is installed.
 
+
+[](/home/eurekaimer/Documents/GitHub/cachyos-config/system.png)
+
 ## Architecture
 
 ```mermaid
