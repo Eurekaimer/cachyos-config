@@ -2,6 +2,13 @@
 
 [简体中文](../zh-CN/recovery.md)
 
+On a machine that does not have the repository yet, clone it first:
+
+```bash
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+```
+
 Run recovery as the target desktop user, never as root. Audit and preview every change first:
 
 ```bash
@@ -10,6 +17,8 @@ Run recovery as the target desktop user, never as root. Audit and preview every 
 ./scripts/restore-all.sh
 sudo reboot
 ```
+
+Recovery is safe on any machine: it never touches disk UUIDs, `/etc/machine-id`, `/etc/fstab`, or `/etc/hostname`, and captured home paths are rewritten for the current user when the username differs.
 
 The combined restore installs packages and toolchains, restores portable system configuration, restores user configuration and dconf, then enables recorded services. Every mutating script supports `--dry-run`; each layer can also be run independently:
 

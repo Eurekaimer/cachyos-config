@@ -113,6 +113,10 @@ cmp configs/home/.config/kitty/kitty.conf ~/.config/kitty/kitty.conf
 ```bash
 ./scripts/capture.sh
 ./scripts/audit.sh
+
+git add -A
+git commit -m "sync: refresh snapshot"
+git push
 ```
 
-然后人工查看 `configs/`、`packages/` 和 `state/`。只有审计成功并确认没有个人凭据后才能提交到 GitHub。
+然后人工查看 `configs/`、`packages/` 和 `state/`。只有审计成功并确认没有个人凭据后才能提交到 GitHub。采集不会读写磁盘 UUID、`/etc/machine-id`、`/etc/fstab` 或 `/etc/hostname`，因此快照可以安全地在不同机器间同步。

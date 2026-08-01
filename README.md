@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![Snapshot](https://img.shields.io/badge/snapshot-2026--07--29-2dba4e)
+![Snapshot](https://img.shields.io/badge/snapshot-2026--08--01-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
 
@@ -34,6 +34,40 @@ flowchart TD
     X --> Z[User configuration]
     X --> V[Services]
 ```
+
+## Syncing across machines
+
+Git is the transport: capture on the machine you configure, restore on any other machine.
+
+**Publish from the current machine** after any config, package, or service change:
+
+```bash
+./scripts/capture.sh     # rebuild the snapshot from the allowlists
+./scripts/audit.sh       # refuse to publish if secrets or private paths leaked
+
+git add -A
+git commit -m "sync: refresh snapshot"
+git push
+```
+
+**Apply on another machine** (fresh CachyOS install or any other computer):
+
+```bash
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+
+./scripts/audit.sh                   # review what the snapshot contains
+./scripts/restore-all.sh --dry-run   # preview every replacement and install
+./scripts/restore-all.sh             # packages, system, user config, services
+sudo reboot
+```
+
+The default flow never touches machine-bound state: no disk UUIDs,
+`/etc/machine-id`, `/etc/fstab`, or `/etc/hostname` are read or written. The
+last two live in a separate hardware layer applied only with an explicit,
+reviewed `--with-hardware` on the same disks/host. A different username on the
+target machine is fine — absolute home paths in managed files are rewritten
+for the current user at restore time.
 
 ## Documentation
 

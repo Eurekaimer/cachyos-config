@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![快照](https://img.shields.io/badge/快照-2026--07--29-2dba4e)
+![快照](https://img.shields.io/badge/快照-2026--08--01-2dba4e)
 ![脚本](https://img.shields.io/badge/脚本-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![文档](https://img.shields.io/badge/文档-English%20%7C%20中文-8A2BE2)](README.md)
 
@@ -33,6 +33,38 @@ flowchart TD
     X --> Z[用户配置]
     X --> V[系统服务]
 ```
+
+## 跨机器同步
+
+Git 就是传输介质：在配置好的机器上采集，在任意其他机器上恢复。
+
+**在当前机器上发布**（配置、软件包或服务有任何改动后）：
+
+```bash
+./scripts/capture.sh     # 按 manifests 白名单重建快照
+./scripts/audit.sh       # 有密钥或隐私路径泄漏则拒绝发布
+
+git add -A
+git commit -m "sync: refresh snapshot"
+git push
+```
+
+**在另一台机器上应用**（全新 CachyOS 安装或其他电脑）：
+
+```bash
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+
+./scripts/audit.sh                   # 先检查快照内容
+./scripts/restore-all.sh --dry-run   # 预览所有替换与安装操作
+./scripts/restore-all.sh             # 软件包、系统、用户配置、服务
+sudo reboot
+```
+
+默认流程不涉及任何机器专属状态：不会读写磁盘 UUID、`/etc/machine-id`、
+`/etc/fstab` 或 `/etc/hostname`。后两者位于单独的 hardware 层，只有确认磁盘
+布局一致并显式使用 `--with-hardware` 评审后才会应用。目标机器用户名不同也没
+关系——托管文件中的绝对 home 路径会在恢复时自动改写为当前用户。
 
 ## 文档
 

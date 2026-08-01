@@ -1,11 +1,11 @@
 NAME        FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
-zram0       swap   1     zram0 932e96cb-667f-45dd-b17c-faaeda515df4                [SWAP]
+zram0       swap   1     zram0 7937d064-b51b-4cf1-82b4-cb369fdfaf94                [SWAP]
 nvme0n1                                                                            
 ├─nvme0n1p1 vfat   FAT32       5ED2-98F6                               3.2G    19% /boot
-└─nvme0n1p2 btrfs              3c68adfc-2431-48f4-bebe-70d35489365a  666.5G    30% /home
+└─nvme0n1p2 btrfs              3c68adfc-2431-48f4-bebe-70d35489365a  533.4G    44% /var/tmp
+                                                                                   /home
                                                                                    /var/cache
                                                                                    /var/log
                                                                                    /root
                                                                                    /srv
-                                                                                   /var/tmp
                                                                                    /

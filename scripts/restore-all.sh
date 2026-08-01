@@ -23,6 +23,15 @@ while (($#)); do
             cat <<'EOF'
 Usage: scripts/restore-all.sh [OPTIONS]
 
+Full one-shot restore for a fresh or existing CachyOS install: packages and
+toolchains, portable system configuration, user configuration and dconf, then
+service enablement. Safe on any machine, including one with a different
+username; captured home paths are rewritten for the current user.
+
+Machine-bound state is never touched by default: disk UUIDs, /etc/machine-id,
+/etc/fstab, and /etc/hostname are excluded unless --with-hardware is passed
+after explicit review on the same disks/host.
+
 Options:
   --dry-run        Print every replacement/install command without changing files
   --with-hardware  Also replace /etc/fstab and /etc/hostname (same hardware only)

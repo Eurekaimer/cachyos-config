@@ -14,6 +14,42 @@ packages_root="$REPO_ROOT/packages"
 state_root="$REPO_ROOT/state"
 manifest_root="$REPO_ROOT/manifests"
 
+while (($#)); do
+    case "$1" in
+        -h|--help)
+            cat <<'EOF'
+Usage: scripts/capture.sh [--help]
+
+Rebuilds the managed snapshot from the CURRENT machine into this repository:
+
+  configs/home/    allowlisted paths under $HOME (manifests/home-paths.txt)
+  configs/system/  portable /etc snapshots (+ hardware/reference layers)
+  configs/dconf/   desktop settings database export
+  packages/        explicit pacman/AUR packages, toolchains, enabled services
+  state/           machine metadata and hardware references
+
+Run as the desktop user. Readable /etc files are copied directly; protected
+ones are copied through sudo. Missing paths are reported and skipped; paths
+that cannot be read keep their previous snapshot copy with a warning. If the
+capture fails midway, the previous snapshot is restored unchanged.
+
+After capture, review with scripts/audit.sh, then publish to sync other
+machines:
+
+  git add -A && git commit -m "sync: refresh snapshot" && git push
+
+The snapshot is machine-portable: absolute paths referencing the captured
+home are rewritten for the target user at restore time. Disk-specific files
+such as /etc/fstab and /etc/hostname live in a separate hardware layer and
+are never applied by the default restore.
+EOF
+            exit 0
+            ;;
+        *) die "Unknown option: $1" ;;
+    esac
+    shift
+done
+
 
 copy_one() {
     local source=$1 destination=$2
@@ -21,9 +57,10 @@ copy_one() {
     mkdir -p -- "$(dirname -- "$destination")"
     if [[ -r "$source" ]]; then
         cp -a -- "$source" "$destination"
-    else
-        sudo cp -a -- "$source" "$destination"
+    elif sudo cp -a -- "$source" "$destination"; then
         sudo chown -R -- "$(id -u):$(id -g)" "$destination"
+    else
+        return 2
     fi
 }
 
@@ -32,13 +69,40 @@ capture_group() {
     local relative
     while IFS= read -r relative; do
         if ! copy_one "${source_root%/}/$relative" "${destination_root%/}/$relative"; then
-            warn "Skipped missing path: ${source_root%/}/$relative"
+            if [[ -e "$backup_root/${destination_root#"$config_root/"}/$relative" || -L "$backup_root/${destination_root#"$config_root/"}/$relative" ]]; then
+                mkdir -p -- "$(dirname -- "${destination_root%/}/$relative")"
+                cp -a -- "$backup_root/${destination_root#"$config_root/"}/$relative" "${destination_root%/}/$relative"
+                warn "Kept previous snapshot (could not refresh): $relative"
+            else
+                warn "Skipped missing path: ${source_root%/}/$relative"
+            fi
         fi
     done < <(read_list "$manifest")
 }
 
 log "Refreshing managed snapshots"
-rm -rf -- "${config_root:?}/home" "$config_root/system" "$config_root/dconf"
+backup_root=$(mktemp -d)
+capture_complete=0
+restore_previous() {
+    local dir
+    if (( capture_complete )); then
+        rm -rf -- "$backup_root"
+    else
+        for dir in home system dconf; do
+            [[ -e "$backup_root/$dir" || -L "$backup_root/$dir" ]] || continue
+            rm -rf -- "${config_root:?}/$dir"
+            mv -- "$backup_root/$dir" "$config_root/$dir"
+        done
+        rm -rf -- "$backup_root"
+        die "Capture failed; previous snapshot restored"
+    fi
+}
+trap restore_previous EXIT
+
+for dir in home system dconf; do
+    [[ -e "$config_root/$dir" || -L "$config_root/$dir" ]] || continue
+    mv -- "$config_root/$dir" "$backup_root/$dir"
+done
 mkdir -p -- "$config_root/home" "$config_root/system/portable" \
     "$config_root/system/hardware" "$config_root/system/reference" \
     "$config_root/dconf" "$packages_root" "$state_root/hardware" "$manifest_root"
@@ -126,5 +190,7 @@ command -v findmnt >/dev/null 2>&1 && findmnt --real >"$state_root/hardware/find
 command -v niri >/dev/null 2>&1 && niri --version >"$state_root/niri-version.txt" || true
 command -v omp >/dev/null 2>&1 && omp --version >"$state_root/agent-version.txt" || true
 
+capture_complete=1
 log "Snapshot complete: $REPO_ROOT"
 warn "Deliberately excluded: passwords, SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections, cookies, logs, caches, and .omp runtime state."
+log "Next: ./scripts/audit.sh, then 'git add -A && git commit && git push' to sync other machines."

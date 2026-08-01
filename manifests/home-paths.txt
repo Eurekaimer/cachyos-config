@@ -18,11 +18,13 @@
 .config/fcitx5
 .config/gtk-3.0
 .config/gtk-4.0
+.config/fontconfig
 .config/micro/settings.json
 .config/micro/colorschemes
+.config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop
 .local/bin/niri-hotkeys-zh
 .local/bin/niri-stack-column
+.local/bin/docker-ass
 Pictures/Wallpapers
-.face

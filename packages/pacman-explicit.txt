@@ -45,6 +45,8 @@ diffutils
 dmidecode
 dmraid
 dnsmasq
+docker
+docker-compose
 dosfstools
 duf
 e2fsprogs
@@ -164,6 +166,7 @@ pyright
 python
 python-defusedxml
 python-packaging
+qbittorrent
 qemu-desktop
 readest
 realtime-privileges
@@ -218,3 +221,4 @@ xfsprogs
 xl2tpd
 yay-bin
 yazi
+zotero
