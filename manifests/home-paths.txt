@@ -25,6 +25,7 @@
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop
 .local/bin/niri-hotkeys-zh
+.local/share/niri/hotkeys-zh.txt
 .local/bin/niri-stack-column
 .local/bin/docker-ass
 Pictures/Wallpapers

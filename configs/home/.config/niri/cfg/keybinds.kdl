@@ -18,23 +18,11 @@ binds {
     Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "yazi"; }
     Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+    Mod+S                               hotkey-overlay-title="打开 ECDICT 英汉词典" { spawn "gdbus" "call" "--session" "--dest" "io.github.sioyek.ecdict" "--object-path" "/io/github/sioyek/ecdict" "--method" "io.github.sioyek.ecdict.Prompt"; }
 
     // Keep the original GNOME file manager as the primary graphical browser.
     Mod+E                               hotkey-overlay-title="打开文件管理器：Nautilus" { spawn "nautilus"; }
 
-    // ─── Media Controls ───
-    XF86AudioRaiseVolume                allow-when-locked=true hotkey-overlay-title="提高音量" { spawn-sh "qs -c noctalia-shell ipc call volume increase"; }
-    XF86AudioLowerVolume                allow-when-locked=true hotkey-overlay-title="降低音量" { spawn-sh "qs -c noctalia-shell ipc call volume decrease"; }
-    XF86AudioMute                       allow-when-locked=true hotkey-overlay-title="静音或恢复输出" { spawn-sh "qs -c noctalia-shell ipc call volume muteOutput"; }
-    XF86AudioMicMute                    allow-when-locked=true hotkey-overlay-title="静音或恢复麦克风" { spawn-sh "qs -c noctalia-shell ipc call volume muteInput"; }
-    XF86AudioNext                       allow-when-locked=true hotkey-overlay-title="下一首媒体" { spawn-sh "qs -c noctalia-shell ipc call media next"; }
-    XF86AudioPrev                       allow-when-locked=true hotkey-overlay-title="上一首媒体" { spawn-sh "qs -c noctalia-shell ipc call media previous"; }
-    XF86AudioPlay                       allow-when-locked=true hotkey-overlay-title="播放或暂停媒体" { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
-    XF86AudioPause                      allow-when-locked=true hotkey-overlay-title=null { spawn-sh "qs -c noctalia-shell ipc call media playPause"; }
-
-    // ─── Brightness Controls ───
-    XF86MonBrightnessUp                 allow-when-locked=true hotkey-overlay-title="提高屏幕亮度" { spawn-sh "qs -c noctalia-shell ipc call brightness increase"; }
-    XF86MonBrightnessDown               allow-when-locked=true hotkey-overlay-title="降低屏幕亮度" { spawn-sh "qs -c noctalia-shell ipc call brightness decrease"; }
 
     // ─── Window Movement and Focus ───
     Mod+Q                               allow-inhibiting=false hotkey-overlay-title="关闭当前窗口" { close-window; }
@@ -50,40 +38,40 @@ binds {
 
     // Arrow chords keep movement; Vim chords perform fine-grained resizing.
     Mod+CTRL+Left                       hotkey-overlay-title="向左移动列（Ctrl + ←）" { move-column-left; }
-    Mod+CTRL+H                          hotkey-overlay-title="缩小当前列宽度 2%" { set-column-width "-2%"; }
+    Mod+CTRL+H                          hotkey-overlay-title=null { set-column-width "-2%"; }
     Mod+CTRL+Right                      hotkey-overlay-title="向右移动列（Ctrl + →）" { move-column-right; }
-    Mod+CTRL+L                          hotkey-overlay-title="增大当前列宽度 2%" { set-column-width "+2%"; }
+    Mod+CTRL+L                          hotkey-overlay-title=null { set-column-width "+2%"; }
     Mod+CTRL+UP                         hotkey-overlay-title="向上移动窗口（Ctrl + ↑）" { move-window-up; }
-    Mod+CTRL+K                          hotkey-overlay-title="增大当前窗口高度 2%" { set-window-height "+2%"; }
+    Mod+CTRL+K                          hotkey-overlay-title=null { set-window-height "+2%"; }
     Mod+CTRL+Down                       hotkey-overlay-title="向下移动窗口（Ctrl + ↓）" { move-window-down; }
-    Mod+CTRL+J                          hotkey-overlay-title="缩小当前窗口高度 2%" { set-window-height "-2%"; }
+    Mod+CTRL+J                          hotkey-overlay-title=null { set-window-height "-2%"; }
 
     // WASD movement chord
-    Mod+CTRL+W                          hotkey-overlay-title="向上移动窗口（Ctrl + W）" { move-window-up; }
-    Mod+CTRL+A                          hotkey-overlay-title="向左移动列（Ctrl + A）" { move-column-left; }
-    Mod+CTRL+S                          hotkey-overlay-title="向下移动窗口（Ctrl + S）" { move-window-down; }
-    Mod+CTRL+D                          hotkey-overlay-title="向右移动列（Ctrl + D）" { move-column-right; }
+    Mod+CTRL+W                          hotkey-overlay-title=null { move-window-up; }
+    Mod+CTRL+A                          hotkey-overlay-title=null { move-column-left; }
+    Mod+CTRL+S                          hotkey-overlay-title=null { move-window-down; }
+    Mod+CTRL+D                          hotkey-overlay-title=null { move-column-right; }
 
-    Mod+Home                            hotkey-overlay-title="聚焦第一列" { focus-column-first; }
-    Mod+End                             hotkey-overlay-title="聚焦最后一列" { focus-column-last; }
-    Mod+CTRL+Home                       hotkey-overlay-title="将列移到最前" { move-column-to-first; }
-    Mod+CTRL+End                        hotkey-overlay-title="将列移到最后" { move-column-to-last; }
+    Mod+Home                            hotkey-overlay-title=null { focus-column-first; }
+    Mod+End                             hotkey-overlay-title=null { focus-column-last; }
+    Mod+CTRL+Home                       hotkey-overlay-title=null { move-column-to-first; }
+    Mod+CTRL+End                        hotkey-overlay-title=null { move-column-to-last; }
 
-    Mod+Shift+Left                      hotkey-overlay-title="聚焦左侧显示器" { focus-monitor-left; }
-    Mod+Shift+Right                     hotkey-overlay-title="聚焦右侧显示器" { focus-monitor-right; }
-    Mod+Shift+UP                        hotkey-overlay-title="聚焦上方显示器" { focus-monitor-up; }
-    Mod+Shift+Down                      hotkey-overlay-title="聚焦下方显示器" { focus-monitor-down; }
+    Mod+Shift+Left                      hotkey-overlay-title=null { focus-monitor-left; }
+    Mod+Shift+Right                     hotkey-overlay-title=null { focus-monitor-right; }
+    Mod+Shift+UP                        hotkey-overlay-title=null { focus-monitor-up; }
+    Mod+Shift+Down                      hotkey-overlay-title=null { focus-monitor-down; }
 
-    Mod+Shift+CTRL+Left                 hotkey-overlay-title="将列移到左侧显示器" { move-column-to-monitor-left; }
-    Mod+Shift+CTRL+Right                hotkey-overlay-title="将列移到右侧显示器" { move-column-to-monitor-right; }
-    Mod+Shift+CTRL+UP                   hotkey-overlay-title="将列移到上方显示器" { move-column-to-monitor-up; }
-    Mod+Shift+CTRL+Down                 hotkey-overlay-title="将列移到下方显示器" { move-column-to-monitor-down; }
+    Mod+Shift+CTRL+Left                 hotkey-overlay-title=null { move-column-to-monitor-left; }
+    Mod+Shift+CTRL+Right                hotkey-overlay-title=null { move-column-to-monitor-right; }
+    Mod+Shift+CTRL+UP                   hotkey-overlay-title=null { move-column-to-monitor-up; }
+    Mod+Shift+CTRL+Down                 hotkey-overlay-title=null { move-column-to-monitor-down; }
 
     // ─── Workspace Switching ───
-    Mod+WheelScrollDown                 cooldown-ms=150 hotkey-overlay-title="切换到下一个工作区" { focus-workspace-down; }
-    Mod+WheelScrollUp                   cooldown-ms=150 hotkey-overlay-title="切换到上一个工作区" { focus-workspace-up; }
-    Mod+CTRL+WheelScrollDown            cooldown-ms=150 hotkey-overlay-title="将列移到下一个工作区" { move-column-to-workspace-down; }
-    Mod+CTRL+WheelScrollUp              cooldown-ms=150 hotkey-overlay-title="将列移到上一个工作区" { move-column-to-workspace-up; }
+    Mod+WheelScrollDown                 cooldown-ms=150 hotkey-overlay-title=null { focus-workspace-down; }
+    Mod+WheelScrollUp                   cooldown-ms=150 hotkey-overlay-title=null { focus-workspace-up; }
+    Mod+CTRL+WheelScrollDown            cooldown-ms=150 hotkey-overlay-title=null { move-column-to-workspace-down; }
+    Mod+CTRL+WheelScrollUp              cooldown-ms=150 hotkey-overlay-title=null { move-column-to-workspace-up; }
 
     Mod+WheelScrollRight                hotkey-overlay-title=null { focus-column-right; }
     Mod+WheelScrollLeft                 hotkey-overlay-title=null { focus-column-left; }
@@ -125,9 +113,9 @@ binds {
     Mod+BracketRight                    hotkey-overlay-title="与右侧列合并/分离，并自动均分可用高度" { spawn "/home/eurekaimer/.local/bin/niri-stack-column" "right"; }
     Mod+Shift+5                         hotkey-overlay-title="将当前窗口设为四分之一屏" { spawn-sh "niri msg action set-column-width '50%' && niri msg action set-window-height '50%'"; }
     Mod+Minus                           hotkey-overlay-title="缩小列宽" { set-column-width "-10%"; }
-    Mod+Equal                           hotkey-overlay-title="增大列宽" { set-column-width "+10%"; }
+    Mod+Equal                           hotkey-overlay-title=null { set-column-width "+10%"; }
     Mod+Shift+Minus                     hotkey-overlay-title="降低窗口高度" { set-window-height "-10%"; }
-    Mod+Shift+Equal                     hotkey-overlay-title="增加窗口高度" { set-window-height "+10%"; }
+    Mod+Shift+Equal                     hotkey-overlay-title=null { set-window-height "+10%"; }
 
     // ─── Modes ───
     Mod+T                               hotkey-overlay-title="切换窗口浮动状态" { toggle-window-floating; }
@@ -139,9 +127,9 @@ binds {
     Print                               hotkey-overlay-title="截取选定区域并保存" { screenshot; }
     CTRL+Print                          hotkey-overlay-title="截取整个屏幕并保存" { screenshot-screen; }
     ALT+Print                           hotkey-overlay-title="截取当前窗口并保存" { screenshot-window; }
-    CTRL+Shift+1                        hotkey-overlay-title="截取选定区域" { screenshot; }
-    CTRL+Shift+2                        hotkey-overlay-title="截取整个屏幕" { screenshot-screen; }
-    CTRL+Shift+3                        hotkey-overlay-title="截取当前窗口" { screenshot-window; }
+    CTRL+Shift+1                        hotkey-overlay-title=null { screenshot; }
+    CTRL+Shift+2                        hotkey-overlay-title=null { screenshot-screen; }
+    CTRL+Shift+3                        hotkey-overlay-title=null { screenshot-window; }
 
     // ─── Emergency Escape Key ───
     // Use this when a fullscreen app blocks your keybinds.

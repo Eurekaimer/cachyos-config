@@ -29,6 +29,16 @@ The combined restore installs packages and toolchains, restores portable system 
 ./scripts/restore-services.sh
 ```
 
+The vendored Sioyek dictionary is an explicit post-restore step because it
+downloads ECDICT data. Once the AUR package layer has installed Sioyek, run:
+
+```bash
+./scripts/install-sioyek-ecdict.sh
+```
+
+Restart Sioyek, select an English word, and press `s`. See the
+[component guide](sioyek-ecdict.md) for the generated files and removal.
+
 If AUR access is temporarily unavailable, use `install-packages.sh --skip-aur` and retry that layer later.
 
 Do not pass `--with-hardware` on a new disk or host. That option overwrites `/etc/fstab` and `/etc/hostname`; compare `lsblk -f` and `findmnt --real` with `state/hardware/` before considering it.

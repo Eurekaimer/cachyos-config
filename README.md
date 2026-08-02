@@ -4,6 +4,9 @@
 ![Snapshot](https://img.shields.io/badge/snapshot-2026--08--01-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
+[![SQLite](https://img.shields.io/badge/SQLite-offline-003B57?logo=sqlite&logoColor=white)](modules/sioyek-ecdict)
+[![ECDICT](https://img.shields.io/badge/dictionary-ECDICT-6f42c1)](https://github.com/skywind3000/ECDICT)
 
 **English** · [简体中文](README.zh-CN.md)
 
@@ -34,6 +37,23 @@ flowchart TD
     X --> Z[User configuration]
     X --> V[Services]
 ```
+
+## One-command Sioyek offline dictionary
+
+After installing native Sioyek from the AUR, this clone can add the bundled
+offline ECDICT lookup without a separate plugin repository:
+
+```bash
+yay -S sioyek-git
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+./scripts/install-sioyek-ecdict.sh
+```
+
+Restart Sioyek, select an English word, and press `s`. The first run downloads
+and indexes ECDICT; later lookups are local and offline. See the
+[Sioyek ECDICT guide](docs/en/sioyek-ecdict.md) for exact changes, Niri
+`Super+S`, updating, troubleshooting, and removal.
 
 ## Syncing across machines
 
@@ -81,5 +101,6 @@ for the current user at restore time.
 + [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
 + [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
 + [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
++ [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
 + [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
 + [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)

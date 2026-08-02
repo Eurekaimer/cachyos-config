@@ -71,6 +71,16 @@ cat state/hardware/findmnt.txt
 ./scripts/restore-services.sh
 ```
 
+Sioyek 离线词典会下载 ECDICT 数据，因此保留为显式的恢复后步骤。AUR 软件
+层安装好 Sioyek 后执行：
+
+```bash
+./scripts/install-sioyek-ecdict.sh
+```
+
+随后重启 Sioyek，选中英文并按 `s`；生成文件与卸载方法见
+[插件说明](sioyek-ecdict.md)。
+
 AUR 暂时不可用时可以先用 `--skip-aur` 完成仓库软件，再单独重试 `install-packages.sh`。
 
 ## 恢复后的验收
@@ -105,6 +115,7 @@ cmp configs/home/.config/kitty/kitty.conf ~/.config/kitty/kitty.conf
 6. 重启 MPV 后再测试堆叠。`keepaspect-window=no` 允许窗口适配列高，视频画面本身仍保持比例。
 7. 对外置 SSD 运行 `scripts/diagnostics/storage-link.sh /dev/sda`；如果仍为 `480 Mbit/s`，必须更换到 USB 3.x/10G 端口和 SuperSpeed 线缆，不能用内核参数掩盖。
 8. 运行 `ddcutil getvcp 10`，确认 HP27UI 可读；用亮度键增减后再读取，数值应按 5 变化。`pgrep -a wlsunset` 应显示 4000 K 的夜间模式进程。
+9. 在 Sioyek 中选中 `Map` 并按 `s`，确认右上角出现 `map` 中文释义卡片；按 `Super+S` 确认全局输入框可用。
 
 ## 刷新快照
 

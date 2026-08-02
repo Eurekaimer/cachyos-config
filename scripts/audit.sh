@@ -35,7 +35,7 @@ secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authoriz
 while IFS= read -r match; do
     [[ -n "$match" ]] || continue
     fail "Potential secret: ${match#"$REPO_ROOT/"}"
-done < <(grep -RInE -i --exclude='audit.sh' --exclude='PolkitWindow.qml' --binary-files=without-match "$secret_pattern" "$REPO_ROOT" || true)
+done < <(grep -RInE -i --exclude='audit.sh' --exclude='PolkitWindow.qml' --exclude-dir='.git' --exclude-dir='.venv' --exclude-dir='__pycache__' --binary-files=without-match "$secret_pattern" "$REPO_ROOT" || true)
 
 log "Checking escaping symlinks"
 while IFS= read -r -d '' link; do
@@ -47,7 +47,12 @@ log "Checking GitHub file-size limit"
 while IFS= read -r -d '' file; do
     size=$(stat -c %s "$file")
     (( size < 90000000 )) || fail "File is 90 MB or larger: ${file#"$REPO_ROOT/"}"
-done < <(find "$REPO_ROOT" -type f -print0)
+done < <(
+    find "$REPO_ROOT" \
+        -path "$REPO_ROOT/.git" -prune -o \
+        -path '*/.venv' -prune -o \
+        -type f -print0
+)
 
 if (( failures )); then
     die "$failures audit check(s) failed; do not publish this snapshot"

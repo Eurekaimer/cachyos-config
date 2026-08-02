@@ -1,0 +1,13 @@
+[project]
+name = "sioyek-ecdict"
+version = "0.1.0"
+description = "Offline ECDICT popup integration for Sioyek"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+sioyek-ecdict = "sioyek_ecdict.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

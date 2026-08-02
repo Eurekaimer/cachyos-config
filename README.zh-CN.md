@@ -4,6 +4,9 @@
 ![快照](https://img.shields.io/badge/快照-2026--08--01-2dba4e)
 ![脚本](https://img.shields.io/badge/脚本-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![文档](https://img.shields.io/badge/文档-English%20%7C%20中文-8A2BE2)](README.md)
+[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
+[![SQLite](https://img.shields.io/badge/SQLite-离线数据库-003B57?logo=sqlite&logoColor=white)](modules/sioyek-ecdict)
+[![ECDICT](https://img.shields.io/badge/词典数据-ECDICT-6f42c1)](https://github.com/skywind3000/ECDICT)
 
 [English](README.md) · **简体中文**
 
@@ -33,6 +36,22 @@ flowchart TD
     X --> Z[用户配置]
     X --> V[系统服务]
 ```
+
+## 一条命令安装 Sioyek 离线词典
+
+通过 AUR 安装原生 Sioyek 后，只需克隆本仓库即可应用内置 ECDICT 插件，
+不需要再寻找单独的插件仓库：
+
+```bash
+yay -S sioyek-git
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+./scripts/install-sioyek-ecdict.sh
+```
+
+重启 Sioyek，选中英文并按 `s` 即可查词。首次安装会下载并索引 ECDICT，
+之后均为本地离线查询。完整的改动范围、Niri `Super+S`、更新、排障和卸载方法
+见 [Sioyek ECDICT 插件说明](docs/zh-CN/sioyek-ecdict.md)。
 
 ## 跨机器同步
 
@@ -78,5 +97,6 @@ sudo reboot
 + [Kitty、Shell 与命令行工具](docs/zh-CN/kitty-shell.md) · [English](docs/en/kitty-shell.md)
 + [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
 + [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)
++ [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
 + [安全与公开边界](docs/zh-CN/security.md) · [English](docs/en/security.md)
 + [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
