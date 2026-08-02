@@ -74,6 +74,7 @@ github-cli
 glances
 go
 gopls
+grim
 gst-libav
 gst-plugin-pipewire
 gst-plugins-bad
@@ -100,6 +101,7 @@ lib32-opencl-nvidia
 lib32-vulkan-icd-loader
 libdvdcss
 libgsf
+libmupdf
 libopenraw
 libva-nvidia-driver
 libvirt
@@ -168,6 +170,9 @@ python-defusedxml
 python-packaging
 qbittorrent
 qemu-desktop
+qt6-3d
+qt6-5compat
+qt6-speech
 readest
 realtime-privileges
 rebuild-detector

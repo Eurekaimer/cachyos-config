@@ -74,6 +74,7 @@ sudo reboot
 + [软件包与服务](docs/zh-CN/packages-services.md) · [English](docs/en/packages-services.md)
 + [Niri 窗口管理器](docs/zh-CN/niri.md) · [English](docs/en/niri.md)
 + [Noctalia Shell](docs/zh-CN/noctalia.md) · [English](docs/en/noctalia.md)
++ [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)
 + [Kitty、Shell 与命令行工具](docs/zh-CN/kitty-shell.md) · [English](docs/en/kitty-shell.md)
 + [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
 + [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)

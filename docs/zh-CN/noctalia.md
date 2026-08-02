@@ -8,4 +8,6 @@ Noctalia 在 Niri 之上提供顶栏、启动器、控制中心、通知、配�
 + `colors.json` 与 `colorschemes/`：视觉配色。
 + `plugins.json` 与 `plugins/`：插件选择和随附插件文件。
 
+锁屏通过 `WallpaperService` 直接复用当前桌面壁纸。当前视觉参数为 `lockScreenBlur=0.2`、`lockScreenTint=0.16` 并启用锁屏动画，在保证输入面板可读性的同时保留壁纸主体；`Super+Shift+L` 由 Niri 转发到 Noctalia 锁屏 IPC。
+
 通过 `./scripts/restore-user.sh` 恢复。不要把自动备份或缓存目录加入 manifest。运行期间修改设置时，应先按 Noctalia 的正常方式重载或重启，确认配置文件已经保存为预期状态后再采集。

@@ -4,7 +4,8 @@ github-desktop-bin
 google-chrome
 linuxqq
 peazip-qt-bin
-sioyek-appimage
+picgo-appimage
+sioyek-git
 ttf-lxgw-wenkai
 ttf-lxgw-wenkai-mono-nerd
 virtio-win

@@ -1,0 +1,36 @@
+diff --git a/Main.qml b/Main.qml
+--- a/Main.qml
++++ b/Main.qml
+@@ -28 +28 @@
+-import QtGraphicalEffects 1.0
++import Qt5Compat.GraphicalEffects
+diff --git a/Components/Input.qml b/Components/Input.qml
+--- a/Components/Input.qml
++++ b/Components/Input.qml
+@@ -28 +28 @@
+-import QtGraphicalEffects 1.0
++import Qt5Compat.GraphicalEffects
+@@ -63,0 +64 @@
++            visible: false
+diff --git a/Components/SessionButton.qml b/Components/SessionButton.qml
+--- a/Components/SessionButton.qml
++++ b/Components/SessionButton.qml
+@@ -27 +27 @@
+-import QtGraphicalEffects 1.0
++import Qt5Compat.GraphicalEffects
+diff --git a/Components/UserList.qml b/Components/UserList.qml
+--- a/Components/UserList.qml
++++ b/Components/UserList.qml
+@@ -27 +27 @@
+-import QtGraphicalEffects 1.0
++import Qt5Compat.GraphicalEffects
+@@ -48,0 +49 @@
++        visible: false
+@@ -82,0 +83 @@
++                background: Item {}
+diff --git a/metadata.desktop b/metadata.desktop
+--- a/metadata.desktop
++++ b/metadata.desktop
+@@ -16 +16,2 @@
+ Theme-API=2.11
++QtVersion=6

@@ -64,13 +64,15 @@ fi
 service_args=("${common_args[@]}")
 (( start_now )) && service_args+=(--now)
 
-log "Stage 1/4: packages and toolchains"
+log "Stage 1/5: packages and toolchains"
 "$SCRIPT_DIR/install-packages.sh" "${install_args[@]}"
-log "Stage 2/4: system configuration"
+log "Stage 2/5: system configuration"
 "$SCRIPT_DIR/restore-system.sh" "${system_args[@]}"
-log "Stage 3/4: user configuration"
+log "Stage 3/5: user configuration"
 "$SCRIPT_DIR/restore-user.sh" "${user_args[@]}"
-log "Stage 4/4: service enablement"
+log "Stage 4/5: SDDM theme"
+"$SCRIPT_DIR/sync-sddm-theme.sh" --from-snapshot "${common_args[@]}"
+log "Stage 5/5: service enablement"
 "$SCRIPT_DIR/restore-services.sh" "${service_args[@]}"
 
 log "Full restore complete"

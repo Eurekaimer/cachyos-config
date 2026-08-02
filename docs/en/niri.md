@@ -13,6 +13,8 @@ Niri is the workstation's Wayland compositor and window manager. Its snapshot li
 
 Helper scripts are captured in `configs/home/.local/bin/`. The proxy environment defines lowercase and uppercase HTTP(S), SOCKS, and no-proxy variables so Chromium/Electron and command-line tools inherit consistent settings. No Clash subscriptions, nodes, or credentials are stored.
 
+`Super+Shift+L` (`Mod+Shift+L` in Niri syntax) calls Noctalia's `lockScreen lock` IPC. Niri only dispatches the key binding; Noctalia owns the actual session lock.
+
 Validate and reload after a change:
 
 ```bash

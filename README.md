@@ -77,6 +77,7 @@ for the current user at restore time.
 + [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
 + [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
 + [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
++ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
 + [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
 + [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
 + [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)

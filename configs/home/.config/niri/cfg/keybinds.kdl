@@ -16,7 +16,7 @@ binds {
     Mod+R                               hotkey-overlay-title="切换中文输入法：Fcitx5" { spawn "fcitx5-remote" "-t"; }
     Mod+B                               hotkey-overlay-title="打开 VS Code" { spawn "code"; }
     Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "yazi"; }
-    Mod+ALT+L                           hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
+    Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
 
     // Keep the original GNOME file manager as the primary graphical browser.
