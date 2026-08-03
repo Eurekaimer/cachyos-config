@@ -23,6 +23,9 @@ class IntegrationTest(unittest.TestCase):
             'ExecStart="/tmp/sioyek-ecdict" --database "/tmp/ecdict.sqlite3" serve',
             unit,
         )
+        self.assertIn("PartOf=graphical-session.target", unit)
+        self.assertIn("WantedBy=graphical-session.target", unit)
+        self.assertNotIn("WantedBy=default.target", unit)
 
     def test_empty_selection_is_a_silent_noop(self) -> None:
         """Pressing the shortcut without selected text never opens a popup."""
@@ -101,6 +104,40 @@ class IntegrationTest(unittest.TestCase):
             self.assertNotIn("external_search", keys.read_text())
             self.assertTrue(keys.read_text().rstrip().endswith("_ecdict s"))
             self.assertTrue(unit.exists())
+
+    def test_configuration_reenables_service_after_unit_target_changes(self) -> None:
+        """Reinstallation replaces stale systemd enablement symlinks."""
+        from sioyek_ecdict.integration import configure_sioyek
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            environment = {
+                "XDG_CONFIG_HOME": str(root / "config"),
+                "XDG_DATA_HOME": str(root / "data"),
+            }
+            with (
+                mock.patch.dict("os.environ", environment),
+                mock.patch("sioyek_ecdict.integration.subprocess.run") as run,
+            ):
+                configure_sioyek(
+                    root / "sioyek-ecdict",
+                    database=root / "data/ecdict.sqlite3",
+                )
+
+        self.assertEqual(
+            run.call_args_list,
+            [
+                mock.call(["systemctl", "--user", "daemon-reload"], check=True),
+                mock.call(
+                    ["systemctl", "--user", "reenable", "sioyek-ecdict.service"],
+                    check=True,
+                ),
+                mock.call(
+                    ["systemctl", "--user", "restart", "sioyek-ecdict.service"],
+                    check=True,
+                ),
+            ],
+        )
 
     def test_presentation_exposes_lemma_and_frequency(self) -> None:
         """Presentation includes lemma and frequency context."""

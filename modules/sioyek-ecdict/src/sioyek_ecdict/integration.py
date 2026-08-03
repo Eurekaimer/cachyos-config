@@ -61,6 +61,7 @@ def _service_unit(executable: Path, database: Path = DEFAULT_DB) -> str:
             "[Unit]",
             "Description=Low-latency Sioyek ECDICT popup service",
             "After=graphical-session.target",
+            "PartOf=graphical-session.target",
             "",
             "[Service]",
             "Type=simple",
@@ -70,7 +71,7 @@ def _service_unit(executable: Path, database: Path = DEFAULT_DB) -> str:
             "RestartSec=1",
             "",
             "[Install]",
-            "WantedBy=default.target",
+            "WantedBy=graphical-session.target",
             "",
         )
     )
@@ -158,6 +159,6 @@ def configure_sioyek(
     (_data_home() / "applications/sioyek-ecdict.desktop").unlink(missing_ok=True)
     if manage_service:
         subprocess.run(["systemctl", "--user", "daemon-reload"], check=True)
-        subprocess.run(["systemctl", "--user", "enable", unit.name], check=True)
+        subprocess.run(["systemctl", "--user", "reenable", unit.name], check=True)
         subprocess.run(["systemctl", "--user", "restart", unit.name], check=True)
     return prefs, keys, unit, LOOKUP_KEY
