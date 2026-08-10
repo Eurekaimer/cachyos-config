@@ -78,3 +78,4 @@ fi
 if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
     source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
+export PATH="$HOME/.local/bin:$PATH"

@@ -2,6 +2,7 @@ accountsservice
 alsa-firmware
 alsa-plugins
 alsa-utils
+aria2
 awesome-terminal-fonts
 base
 base-devel
@@ -79,6 +80,8 @@ gst-libav
 gst-plugin-pipewire
 gst-plugins-bad
 gst-plugins-ugly
+gthumb
+gtk4-layer-shell
 hdparm
 hwdetect
 hwinfo
@@ -91,6 +94,7 @@ iwd
 jdk21-openjdk
 jfsutils
 jupyterlab
+kate
 kitty
 lazygit
 less

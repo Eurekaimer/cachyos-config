@@ -116,13 +116,35 @@ capture_group / "$config_root/system/reference" "$manifest_root/system-reference
 rm -rf -- "$config_root/home/.config/mpv/cache"
 rm -f -- "$config_root/home/.config/mpv/memo-history.log"
 
+# Drop application-generated metadata and recent-path history from the
+# portable snapshot. These values are runtime state and may expose filenames.
+rm -rf -- "$config_root/home/Pictures/Wallpapers/.comments"
+if [[ -f "$config_root/home/.config/QtProject.conf" ]]; then
+    sed -i -E '/^(history|lastVisited|qtVersion)=/d' \
+        "$config_root/home/.config/QtProject.conf"
+fi
+
 # Keep the public snapshot useful without publishing the account email.
 if [[ -f "$config_root/home/.gitconfig" ]]; then
     git config --file "$config_root/home/.gitconfig" --unset-all user.email || true
 fi
 
 if command -v dconf >/dev/null 2>&1; then
-    dconf dump / >"$config_root/dconf/user.ini"
+    dconf dump / | python3 -c '
+import sys
+
+section = ""
+for line in sys.stdin:
+    if line.startswith("[") and line.rstrip().endswith("]"):
+        section = line.rstrip()
+    if section.startswith("[org/gnome/portal/filechooser/"):
+        continue
+    if section == "[org/gnome/gthumb/browser]" and line.startswith(
+        ("startup-current-file=", "startup-location=")
+    ):
+        continue
+    sys.stdout.write(line)
+' >"$config_root/dconf/user.ini"
 else
     warn "dconf is unavailable; desktop dconf settings were not captured"
 fi
@@ -130,6 +152,8 @@ fi
 log "Capturing package and service state"
 pacman -Qqen | LC_ALL=C sort -u >"$packages_root/pacman-explicit.txt"
 pacman -Qqm | LC_ALL=C sort -u >"$packages_root/aur-explicit.txt"
+sed -i -e '/^llama-cpp$/d' -e '/^ollama$/d' \
+    "$packages_root/pacman-explicit.txt"
 
 if command -v rustup >/dev/null 2>&1; then
     rustup toolchain list | sed -E 's/[[:space:]]+\([^)]*\)//g' | LC_ALL=C sort -u >"$packages_root/rustup-toolchains.txt"

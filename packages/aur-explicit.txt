@@ -1,7 +1,12 @@
+baidunetdisk
 clash-verge-rev-bin
 feishu-bin
+flac1.3
 github-desktop-bin
+go-musicfox
 google-chrome
+gtkmm
+libsoup
 linuxqq
 peazip-qt-bin
 picgo-appimage
