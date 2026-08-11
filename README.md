@@ -91,57 +91,32 @@ for the current user at restore time.
 
 ## Neovim
 
-The managed configuration at `configs/home/.config/nvim` is inspired by
-LazyVim, but keeps a small standalone module layout instead of importing the
-full distribution:
-
-| Path | Responsibility |
-| --- | --- |
-| `init.lua` | Sets leader keys and loads the modules in deterministic order |
-| `lua/config/` | Editor options, global keymaps, lifecycle hooks, and lazy.nvim bootstrap |
-| `lua/plugins/ui.lua` | Tokyo Night, Snacks, which-key, and lualine |
-| `lua/plugins/editor.lua` | Treesitter, Git signs, comments, surrounds, and VimBeGood |
-| `lua/plugins/lsp.lua` | Mason, LSP servers, completion, snippets, and Lua development support |
-
-Snacks provides the dashboard, explorer, fuzzy picker, notifications, Zen
-mode, and LazyGit integration. Mason installs Lua, Go, Rust, Python,
-TypeScript/JavaScript, and Bash language servers. Treesitter installs parsers
-for the same core language set. The lockfile pins plugin revisions for
-repeatable restores.
-
-Common mappings:
-
-| Mapping | Action |
-| --- | --- |
-| `Space Space` | Smart file search |
-| `Space e` | File explorer |
-| `Space ff` / `Space fg` | Find files / search project text |
-| `Space fb` / `Space bd` | Select / close a buffer |
-| `Space gg` | Open LazyGit |
-| `gd` / `gr` / `K` | Definition / references / hover documentation |
-| `Space ca` / `Space cr` / `Space cf` | Code action / rename / format |
-| `Space sk` | Search all configured keymaps |
-| `:VimBeGood` | Start the movement practice game |
-
-`neovim`, `ripgrep`, and `lazygit` are captured explicit packages.
-`fd`, `npm`, and `tree-sitter-cli` are recovery requirements in
-`packages/required-extra.txt`. The nvim directory is allowlisted in
-`manifests/home-paths.txt`, so the normal `capture.sh` and `restore-user.sh`
-flows include it automatically. Edit the live copy under `~/.config/nvim`,
-then run the standard capture and audit workflow before publishing changes.
+The managed Neovim configuration is LazyVim-inspired but intentionally keeps
+only nine plugin repositories. It uses Snacks for the general UI and Neovim
+0.12 built-ins for completion, comments, snippets, statusline, and colors.
+See the [complete Neovim guide](docs/en/neovim.md) ·
+[中文](docs/zh-CN/neovim.md) for architecture, every plugin's GitHub link and
+rationale, omitted alternatives, keymaps, LSP/Treesitter behavior, recovery,
+maintenance, and troubleshooting.
 
 ## Documentation
 
+### Configuration and recovery boundaries
+
 + [Configuration map and restore boundaries](docs/en/configuration.md) · [中文](docs/zh-CN/configuration.md)
+
+### Subsystem and workflow guides
+
 + [Capture and snapshot maintenance](docs/en/capture.md) · [中文](docs/zh-CN/capture.md)
-+ [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
-+ [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
-+ [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
-+ [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
-+ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
++ [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
++ [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
 + [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
 + [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
-+ [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
-+ [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
++ [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
++ [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
++ [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
++ [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
++ [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
++ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
 + [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
-+ [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
++ [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)

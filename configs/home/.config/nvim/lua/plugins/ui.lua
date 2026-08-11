@@ -1,34 +1,18 @@
 return {
-  {
-    "folke/tokyonight.nvim",
-    lazy = false,
-    priority = 1000,
-    opts = { style = "storm" },
-    config = function(_, opts)
-      require("tokyonight").setup(opts)
-      vim.cmd.colorscheme("tokyonight")
-    end,
-  },
-
-  -- Snacks provides the LazyVim-style dashboard, explorer, picker, and utility UI.
+  -- Snacks replaces separate dashboard, explorer, picker, notifier, and terminal plugins.
   {
     "folke/snacks.nvim",
     priority = 1000,
     lazy = false,
-    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
       bigfile = { enabled = true },
       dashboard = { enabled = true },
       explorer = { enabled = true },
-      indent = { enabled = true },
       input = { enabled = true },
       notifier = { enabled = true, timeout = 3000 },
       picker = { enabled = true },
       quickfile = { enabled = true },
-      scope = { enabled = true },
-      scroll = { enabled = true },
       statuscolumn = { enabled = true },
-      words = { enabled = true },
     },
     keys = {
       { "<leader><space>", function() Snacks.picker.smart() end, desc = "智能查找" },
@@ -48,16 +32,10 @@ return {
     },
   },
 
+  -- which-key is retained for discoverability while learning modal editing.
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
     opts = { delay = 300, preset = "modern" },
-  },
-
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = { options = { theme = "auto", globalstatus = true } },
   },
 }

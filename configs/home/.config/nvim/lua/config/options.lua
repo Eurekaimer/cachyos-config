@@ -46,3 +46,6 @@ opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 if vim.fn.executable("wl-copy") == 1 or vim.fn.executable("xclip") == 1 then
   opt.clipboard = "unnamedplus"
 end
+
+-- Prefer a bundled colorscheme over a dedicated theme plugin.
+vim.cmd.colorscheme("habamax")

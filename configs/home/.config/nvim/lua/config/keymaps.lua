@@ -6,6 +6,17 @@ map({ "n", "i", "v" }, "<C-s>", "<cmd>write<CR><Esc>", { desc = "保存文件" }
 map("n", "<leader>s", "<cmd>write<CR>", { desc = "保存文件" })
 map("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "清除搜索高亮" })
 
+-- Drive Neovim's native completion menu without a completion framework.
+map("i", "<Tab>", function()
+  return vim.fn.pumvisible() == 1 and "<C-n>" or "<Tab>"
+end, { expr = true, desc = "下一个补全项" })
+map("i", "<S-Tab>", function()
+  return vim.fn.pumvisible() == 1 and "<C-p>" or "<S-Tab>"
+end, { expr = true, desc = "上一个补全项" })
+map("i", "<CR>", function()
+  return vim.fn.pumvisible() == 1 and "<C-y>" or "<CR>"
+end, { expr = true, desc = "确认补全" })
+
 -- Navigate splits without pressing Ctrl-W first.
 map("n", "<C-h>", "<C-w>h", { desc = "左侧窗口" })
 map("n", "<C-j>", "<C-w>j", { desc = "下方窗口" })

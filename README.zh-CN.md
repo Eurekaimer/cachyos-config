@@ -87,54 +87,32 @@ sudo reboot
 
 ## Neovim
 
-仓库通过 `configs/home/.config/nvim` 管理 Neovim。整体体验参考 LazyVim，
-但没有直接导入完整发行版，而是保持少量、职责明确的模块：
-
-| 路径 | 职责 |
-| --- | --- |
-| `init.lua` | 设置 leader 键，并按固定顺序加载模块 |
-| `lua/config/` | 编辑器选项、全局快捷键、生命周期钩子和 lazy.nvim 引导 |
-| `lua/plugins/ui.lua` | Tokyo Night、Snacks、which-key 和 lualine |
-| `lua/plugins/editor.lua` | Treesitter、Git 标记、注释、成对符号和 VimBeGood |
-| `lua/plugins/lsp.lua` | Mason、LSP、自动补全、代码片段和 Lua 配置开发支持 |
-
-Snacks 提供启动页、文件树、模糊搜索、通知、专注模式和 LazyGit 集成。
-Mason 自动安装 Lua、Go、Rust、Python、TypeScript/JavaScript 和 Bash
-语言服务器；Treesitter 安装对应的常用语言解析器。`lazy-lock.json`
-固定插件版本，保证不同机器恢复结果一致。
-
-常用快捷键：
-
-| 快捷键 | 功能 |
-| --- | --- |
-| `Space Space` | 智能查找文件 |
-| `Space e` | 打开文件树 |
-| `Space ff` / `Space fg` | 查找文件 / 全文搜索 |
-| `Space fb` / `Space bd` | 选择 / 关闭文件 |
-| `Space gg` | 打开 LazyGit |
-| `gd` / `gr` / `K` | 跳转定义 / 查看引用 / 悬停文档 |
-| `Space ca` / `Space cr` / `Space cf` | 代码操作 / 重命名 / 格式化 |
-| `Space sk` | 搜索全部已配置快捷键 |
-| `:VimBeGood` | 启动 Vim 移动练习 |
-
-`neovim`、`ripgrep` 和 `lazygit` 已位于显式软件包快照；
-`fd`、`npm` 和 `tree-sitter-cli` 位于 `packages/required-extra.txt`。
-`manifests/home-paths.txt` 已将 nvim 目录加入白名单，因此常规
-`capture.sh` 与 `restore-user.sh` 会自动采集和恢复。日常修改
-`~/.config/nvim` 后，按上文的采集、审计和发布流程同步即可。
+仓库中的 Neovim 配置参考 LazyVim，但有意只保留九个插件仓库。通用 UI 统一由
+Snacks 负责，补全、注释、代码片段、状态栏和配色优先使用 Neovim 0.12 内置能力。
+完整的结构、每个插件的 GitHub 地址与保留理由、未采用的替代品、快捷键、
+LSP/Treesitter、恢复、维护和排障说明见
+[Neovim 完整指南](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)。
 
 ## 文档
 
+### 配置地图与恢复边界
+
 + [配置位置与恢复边界](docs/zh-CN/configuration.md) · [English](docs/en/configuration.md)
+
+### 功能与工作流指南
+
+以下按照英文标题字母序排列，保证中英文索引顺序一致。
+
 + [采集与快照维护](docs/zh-CN/capture.md) · [English](docs/en/capture.md)
-+ [恢复流程](docs/zh-CN/recovery.md) · [English](docs/en/recovery.md)
-+ [软件包与服务](docs/zh-CN/packages-services.md) · [English](docs/en/packages-services.md)
-+ [Niri 窗口管理器](docs/zh-CN/niri.md) · [English](docs/en/niri.md)
-+ [Noctalia Shell](docs/zh-CN/noctalia.md) · [English](docs/en/noctalia.md)
-+ [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)
++ [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
++ [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)
 + [Kitty、Shell 与命令行工具](docs/zh-CN/kitty-shell.md) · [English](docs/en/kitty-shell.md)
 + [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
-+ [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)
-+ [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
++ [Neovim 编辑器](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)
++ [Niri 窗口管理器](docs/zh-CN/niri.md) · [English](docs/en/niri.md)
++ [Noctalia Shell](docs/zh-CN/noctalia.md) · [English](docs/en/noctalia.md)
++ [软件包与服务](docs/zh-CN/packages-services.md) · [English](docs/en/packages-services.md)
++ [恢复流程](docs/zh-CN/recovery.md) · [English](docs/en/recovery.md)
++ [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)
 + [安全与公开边界](docs/zh-CN/security.md) · [English](docs/en/security.md)
-+ [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
++ [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)

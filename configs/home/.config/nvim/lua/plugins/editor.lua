@@ -1,5 +1,5 @@
 return {
-  -- nvim-treesitter v1 installs parsers explicitly and starts highlighting per filetype.
+  -- Treesitter is the only syntax plugin; Neovim provides the highlighter itself.
   {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
@@ -34,24 +34,14 @@ return {
     end,
   },
 
-  {
-    "lewis6991/gitsigns.nvim",
-    event = { "BufReadPre", "BufNewFile" },
-    opts = {},
-  },
-
-  {
-    "nvim-mini/mini.comment",
-    version = "*",
-    opts = {},
-  },
-
+  -- Surround editing has no equivalent in core Neovim and saves repeated edits.
   {
     "nvim-mini/mini.surround",
     version = "*",
     opts = {},
   },
 
+  -- This command-only training plugin never loads during normal editing.
   {
     "ThePrimeagen/vim-be-good",
     cmd = "VimBeGood",
