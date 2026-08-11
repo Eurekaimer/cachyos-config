@@ -1,2 +1,5 @@
 # Required by managed configuration or recovery scripts.
 jq
+fd
+npm
+tree-sitter-cli

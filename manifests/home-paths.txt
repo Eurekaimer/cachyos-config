@@ -21,6 +21,7 @@
 .config/fontconfig
 .config/micro/settings.json
 .config/micro/colorschemes
+.config/nvim
 .config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop

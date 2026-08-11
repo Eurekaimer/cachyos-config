@@ -85,6 +85,44 @@ sudo reboot
 布局一致并显式使用 `--with-hardware` 评审后才会应用。目标机器用户名不同也没
 关系——托管文件中的绝对 home 路径会在恢复时自动改写为当前用户。
 
+## Neovim
+
+仓库通过 `configs/home/.config/nvim` 管理 Neovim。整体体验参考 LazyVim，
+但没有直接导入完整发行版，而是保持少量、职责明确的模块：
+
+| 路径 | 职责 |
+| --- | --- |
+| `init.lua` | 设置 leader 键，并按固定顺序加载模块 |
+| `lua/config/` | 编辑器选项、全局快捷键、生命周期钩子和 lazy.nvim 引导 |
+| `lua/plugins/ui.lua` | Tokyo Night、Snacks、which-key 和 lualine |
+| `lua/plugins/editor.lua` | Treesitter、Git 标记、注释、成对符号和 VimBeGood |
+| `lua/plugins/lsp.lua` | Mason、LSP、自动补全、代码片段和 Lua 配置开发支持 |
+
+Snacks 提供启动页、文件树、模糊搜索、通知、专注模式和 LazyGit 集成。
+Mason 自动安装 Lua、Go、Rust、Python、TypeScript/JavaScript 和 Bash
+语言服务器；Treesitter 安装对应的常用语言解析器。`lazy-lock.json`
+固定插件版本，保证不同机器恢复结果一致。
+
+常用快捷键：
+
+| 快捷键 | 功能 |
+| --- | --- |
+| `Space Space` | 智能查找文件 |
+| `Space e` | 打开文件树 |
+| `Space ff` / `Space fg` | 查找文件 / 全文搜索 |
+| `Space fb` / `Space bd` | 选择 / 关闭文件 |
+| `Space gg` | 打开 LazyGit |
+| `gd` / `gr` / `K` | 跳转定义 / 查看引用 / 悬停文档 |
+| `Space ca` / `Space cr` / `Space cf` | 代码操作 / 重命名 / 格式化 |
+| `Space sk` | 搜索全部已配置快捷键 |
+| `:VimBeGood` | 启动 Vim 移动练习 |
+
+`neovim`、`ripgrep` 和 `lazygit` 已位于显式软件包快照；
+`fd`、`npm` 和 `tree-sitter-cli` 位于 `packages/required-extra.txt`。
+`manifests/home-paths.txt` 已将 nvim 目录加入白名单，因此常规
+`capture.sh` 与 `restore-user.sh` 会自动采集和恢复。日常修改
+`~/.config/nvim` 后，按上文的采集、审计和发布流程同步即可。
+
 ## 文档
 
 + [配置位置与恢复边界](docs/zh-CN/configuration.md) · [English](docs/en/configuration.md)

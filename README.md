@@ -89,6 +89,47 @@ reviewed `--with-hardware` on the same disks/host. A different username on the
 target machine is fine — absolute home paths in managed files are rewritten
 for the current user at restore time.
 
+## Neovim
+
+The managed configuration at `configs/home/.config/nvim` is inspired by
+LazyVim, but keeps a small standalone module layout instead of importing the
+full distribution:
+
+| Path | Responsibility |
+| --- | --- |
+| `init.lua` | Sets leader keys and loads the modules in deterministic order |
+| `lua/config/` | Editor options, global keymaps, lifecycle hooks, and lazy.nvim bootstrap |
+| `lua/plugins/ui.lua` | Tokyo Night, Snacks, which-key, and lualine |
+| `lua/plugins/editor.lua` | Treesitter, Git signs, comments, surrounds, and VimBeGood |
+| `lua/plugins/lsp.lua` | Mason, LSP servers, completion, snippets, and Lua development support |
+
+Snacks provides the dashboard, explorer, fuzzy picker, notifications, Zen
+mode, and LazyGit integration. Mason installs Lua, Go, Rust, Python,
+TypeScript/JavaScript, and Bash language servers. Treesitter installs parsers
+for the same core language set. The lockfile pins plugin revisions for
+repeatable restores.
+
+Common mappings:
+
+| Mapping | Action |
+| --- | --- |
+| `Space Space` | Smart file search |
+| `Space e` | File explorer |
+| `Space ff` / `Space fg` | Find files / search project text |
+| `Space fb` / `Space bd` | Select / close a buffer |
+| `Space gg` | Open LazyGit |
+| `gd` / `gr` / `K` | Definition / references / hover documentation |
+| `Space ca` / `Space cr` / `Space cf` | Code action / rename / format |
+| `Space sk` | Search all configured keymaps |
+| `:VimBeGood` | Start the movement practice game |
+
+`neovim`, `ripgrep`, and `lazygit` are captured explicit packages.
+`fd`, `npm`, and `tree-sitter-cli` are recovery requirements in
+`packages/required-extra.txt`. The nvim directory is allowlisted in
+`manifests/home-paths.txt`, so the normal `capture.sh` and `restore-user.sh`
+flows include it automatically. Edit the live copy under `~/.config/nvim`,
+then run the standard capture and audit workflow before publishing changes.
+
 ## Documentation
 
 + [Configuration map and restore boundaries](docs/en/configuration.md) · [中文](docs/zh-CN/configuration.md)
