@@ -19,7 +19,7 @@ database.
 | Bash | `~/.bashrc`, `~/.bash_profile`, `~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
 | Dconf | `~/.config/dconf/user` binary database | `configs/dconf/user.ini` text export |
-| Docker helper | `~/.local/bin/docker-ass` | `configs/home/.local/bin/docker-ass` |
+| Docker helper | `~/.local/bin/docker-ass` | not snapshotted; install with `scripts/install-docker-anirss.sh` |
 | Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |

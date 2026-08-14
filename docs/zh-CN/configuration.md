@@ -17,7 +17,7 @@
 | Bash | `~/.bashrc`、`~/.bash_profile`、`~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
 | Dconf | `~/.config/dconf/user` 二进制数据库 | `configs/dconf/user.ini` 文本导出 |
-| Docker helper | `~/.local/bin/docker-ass` | `configs/home/.local/bin/docker-ass` |
+| Docker helper | `~/.local/bin/docker-ass` | 不入快照；用 `scripts/install-docker-anirss.sh` 单独安装 |
 | Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |

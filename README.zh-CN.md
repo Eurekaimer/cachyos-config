@@ -53,6 +53,19 @@ cd cachyos-config
 之后均为本地离线查询。完整的改动范围、Niri `Super+S`、更新、排障和卸载方法
 见 [Sioyek ECDICT 插件说明](docs/zh-CN/sioyek-ecdict.md)。
 
+## 可选个人脚本
+
+与机器绑定的辅助脚本（校园网登录、ANI-RSS 容器栈、komari-call 终端聊天）
+不进通用快照恢复，因为不是每台机器都需要。按需单独安装：
+
+```bash
+./scripts/install-campus-login.sh     # 校园网认证页，直连模式
+./scripts/install-docker-anirss.sh    # ANI-RSS + qBittorrent 容器栈助手
+./scripts/install-komari-call.sh      # 终端聊天程序，从 GitHub 构建
+```
+
+详见[可选用户脚本说明](docs/zh-CN/user-scripts.md) · [English](docs/en/user-scripts.md)。
+
 ## 跨机器同步
 
 Git 就是传输介质：在配置好的机器上采集，在任意其他机器上恢复。
@@ -116,3 +129,4 @@ LSP/Treesitter、恢复、维护和排障说明见
 + [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)
 + [安全与公开边界](docs/zh-CN/security.md) · [English](docs/en/security.md)
 + [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
++ [可选用户脚本](docs/zh-CN/user-scripts.md) · [English](docs/en/user-scripts.md)

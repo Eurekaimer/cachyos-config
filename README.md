@@ -55,6 +55,20 @@ and indexes ECDICT; later lookups are local and offline. See the
 [Sioyek ECDICT guide](docs/en/sioyek-ecdict.md) for exact changes, Niri
 `Super+S`, updating, troubleshooting, and removal.
 
+## Optional personal scripts
+
+Machine-specific helpers (campus network login, the ANI-RSS docker stack, and
+the komari-call companion) stay out of the generic snapshot restore because
+not every machine needs them. Install them individually:
+
+```bash
+./scripts/install-campus-login.sh     # campus network auth page, direct mode
+./scripts/install-docker-anirss.sh    # ANI-RSS + qBittorrent stack helper
+./scripts/install-komari-call.sh      # terminal companion, built from GitHub
+```
+
+See the [optional user scripts guide](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md).
+
 ## Syncing across machines
 
 Git is the transport: capture on the machine you configure, restore on any other machine.
@@ -120,3 +134,4 @@ maintenance, and troubleshooting.
 + [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
 + [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
 + [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
++ [Optional user scripts](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md)

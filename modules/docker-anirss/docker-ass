@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# ANI-RSS + qBittorrent 容器栈管理助手
+# compose 文件路径可用 ANI_RSS_COMPOSE_FILE 环境变量覆盖
+compose_file="${ANI_RSS_COMPOSE_FILE:-$HOME/Projects/ASS/docker-compose.yml}"
+ass_url="http://127.0.0.1:7789"
+qbit_url="http://127.0.0.1:8080"
+
+compose() {
+  if docker info >/dev/null 2>&1; then
+    docker compose -f "$compose_file" "$@"
+  else
+    local command="docker compose -f '$compose_file'"
+    local argument
+    for argument in "$@"; do
+      printf -v command '%s %q' "$command" "$argument"
+    done
+    sg docker -c "$command"
+  fi
+}
+
+start_stack() {
+  compose up -d
+  printf 'ANI-RSS:     %s\n' "$ass_url"
+  printf 'qBittorrent: %s\n' "$qbit_url"
+}
+
+case "${1:-start}" in
+  start)
+    start_stack
+    xdg-open "$ass_url" >/dev/null 2>&1 &
+    ;;
+  qbit)
+    start_stack
+    xdg-open "$qbit_url" >/dev/null 2>&1 &
+    ;;
+  status)
+    compose ps
+    ;;
+  stop)
+    compose stop
+    ;;
+  restart)
+    compose restart
+    ;;
+  logs)
+    compose logs --tail 100 -f
+    ;;
+  update)
+    compose pull
+    compose up -d
+    ;;
+  help|-h|--help)
+    cat <<'EOF'
+用法：docker-ass [命令]
+
+  start    启动 ANI-RSS 与 qBittorrent，并打开 ANI-RSS（默认）
+  qbit     启动服务并打开 qBittorrent 下载界面
+  status   查看两个容器的状态
+  stop     停止两个容器
+  restart  重启两个容器
+  logs     持续查看日志，按 Ctrl+C 退出
+  update   更新镜像并重新启动
+  help     显示本帮助
+EOF
+    ;;
+  *)
+    printf '未知命令：%s\n请运行 docker-ass help\n' "$1" >&2
+    exit 2
+    ;;
+esac
