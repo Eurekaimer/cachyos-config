@@ -102,6 +102,17 @@ if (( ! skip_toolchains )); then
             run bun add --global "$package"
         done < <(read_list "$REPO_ROOT/packages/bun-global.txt")
     fi
+
+    # Dual OpenJDK: install the newest release as the default java/javac while
+    # keeping the LTS build available for stable projects (see docs/en/jdk.md).
+    if command -v archlinux-java >/dev/null 2>&1; then
+        if jdk_version=$(pacman -Q jdk-openjdk 2>/dev/null | awk '{print $2}' | cut -d. -f1) && [[ -n "$jdk_version" ]]; then
+            jvm_env="java-${jdk_version}-openjdk"
+            if ! archlinux-java status | grep -Fq -- "${jvm_env} (default)"; then
+                run sudo archlinux-java set "$jvm_env"
+            fi
+        fi
+    fi
 fi
 
 if command -v zsh >/dev/null 2>&1; then

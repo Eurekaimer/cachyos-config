@@ -119,6 +119,7 @@ LSP/Treesitter、恢复、维护和排障说明见
 + [采集与快照维护](docs/zh-CN/capture.md) · [English](docs/en/capture.md)
 + [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
 + [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)
++ [Java 工具链：双版本 OpenJDK](docs/zh-CN/jdk.md) · [English](docs/en/jdk.md)
 + [Kitty、Shell 与命令行工具](docs/zh-CN/kitty-shell.md) · [English](docs/en/kitty-shell.md)
 + [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
 + [Neovim 编辑器](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)

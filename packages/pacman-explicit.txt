@@ -91,6 +91,7 @@ intel-lpmd
 intel-ucode
 intellij-idea-community-edition
 iwd
+jdk-openjdk
 jdk21-openjdk
 jfsutils
 jupyterlab
