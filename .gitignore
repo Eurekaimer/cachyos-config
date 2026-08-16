@@ -5,6 +5,8 @@
 private/
 secrets/
 *.local
+!**/.local/
+!**/.local/**
 
 # Recovery output
 backups/

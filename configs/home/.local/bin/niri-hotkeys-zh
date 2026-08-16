@@ -1,0 +1,15 @@
+#!/bin/sh
+
+exec /usr/bin/kitty \
+  --class niri-hotkeys-help \
+  --title 'Niri 快捷键总览' \
+  --override background_opacity=1.0 \
+  --override dynamic_background_opacity=no \
+  --override background=#000000 \
+  --override foreground=#ffffff \
+  /usr/bin/bat \
+  --plain \
+  --color=never \
+  --paging=always \
+  --language=txt \
+  "$HOME/.local/share/niri/hotkeys-zh.txt"

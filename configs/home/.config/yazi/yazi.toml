@@ -10,6 +10,9 @@ rules = [
 ]
 
 [opener]
+  # Use the wrapper directly: apps spawned by niri (Super+Y) inherit a PATH
+  # without ~/.local/bin and would find the unwrapped /usr/bin/sioyek, whose
+  # native Wayland path fails to present its first frame under Qt 6.11 + niri.
 sioyek-new = [
-  { run = 'sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+  { run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
 ]

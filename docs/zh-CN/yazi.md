@@ -18,9 +18,11 @@ rules = [
 
 [opener]
 sioyek-new = [
-  { run = 'sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+  { run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
 ]
 ```
+
+opener 直接调用 `~/.local/bin/sioyek` 而不是 `sioyek`，因为这个包装脚本负责让 Sioyek 在本合成器下正常显示（设置 `QT_QPA_PLATFORM=xcb`）。由 niri 快捷键启动的程序（如 `Super+Y`）继承 niri 的 PATH，其中不含 `~/.local/bin`；裸命令会找到未包装的 `/usr/bin/sioyek`，其原生 Wayland 路径在 Qt 6.11 + niri 下首帧不提交、窗口不出现。
 
 在 Yazi 中选中 PDF 按回车，即可同时打开多个 Sioyek 窗口，互不干扰；`orphan = true` 保证 Yazi 退出后窗口仍保留。
 

@@ -24,9 +24,16 @@ rules = [
 
 [opener]
 sioyek-new = [
-  { run = 'sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+  { run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
 ]
 ```
+
+The opener calls `~/.local/bin/sioyek` directly instead of `sioyek` because
+the wrapper is what makes Sioyek present correctly under this compositor:
+`QT_QPA_PLATFORM=xcb`. Apps launched by niri keybindings (e.g. `Super+Y`)
+inherit niri's PATH, which does not contain `~/.local/bin`; the bare command
+would find the unwrapped `/usr/bin/sioyek`, whose native Wayland path fails
+to present its first frame under Qt 6.11 + niri.
 
 Select a PDF and press Enter to open several Sioyek windows side by side;
 `orphan = true` keeps them alive after Yazi exits.

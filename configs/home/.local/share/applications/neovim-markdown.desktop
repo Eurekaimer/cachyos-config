@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=Markdown — Neovim
+Comment=Open Markdown in a dedicated Kitty/Neovim column
+TryExec=kitty
+Exec=kitty --class markdown-neovim --title "Markdown — Neovim" nvim %F
+Icon=nvim
+Terminal=false
+NoDisplay=false
+Categories=Utility;TextEditor;Development;
+MimeType=text/markdown;text/x-markdown;
+StartupNotify=true

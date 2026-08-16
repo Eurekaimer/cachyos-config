@@ -1,0 +1,53 @@
+Niri 常用快捷键
+══════════════════════════════════════════════════════════════
+按 Q 退出本手册
+
+应用
+──────────────────────────────────────────────────────────────
+Super + Enter                 打开 Kitty 终端
+Super + Space                 打开 Noctalia 应用启动器
+Super + R                     切换 Fcitx5 中文输入法
+Super + E                     打开 Nautilus 文件管理器
+Super + B                     打开 VS Code
+Super + Y                     在 Kitty 中打开 Yazi
+Super + O                     打开 Obsidian
+Super + S                     打开 ECDICT 英汉词典
+Super + Shift + L             锁定屏幕
+Super + Shift + Q             打开会话菜单
+Super + Ctrl + O              打开 Niri 总览
+
+窗口
+──────────────────────────────────────────────────────────────
+Super + H / J / K / L         聚焦左 / 下 / 上 / 右窗口
+Super + Ctrl + 方向键         移动当前列或窗口
+Super + Q                     关闭当前窗口
+Super + F                     最大化并保留顶栏
+Super + Shift + F             真正全屏
+Super + T                     切换浮动 / 平铺
+Super + W                     切换列标签页布局
+Super + C                     居中当前列
+Super + Ctrl + C              居中所有可见列
+Super + Ctrl + F              扩展列到可用宽度
+Super + [ / ]                 与相邻列合并或分离
+Super + - / =                 调整列宽
+Super + Shift + - / =         调整窗口高度
+
+工作区
+──────────────────────────────────────────────────────────────
+Super + 1…9                   切换工作区
+Super + Ctrl + 1…9            将当前列移到工作区
+Super + Tab                   切回上一个工作区
+
+截图与系统
+──────────────────────────────────────────────────────────────
+Print                         截取选定区域
+Ctrl + Print                  截取整个屏幕
+Alt + Print                   截取当前窗口
+Super + Escape                解除应用快捷键拦截
+Super + Shift + P             关闭显示器电源
+Ctrl + Alt + Delete           退出 Niri
+
+帮助
+──────────────────────────────────────────────────────────────
+Super + Shift + Escape        打开精简原生快捷键总览
+Super + Shift + /             打开本中文手册

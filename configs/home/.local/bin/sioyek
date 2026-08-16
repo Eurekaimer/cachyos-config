@@ -1,0 +1,5 @@
+#!/bin/sh
+# sioyek (Qt6) 的 Wayland 路径在 Qt 6.11 + niri 下有首帧不提交的 bug(窗口不出现),
+# 走 xcb/XWayland 是可靠路径。合成器(niri scale 1.5)会整体放大,Qt 内部整数 DPR,居中精确。
+export QT_QPA_PLATFORM=xcb
+exec /usr/bin/sioyek "$@"

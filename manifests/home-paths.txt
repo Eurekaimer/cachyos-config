@@ -29,4 +29,5 @@
 .local/bin/niri-hotkeys-zh
 .local/share/niri/hotkeys-zh.txt
 .local/bin/niri-stack-column
+.local/bin/sioyek
 Pictures/Wallpapers
