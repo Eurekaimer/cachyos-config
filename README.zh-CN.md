@@ -125,6 +125,7 @@ LSP/Treesitter、恢复、维护和排障说明见
 + [Neovim 编辑器](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)
 + [Niri 窗口管理器](docs/zh-CN/niri.md) · [English](docs/en/niri.md)
 + [Noctalia Shell](docs/zh-CN/noctalia.md) · [English](docs/en/noctalia.md)
++ [Yazi 文件管理器](docs/zh-CN/yazi.md) · [English](docs/en/yazi.md)
 + [软件包与服务](docs/zh-CN/packages-services.md) · [English](docs/en/packages-services.md)
 + [恢复流程](docs/zh-CN/recovery.md) · [English](docs/en/recovery.md)
 + [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)

@@ -130,6 +130,7 @@ maintenance, and troubleshooting.
 + [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
 + [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
 + [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
++ [Yazi file manager](docs/en/yazi.md) · [中文](docs/zh-CN/yazi.md)
 + [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
 + [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
 + [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)

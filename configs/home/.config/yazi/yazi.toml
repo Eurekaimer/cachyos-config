@@ -1,0 +1,15 @@
+# Sioyek is single-instance by default: opening another PDF while one is
+# running only focuses the existing window. --new-instance spawns a separate
+# process per document, so Enter on each PDF gets its own window.
+#
+# Yazi 26 opener syntax: definitions live in [opener] as a LIST, file
+# placeholders are %s1 (first file) / %s (spread), not the deprecated $@.
+[open]
+rules = [
+  { use = "sioyek-new", mime = "application/pdf" },
+]
+
+[opener]
+sioyek-new = [
+  { run = 'sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+]

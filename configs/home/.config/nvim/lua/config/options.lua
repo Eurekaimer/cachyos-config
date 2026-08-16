@@ -14,7 +14,14 @@ opt.relativenumber = true
 opt.cursorline = true
 opt.signcolumn = "yes"
 opt.scrolloff = 8
-opt.wrap = false
+-- Soft wrap: display-only; physical lines (and line numbers) never change.
+opt.wrap = true
+opt.linebreak = true
+opt.breakindent = true
+opt.showbreak = "↳ "
+opt.smoothscroll = true
+-- breakat defaults to spaces + ASCII punctuation; add Chinese punctuation.
+vim.o.breakat = vim.o.breakat .. "，。！？；：、"
 
 opt.tabstop = 4
 opt.shiftwidth = 4
