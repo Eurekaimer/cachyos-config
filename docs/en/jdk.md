@@ -1,4 +1,4 @@
-# Java toolchain: dual OpenJDK
+# Java toolchain: dual OpenJDK + Maven
 
 [简体中文](../zh-CN/jdk.md)
 
@@ -45,10 +45,27 @@ sudo archlinux-java set java-26-openjdk  # switch back to the newest
 Set `JAVA_HOME` to `/usr/lib/jvm/java-26-openjdk` or
 `/usr/lib/jvm/java-21-openjdk` as needed.
 
+## Maven
+
+Maven is installed from the repository as the plain `maven` package — no
+SDKMAN, no manual tarball, so `mvn` rolls with the repository and upgrades
+through `pacman -Syu`.
+
+It runs on the JVM selected the same way any Java build tool does: `JAVA_HOME`
+if set, otherwise the system default `java`.
+
+- With no `JAVA_HOME`, `mvn` runs on the newest environment (`jdk-openjdk`).
+- For LTS builds, point `JAVA_HOME` at the 21 environment:
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+mvn -v           # confirm the runtime JDK
+```
+
 ## Restore behavior
 
-`packages/pacman-explicit.txt` lists both `jdk-openjdk` and `jdk21-openjdk`;
-`./scripts/install-packages.sh` installs both and then points the default Java
-environment at the current major version of `jdk-openjdk` (read dynamically
-from the installed package, so it follows the rolling repository without
-script changes).
+`packages/pacman-explicit.txt` lists `jdk-openjdk`, `jdk21-openjdk`, and
+`maven`; `./scripts/install-packages.sh` installs all of them and then points
+the default Java environment at the current major version of `jdk-openjdk`
+(read dynamically from the installed package, so it follows the rolling
+repository without script changes).

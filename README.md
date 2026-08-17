@@ -124,7 +124,7 @@ maintenance, and troubleshooting.
 + [Capture and snapshot maintenance](docs/en/capture.md) · [中文](docs/zh-CN/capture.md)
 + [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
 + [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
-+ [Java toolchain: dual OpenJDK](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
++ [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
 + [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
 + [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
 + [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)

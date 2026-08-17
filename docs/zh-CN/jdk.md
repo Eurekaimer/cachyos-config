@@ -1,4 +1,4 @@
-# Java 工具链：双版本 OpenJDK
+# Java 工具链：双版本 OpenJDK 与 Maven
 
 [English](../en/jdk.md)
 
@@ -35,6 +35,20 @@ sudo archlinux-java set java-26-openjdk  # 切回最新
 
 `JAVA_HOME` 按需指向 `/usr/lib/jvm/java-26-openjdk` 或 `/usr/lib/jvm/java-21-openjdk`。
 
+## Maven
+
+Maven 直接以仓库软件包 `maven` 安装——不用 SDKMAN、不手工解包，`mvn` 随仓库滚动，`pacman -Syu` 即可升级。
+
+它与其他 Java 构建工具一样选择 JVM：设置了 `JAVA_HOME` 用 `JAVA_HOME`，否则用系统默认的 `java`。
+
+- 未设置 `JAVA_HOME` 时，`mvn` 运行在最新环境（`jdk-openjdk`）上。
+- 需要以 LTS 构建时，把 `JAVA_HOME` 指向 21 环境：
+
+```bash
+export JAVA_HOME=/usr/lib/jvm/java-21-openjdk
+mvn -v           # 确认实际使用的 JDK
+```
+
 ## 恢复行为
 
-`packages/pacman-explicit.txt` 同时收录 `jdk-openjdk` 与 `jdk21-openjdk`，`./scripts/install-packages.sh` 会安装两者，并自动把默认 Java 环境设为 `jdk-openjdk` 的当前主版本（版本号从已安装包动态读取，仓库滚动到新主版本后自动跟随，无需修改脚本）。
+`packages/pacman-explicit.txt` 同时收录 `jdk-openjdk`、`jdk21-openjdk` 与 `maven`，`./scripts/install-packages.sh` 会安装三者，并自动把默认 Java 环境设为 `jdk-openjdk` 的当前主版本（版本号从已安装包动态读取，仓库滚动到新主版本后自动跟随，无需修改脚本）。
