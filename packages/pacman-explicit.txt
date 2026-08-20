@@ -97,6 +97,7 @@ jfsutils
 jupyterlab
 kate
 kitty
+komikku
 lazygit
 less
 lib32-gamemode
@@ -150,6 +151,8 @@ noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
 nss-mdns
+ntfs-3g
+ntfsprogs
 nvidia-settings
 nvidia-utils
 obsidian
@@ -165,6 +168,7 @@ pipewire-pulse
 pkgfile
 plocate
 plymouth
+pnpm
 poppler-glib
 power-profiles-daemon
 protonplus
@@ -176,6 +180,7 @@ python-defusedxml
 python-packaging
 qbittorrent
 qemu-desktop
+qt5-wayland
 qt6-3d
 qt6-5compat
 qt6-speech
@@ -201,6 +206,12 @@ swtpm
 sysfsutils
 tealdeer
 texinfo
+texlive-basic
+texlive-binextra
+texlive-fontsrecommended
+texlive-langchinese
+texlive-latexrecommended
+texlive-xetex
 thunar
 ttf-bitstream-vera
 ttf-dejavu
