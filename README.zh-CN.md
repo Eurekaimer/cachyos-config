@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![快照](https://img.shields.io/badge/快照-2026--08--01-2dba4e)
+![快照](https://img.shields.io/badge/快照-2026--08--20-2dba4e)
 ![脚本](https://img.shields.io/badge/脚本-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![文档](https://img.shields.io/badge/文档-English%20%7C%20中文-8A2BE2)](README.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
@@ -12,9 +12,9 @@
 
 这是一个面向个人 CachyOS 工作站、可审计且可重复执行的恢复包。配置快照、软件与服务清单、硬件参考信息和恢复脚本彼此分离，因此可以独立检查或恢复每一层。
 
-全新安装时，请从 [CachyOS 官方下载页](https://cachyos.org/download/)获取 ISO，建议使用种子（torrent）下载；完成基础系统安装后再使用本仓库恢复配置。
+全新安装时，请从 [CachyOS 官方下载页](https://cachyos.org/download/)获取 ISO，建议使用种子下载；装好基础系统后，再用本仓库恢复配置。
 
-[](system.png)
+![桌面截图](system.png)
 
 ## 架构
 

@@ -2,16 +2,16 @@
 
 [简体中文](../zh-CN/packages-services.md)
 
-The snapshot captured on `2026-07-29T22:31:32+08:00` contains:
+Counts below come from the committed manifests, last refreshed on `2026-08-20`:
 
 | Source | Count | Manifest |
 |---|---:|---|
-| CachyOS/Arch repository packages | 220 | `packages/pacman-explicit.txt` |
-| AUR/external packages | 13 | `packages/aur-explicit.txt` |
+| CachyOS/Arch repository packages | 246 | `packages/pacman-explicit.txt` |
+| AUR/external packages | 19 | `packages/aur-explicit.txt` |
 | Rustup toolchains | 1 | `packages/rustup-toolchains.txt` |
 | Bun global packages | 1 | `packages/bun-global.txt` |
-| Enabled system services | 29 | `packages/system-services.txt` |
-| Enabled user services | 6 | `packages/user-services.txt` |
+| Enabled system services | 30 | `packages/system-services.txt` |
+| Enabled user services | 7 | `packages/user-services.txt` |
 
 `packages/required-extra.txt` holds dependencies needed by the recovery tooling itself. The installer consumes these manifests directly; README tables are descriptive only.
 

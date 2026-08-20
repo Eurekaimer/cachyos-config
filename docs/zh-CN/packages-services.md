@@ -2,16 +2,16 @@
 
 [English](../en/packages-services.md)
 
-`2026-07-29T22:31:32+08:00` 采集的快照包含：
+以下数量取自已提交的清单，最近一次刷新于 `2026-08-20`：
 
 | 来源 | 数量 | 清单 |
 |---|---:|---|
-| CachyOS/Arch 仓库软件包 | 220 | `packages/pacman-explicit.txt` |
-| AUR/外部软件包 | 13 | `packages/aur-explicit.txt` |
+| CachyOS/Arch 仓库软件包 | 246 | `packages/pacman-explicit.txt` |
+| AUR/外部软件包 | 19 | `packages/aur-explicit.txt` |
 | Rustup 工具链 | 1 | `packages/rustup-toolchains.txt` |
 | Bun 全局软件包 | 1 | `packages/bun-global.txt` |
-| 已启用系统服务 | 29 | `packages/system-services.txt` |
-| 已启用用户服务 | 6 | `packages/user-services.txt` |
+| 已启用系统服务 | 30 | `packages/system-services.txt` |
+| 已启用用户服务 | 7 | `packages/user-services.txt` |
 
 `packages/required-extra.txt` 保存恢复工具自身需要的依赖。安装脚本直接读取这些清单，README 中的表格仅用于说明。
 

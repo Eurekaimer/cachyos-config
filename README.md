@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![Snapshot](https://img.shields.io/badge/snapshot-2026--08--01-2dba4e)
+![Snapshot](https://img.shields.io/badge/snapshot-2026--08--20-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
@@ -12,7 +12,7 @@
 
 An auditable and repeatable recovery kit for a personal CachyOS workstation. It keeps configuration snapshots, package and service manifests, hardware references, and restore automation separate so each layer can be inspected or restored independently.
 
-For a fresh installation, download the CachyOS ISO from the [official download page](https://cachyos.org/download/)—the torrent is recommended—then return here after the base system is installed.
+For a fresh installation, install the base system from the [CachyOS download page](https://cachyos.org/download/) (torrent recommended), then use this repository to restore your workstation configuration.
 
 
 ![CachyOS desktop screenshot](system.png)

@@ -1,133 +1,54 @@
-# 新机器 Agent 恢复规范
+# 恢复流程
 
 [English](../en/recovery.md)
 
-本文件是给自动化 Agent 的操作合同。目标：在全新 CachyOS 上恢复软件、配置和服务，同时避免把旧磁盘 UUID 写入新机器。
-
-## 不变量
-
-1. 必须以目标桌面用户运行脚本，不得直接用 root 运行总脚本。
-2. 必须先执行安全审计和 dry-run；失败时停止，不得绕过。
-3. 默认不得使用 `--with-hardware`。
-4. 不得把密码、SSH/GPG 私钥、浏览器资料、Clash/NetworkManager 凭据补进公开仓库。
-5. 不得手工逐文件复制；路径白名单只维护在 `manifests/`。
-6. 恢复脚本采用“备份、删除目标、原样复制”，不是目录合并。
-
-## 标准流程
+在没有本仓库的机器上，先克隆仓库：
 
 ```bash
-cd ~/Documents/GitHub/cachyos-config
+git clone https://github.com/Eurekaimer/cachyos-config.git
+cd cachyos-config
+```
 
+以目标桌面用户身份运行恢复命令，不要用 root。先审计并预览所有改动：
+
+```bash
 ./scripts/audit.sh
 ./scripts/restore-all.sh --dry-run
 ./scripts/restore-all.sh
 sudo reboot
 ```
 
-如果仓库位于其他目录，可直接从仓库根目录执行；脚本不依赖固定仓库绝对路径。
+恢复对任何机器都安全：它不会读写磁盘 UUID、`/etc/machine-id`、`/etc/fstab`
+或 `/etc/hostname`；目标用户名不同也没关系，采集的 home 绝对路径会在恢复时
+改写为当前用户。
 
-## 使用硬件快照前的强制判断
-
-仅当用户明确要求恢复同一磁盘布局时才进入本节。Agent 必须比较：
-
-```bash
-lsblk -f
-findmnt --real
-cat state/hardware/lsblk.txt
-cat state/hardware/findmnt.txt
-```
-
-以下任一项不同，禁止 `--with-hardware`：
-
-- 根分区、EFI 分区 UUID；
-- Btrfs 子卷命名；
-- `/boot`、`/home`、`/var/*` 挂载策略；
-- 新机器已有的重要挂载。
-
-完全一致后才可执行：
+组合恢复会依次安装软件包与工具链、恢复可移植系统配置、恢复用户配置与 dconf，
+最后启用记录在案的服务。所有会改动文件的脚本都支持 `--dry-run`；每一层也可以
+单独执行：
 
 ```bash
-./scripts/restore-all.sh --dry-run --with-hardware
-./scripts/restore-all.sh --with-hardware
-```
-
-## 分阶段恢复与故障隔离
-
-```bash
-# 软件源、pacman/AUR、Rust、Bun Agent
-./scripts/install-packages.sh --dry-run
 ./scripts/install-packages.sh
-
-# /etc；不含 fstab/hostname
-./scripts/restore-system.sh --dry-run
 ./scripts/restore-system.sh
-
-# $HOME 与 dconf
-./scripts/restore-user.sh --dry-run
 ./scripts/restore-user.sh
-
-# systemd enable 状态；缺失 unit 会跳过
-./scripts/restore-services.sh --dry-run
 ./scripts/restore-services.sh
 ```
 
-Sioyek 离线词典会下载 ECDICT 数据，因此保留为显式的恢复后步骤。AUR 软件
-层安装好 Sioyek 后执行：
+内置的 Sioyek 离线词典会下载 ECDICT 数据，因此保留为显式的恢复后步骤。AUR
+软件层装好 Sioyek 后执行：
 
 ```bash
 ./scripts/install-sioyek-ecdict.sh
 ```
 
-随后重启 Sioyek，选中英文并按 `s`；生成文件与卸载方法见
+重启 Sioyek，选中英文单词并按 `s` 即可查词。生成的文件与卸载方法见
 [插件说明](sioyek-ecdict.md)。
 
-AUR 暂时不可用时可以先用 `--skip-aur` 完成仓库软件，再单独重试 `install-packages.sh`。
+如果暂时无法访问 AUR，可以先用 `install-packages.sh --skip-aur` 装完仓库软件包，
+之后再单独重试该层。
 
-## 恢复后的验收
+不要在全新的磁盘或主机上使用 `--with-hardware`。该选项会覆盖 `/etc/fstab`
+和 `/etc/hostname`；考虑使用前，先用 `lsblk -f` 和 `findmnt --real` 与
+`state/hardware/` 比对，确认磁盘布局一致。
 
-```bash
-# 脚本和公开安全边界
-./scripts/audit.sh
-
-# Niri 配置
-niri validate
-
-# 关键软件
-command -v niri kitty nautilus thunar imv mpv fcitx5 jq ddcutil wlsunset omp
-omp --version
-
-# 服务
-systemctl is-enabled NetworkManager bluetooth ufw libvirtd
-
-# 配置落点
-cmp configs/home/.config/kitty/kitty.conf ~/.config/kitty/kitty.conf
-```
-
-如果目标用户名与采集用户名不同，`restore-user.sh` 会在白名单文本文件中将旧 home 路径改写为当前 `$HOME`；因此不能用全仓库 `cmp` 验收这类文件。
-
-## 桌面交互验收
-
-1. `Super+E` 打开 Nautilus；Thunar 可以保留安装，但不是该快捷键的目标。
-2. 在 Nautilus 中复制、移动并打开一个测试目录，确认基本文件操作正常。
-3. 双击 `.md`，确认新的 `markdown-neovim` 列用 Kitty + Neovim 打开；双击图片，确认新的 `imv` 列打开。
-4. 打开两个或三个普通平铺窗口，用 `Super+[` 或 `Super+]` 堆叠；两窗口高度应约 671 px，三窗口约 442 px，最底部窗口边框完整可见。
-5. 用 `Super+Ctrl+H/L` 微调列宽，用 `Super+Ctrl+J/K` 微调当前窗口高度。
-6. 重启 MPV 后再测试堆叠。`keepaspect-window=no` 允许窗口适配列高，视频画面本身仍保持比例。
-7. 对外置 SSD 运行 `scripts/diagnostics/storage-link.sh /dev/sda`；如果仍为 `480 Mbit/s`，必须更换到 USB 3.x/10G 端口和 SuperSpeed 线缆，不能用内核参数掩盖。
-8. 运行 `ddcutil getvcp 10`，确认 HP27UI 可读；用亮度键增减后再读取，数值应按 5 变化。`pgrep -a wlsunset` 应显示 4000 K 的夜间模式进程。
-9. 在 Sioyek 中选中 `Map` 并按 `s`，确认右上角出现 `map` 中文释义卡片；按 `Super+S` 确认全局输入框可用。
-
-## 刷新快照
-
-在源机器修改配置或软件后：
-
-```bash
-./scripts/capture.sh
-./scripts/audit.sh
-
-git add -A
-git commit -m "sync: refresh snapshot"
-git push
-```
-
-然后人工查看 `configs/`、`packages/` 和 `state/`。只有审计成功并确认没有个人凭据后才能提交到 GitHub。采集不会读写磁盘 UUID、`/etc/machine-id`、`/etc/fstab` 或 `/etc/hostname`，因此快照可以安全地在不同机器间同步。
+恢复完成后，再运行 `./scripts/audit.sh`、`niri validate`，核对必备命令与已启用
+服务，并按各组件文档测试桌面快捷键和默认应用。
