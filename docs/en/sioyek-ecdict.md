@@ -2,7 +2,7 @@
 
 [简体中文](../zh-CN/sioyek-ecdict.md)
 
-This repository vendors `modules/sioyek-ecdict`, an offline English-to-Chinese lookup layer for native Linux Sioyek. It is intentionally separate from the generic snapshot restore because the first installation downloads and indexes the ECDICT dataset.
+This repository vendors `modules/sioyek-ecdict`, an offline English-to-Chinese lookup layer for native Linux Sioyek. It is kept separate from the generic snapshot restore because the first installation downloads and indexes the ECDICT dataset.
 
 ## Fast path on CachyOS
 
@@ -61,7 +61,7 @@ The installer:
 - enables `~/.config/systemd/user/sioyek-ecdict.service`, whose `ExecStart`
   records both the venv command and exact SQLite database path.
 
-This split is deliberate: uv owns the Python project and command; `pacman`
+This split keeps ownership clear: uv owns the Python project and command; `pacman`
 owns PyGObject, GTK4, and Gtk4LayerShell so they match the host ABI; bootstrap
 owns only generated user data and integration. No `/etc/sioyek` file is
 modified. The space in `_ecdict s` is significant: Sioyek silently ignores a

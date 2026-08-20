@@ -38,7 +38,7 @@ manager itself.
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
 | `lua/plugins/ui.lua` | Snacks and which-key |
 
-Configuration comments are intentionally concise English sentences. User-facing
+Configuration comments are concise English sentences. User-facing
 key descriptions remain Chinese so which-key is useful during normal editing.
 
 ## Retained plugins
@@ -56,9 +56,9 @@ boundary; the reason column is the acceptance test for keeping it.
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Startup | Downloads parser sources and queries for Neovim's native Treesitter runtime | Neovim provides the highlighter, but not all language parsers and queries. One plugin covers every configured language. |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | Startup, modules on demand | Dashboard, explorer, fuzzy picker, notifications, big-file handling, status column, Zen mode, buffer deletion, and LazyGit terminal | This single repository replaces several conventional UI plugins and is the main reason the plugin stack stays small. |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Only on `:VimBeGood` | Interactive motion practice | It directly supports learning Vim motions, never loads during normal editing, and can be removed after the training period. |
-| [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | Shows available continuations after leader/prefix keys | While the user is still learning modal editing, discoverability is worth more than one tiny plugin; it can be reconsidered once the mappings become muscle memory. |
+| [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | Shows available continuations after leader/prefix keys | While the user is still learning modal editing, discoverability is worth more than one tiny plugin; revisit it once the mappings become muscle memory. |
 
-## Deliberately omitted plugins
+## Omitted plugins
 
 These are not missing features. They are cases where Neovim or an already
 retained plugin owns the same responsibility.
@@ -119,7 +119,7 @@ Useful status commands:
 
 ## Snacks workflow
 
-Snacks is intentionally the only general UI layer.
+Snacks is the only general UI layer.
 
 | Mapping | Action |
 | --- | --- |
@@ -254,7 +254,7 @@ git push
 ```
 
 The nvim directory is allowlisted by `manifests/home-paths.txt`. Plugin data,
-Mason downloads, parser binaries, caches, and undo history are intentionally not
+Mason downloads, parser binaries, caches, and undo history are not
 committed; the configuration and lockfile reproduce them.
 
 ## Troubleshooting

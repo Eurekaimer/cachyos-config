@@ -1,7 +1,7 @@
 # Optional user scripts
 
-Three machine-specific helpers are intentionally NOT part of the generic
-snapshot restore, because not every machine needs them. Install each one with
+Three machine-specific helpers are kept out of the generic
+snapshot restore because not every machine needs them. Install each one with
 its own script; each module ships an `uninstall.sh`.
 
 | Script | Purpose | Install | Remove |

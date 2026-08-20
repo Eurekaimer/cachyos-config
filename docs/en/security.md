@@ -2,7 +2,7 @@
 
 [简体中文](../zh-CN/security.md)
 
-This is a public recovery snapshot, not a secrets backup. The capture deliberately excludes passwords, SSH/GPG keys, cloud credentials, browser profiles, cookies, Clash profiles and subscriptions, NetworkManager connections, logs, caches, and `.omp` runtime state.
+This is a public recovery snapshot, not a secrets backup. The capture excludes passwords, SSH/GPG keys, cloud credentials, browser profiles, cookies, Clash profiles and subscriptions, NetworkManager connections, logs, caches, and `.omp` runtime state.
 
 Before publishing any refresh:
 

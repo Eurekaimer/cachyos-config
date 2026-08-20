@@ -10,9 +10,14 @@
 
 **English** · [简体中文](README.zh-CN.md)
 
-An auditable and repeatable recovery kit for a personal CachyOS workstation. It keeps configuration snapshots, package and service manifests, hardware references, and restore automation separate so each layer can be inspected or restored independently.
+Personal CachyOS workstation configuration, kept as a versioned snapshot with
+scripts to capture and restore it. Managed files, package and service manifests,
+and hardware references are stored separately, so each layer can be inspected
+or restored on its own.
 
-For a fresh installation, install the base system from the [CachyOS download page](https://cachyos.org/download/) (torrent recommended), then use this repository to restore your workstation configuration.
+For a fresh system, install the base from the
+[CachyOS download page](https://cachyos.org/download/) (torrent recommended),
+then use this repository to restore the workstation configuration.
 
 
 ![CachyOS desktop screenshot](system.png)
@@ -38,38 +43,7 @@ flowchart TD
     X --> V[Services]
 ```
 
-## One-command Sioyek offline dictionary
-
-After installing native Sioyek from the AUR, this clone can add the bundled
-offline ECDICT lookup without a separate plugin repository:
-
-```bash
-yay -S sioyek-git
-git clone https://github.com/Eurekaimer/cachyos-config.git
-cd cachyos-config
-./scripts/install-sioyek-ecdict.sh
-```
-
-Restart Sioyek, select an English word, and press `s`. The first run downloads
-and indexes ECDICT; later lookups are local and offline. See the
-[Sioyek ECDICT guide](docs/en/sioyek-ecdict.md) for exact changes, Niri
-`Super+S`, updating, troubleshooting, and removal.
-
-## Optional personal scripts
-
-Machine-specific helpers (campus network login, the ANI-RSS docker stack, and
-the komari-call companion) stay out of the generic snapshot restore because
-not every machine needs them. Install them individually:
-
-```bash
-./scripts/install-campus-login.sh     # campus network auth page, direct mode
-./scripts/install-docker-anirss.sh    # ANI-RSS + qBittorrent stack helper
-./scripts/install-komari-call.sh      # terminal companion, built from GitHub
-```
-
-See the [optional user scripts guide](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md).
-
-## Syncing across machines
+## Publishing and restoring
 
 Git is the transport: capture on the machine you configure, restore on any other machine.
 
@@ -103,37 +77,40 @@ reviewed `--with-hardware` on the same disks/host. A different username on the
 target machine is fine — absolute home paths in managed files are rewritten
 for the current user at restore time.
 
-## Neovim
-
-The managed Neovim configuration is LazyVim-inspired but intentionally keeps
-only nine plugin repositories. It uses Snacks for the general UI and Neovim
-0.12 built-ins for completion, comments, snippets, statusline, and colors.
-See the [complete Neovim guide](docs/en/neovim.md) ·
-[中文](docs/zh-CN/neovim.md) for architecture, every plugin's GitHub link and
-rationale, omitted alternatives, keymaps, LSP/Treesitter behavior, recovery,
-maintenance, and troubleshooting.
-
 ## Documentation
 
-### Configuration and recovery boundaries
+### Configuration and boundaries
 
 + [Configuration map and restore boundaries](docs/en/configuration.md) · [中文](docs/zh-CN/configuration.md)
 
-### Subsystem and workflow guides
+### Core workflows
 
 + [Capture and snapshot maintenance](docs/en/capture.md) · [中文](docs/zh-CN/capture.md)
-+ [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
-+ [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
-+ [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
-+ [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
-+ [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
-+ [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
++ [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
+
+### Components
+
++ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
 + [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
 + [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
++ [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
++ [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
++ [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
 + [Yazi file manager](docs/en/yazi.md) · [中文](docs/zh-CN/yazi.md)
-+ [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
-+ [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
-+ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
-+ [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
++ [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
 + [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
++ [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
++ [TeX Live](docs/en/texlive.md) · [中文](docs/zh-CN/texlive.md)
+
+### Packages and services
+
++ [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
+
+### Security and publishing
+
++ [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
+
+### Diagnostics and optional scripts
+
++ [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
 + [Optional user scripts](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md)
