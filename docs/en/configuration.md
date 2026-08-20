@@ -28,6 +28,7 @@ database.
 | Kitty | `~/.config/kitty/` | `configs/home/.config/kitty/` |
 | Micro | `~/.config/micro/settings.json`, `~/.config/micro/colorschemes/` | `configs/home/.config/micro/` |
 | MIME defaults | `~/.config/mimeapps.list` | `configs/home/.config/mimeapps.list` |
+| KOReader | `~/.config/koreader/` | `configs/home/.config/koreader/` (runtime state pruned) |
 | MPV | `~/.config/mpv/` | `configs/home/.config/mpv/` |
 | Neovim | `~/.config/nvim/`, Neovim Markdown desktop entry | `configs/home/.config/nvim/`, `configs/home/.local/share/applications/neovim-markdown.desktop` |
 | Niri | `~/.config/niri/` | `configs/home/.config/niri/` |

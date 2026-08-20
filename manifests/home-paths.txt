@@ -11,6 +11,7 @@
 .config/mimeapps.list
 .config/cachyos-hello.json
 .config/kitty
+.config/koreader
 .config/niri
 .config/noctalia
 .config/fastfetch

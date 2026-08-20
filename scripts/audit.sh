@@ -26,7 +26,17 @@ done
 
 for runtime_path in \
     configs/home/.config/mpv/cache \
-    configs/home/.config/mpv/memo-history.log; do
+    configs/home/.config/mpv/memo-history.log \
+    configs/home/.config/koreader/cache \
+    configs/home/.config/koreader/data \
+    configs/home/.config/koreader/clipboard \
+    configs/home/.config/koreader/help \
+    configs/home/.config/koreader/ota \
+    configs/home/.config/koreader/screenshots \
+    configs/home/.config/koreader/history.lua \
+    configs/home/.config/koreader/settings/bookinfo_cache.sqlite3 \
+    configs/home/.config/koreader/settings/statistics.sqlite3 \
+    configs/home/.config/koreader/settings/vocabulary_builder.sqlite3; do
     [[ ! -e "$REPO_ROOT/$runtime_path" ]] || fail "Runtime snapshot path found: $runtime_path"
 done
 

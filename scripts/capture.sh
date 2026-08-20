@@ -116,6 +116,27 @@ capture_group / "$config_root/system/reference" "$manifest_root/system-reference
 rm -rf -- "$config_root/home/.config/mpv/cache"
 rm -f -- "$config_root/home/.config/mpv/memo-history.log"
 
+# KOReader runtime state is not configuration and may expose filenames.
+rm -rf -- "$config_root/home/.config/koreader/cache"
+rm -rf -- "$config_root/home/.config/koreader/data"
+rm -rf -- "$config_root/home/.config/koreader/clipboard"
+rm -rf -- "$config_root/home/.config/koreader/help"
+rm -rf -- "$config_root/home/.config/koreader/ota"
+rm -rf -- "$config_root/home/.config/koreader/screenshots"
+rm -f -- "$config_root/home/.config/koreader/history.lua"
+find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
+    ! -name scrollstep.koplugin -exec rm -rf -- {} +
+rm -f -- "$config_root/home/.config/koreader/scripts"/*
+rm -f -- "$config_root/home/.config/koreader/styletweaks"/*
+rm -f -- "$config_root/home/.config/koreader/settings"/*.sqlite3
+
+# Reader settings carry the last-opened book and last directory, which are
+# recent-file runtime state just like history.lua.
+if [[ -f "$config_root/home/.config/koreader/settings.reader.lua" ]]; then
+    sed -i -e '/\["lastfile"\]/d' -e '/\["lastdir"\]/d' \
+        "$config_root/home/.config/koreader/settings.reader.lua"
+fi
+
 # Drop application-generated metadata and recent-path history from the
 # portable snapshot. These values are runtime state and may expose filenames.
 rm -rf -- "$config_root/home/Pictures/Wallpapers/.comments"

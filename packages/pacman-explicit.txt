@@ -97,7 +97,6 @@ jfsutils
 jupyterlab
 kate
 kitty
-komikku
 lazygit
 less
 lib32-gamemode

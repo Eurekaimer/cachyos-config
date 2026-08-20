@@ -92,6 +92,7 @@ sudo reboot
 + [Neovim 编辑器](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)
 + [Yazi 文件管理器](docs/zh-CN/yazi.md) · [English](docs/en/yazi.md)
 + [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
++ [KOReader 阅读器](docs/zh-CN/koreader.md) · [English](docs/en/koreader.md)
 + [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
 + [Java 工具链：双版本 OpenJDK 与 Maven](docs/zh-CN/jdk.md) · [English](docs/en/jdk.md)
 + [TeX Live](docs/zh-CN/texlive.md) · [English](docs/en/texlive.md)

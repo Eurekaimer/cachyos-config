@@ -98,6 +98,7 @@ for the current user at restore time.
 + [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
 + [Yazi file manager](docs/en/yazi.md) · [中文](docs/zh-CN/yazi.md)
 + [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
++ [KOReader ebook reader](docs/en/koreader.md) · [中文](docs/zh-CN/koreader.md)
 + [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
 + [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
 + [TeX Live](docs/en/texlive.md) · [中文](docs/zh-CN/texlive.md)

@@ -6,6 +6,7 @@ github-desktop-bin
 go-musicfox
 google-chrome
 gtkmm
+koreader-bin
 libsoup
 linuxqq
 peazip-qt-bin
