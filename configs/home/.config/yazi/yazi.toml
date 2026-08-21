@@ -5,7 +5,7 @@
 # Yazi 26 opener syntax: definitions live in [opener] as a LIST, file
 # placeholders are %s1 (first file) / %s (spread), not the deprecated $@.
 [open]
-rules = [
+prepend_rules = [
   { use = "sioyek-new", mime = "application/pdf" },
 ]
 
