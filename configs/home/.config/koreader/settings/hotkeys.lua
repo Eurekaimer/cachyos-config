@@ -178,6 +178,12 @@ return {
         ["k"] = {
             ["key_up"] = true,
         },
+        ["m"] = {
+            ["show_menu"] = true,
+        },
+        ["p"] = {
+            ["toggle_status_bar"] = true,
+        },
         ["modifier_plus_back"] = {
             ["open_previous_document"] = true,
         },

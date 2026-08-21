@@ -380,8 +380,8 @@ return {
     ["folder_shortcuts_settings"] = {},
     ["footer"] = {
         ["align"] = "center",
-        ["all_at_once"] = false,
-        ["auto_refresh_time"] = false,
+        ["all_at_once"] = true,
+        ["auto_refresh_time"] = true,
         ["battery"] = false,
         ["battery_hide_threshold"] = 100,
         ["book_author"] = false,
@@ -401,7 +401,7 @@ return {
         ["disable_progress_bar"] = false,
         ["disabled"] = false,
         ["frontlight"] = false,
-        ["hide_empty_generators"] = false,
+        ["hide_empty_generators"] = true,
         ["initial_marker"] = false,
         ["invert_progress_direction"] = false,
         ["item_prefix"] = "icons",
@@ -460,7 +460,7 @@ return {
     ["quickstart_shown_version"] = 202607010000,
     ["reader_footer_custom_text"] = "KOReader",
     ["reader_footer_custom_text_repetitions"] = "1",
-    ["reader_footer_mode"] = 4,
+    ["reader_footer_mode"] = 1,
     ["readtimer"] = {},
     ["scroll_method"] = "classic",
     ["sdl_window"] = {

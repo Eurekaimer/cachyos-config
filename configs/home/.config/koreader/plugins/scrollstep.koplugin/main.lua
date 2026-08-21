@@ -5,7 +5,8 @@ Reader Ctrl+J/K pans 30% of the screen in scroll mode and turns one page in
 page mode/PDFs. History keeps per-book letter shortcuts except reserved `f`,
 adds Ctrl+J/K list paging, and uses `f` to return to the File Browser. The
 File Manager reserves `h` for opening History while keeping its other per-item
-letter shortcuts.
+letter shortcuts. The top reader menu supports j/k focus movement, h to go
+back, and l to select.
 
 @module koplugin.ScrollStep
 --]]--
@@ -117,6 +118,32 @@ function ScrollStep:configureTocMenu(menu)
     end
 end
 
+function ScrollStep:configureReaderMenu(menu)
+    if not menu or not menu.onFocusMove or menu._scrollstep_vim_navigation then return end
+
+    menu._scrollstep_vim_navigation = true
+    menu.key_events.ScrollStepMenuDown = { { "J" } }
+    menu.key_events.ScrollStepMenuUp = { { "K" } }
+    menu.key_events.ScrollStepMenuBack = { { "H" } }
+    menu.key_events.ScrollStepMenuSelect = { { "L" } }
+    menu.onScrollStepMenuDown = function(reader_menu)
+        reader_menu:onFocusMove({ 0, 1 })
+        return true
+    end
+    menu.onScrollStepMenuUp = function(reader_menu)
+        reader_menu:onFocusMove({ 0, -1 })
+        return true
+    end
+    menu.onScrollStepMenuBack = function(reader_menu)
+        reader_menu:onBack()
+        return true
+    end
+    menu.onScrollStepMenuSelect = function(reader_menu)
+        reader_menu:onPress()
+        return true
+    end
+end
+
 function ScrollStep:installTocBindings()
     local toc = self.ui and self.ui.toc
     if not toc or toc._scrollstep_original_onShowToc then return end
@@ -129,6 +156,19 @@ function ScrollStep:installTocBindings()
         return result
     end
     self:configureTocMenu(toc.toc_menu)
+end
+
+function ScrollStep:installReaderMenuBindings()
+    local reader_menu = self.ui and self.ui.menu
+    if not reader_menu or reader_menu._scrollstep_original_onShowMenu then return end
+
+    local original_onShowMenu = reader_menu.onShowMenu
+    reader_menu._scrollstep_original_onShowMenu = original_onShowMenu
+    reader_menu.onShowMenu = function(menu_module, ...)
+        local result = original_onShowMenu(menu_module, ...)
+        self:configureReaderMenu(menu_module.menu_container and menu_module.menu_container[1])
+        return result
+    end
 end
 
 function ScrollStep:installHistoryBindings()
@@ -151,6 +191,7 @@ function ScrollStep:init()
     self:installHistoryBindings()
     if self.ui.document then
         self:installTocBindings()
+        self:installReaderMenuBindings()
         self:onDispatcherRegisterActions()
     else
         self.ui:registerPostInitCallback(function()

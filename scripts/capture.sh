@@ -129,6 +129,8 @@ find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
 rm -f -- "$config_root/home/.config/koreader/scripts"/*
 rm -f -- "$config_root/home/.config/koreader/styletweaks"/*
 rm -f -- "$config_root/home/.config/koreader/settings"/*.sqlite3
+find "$config_root/home/.config/koreader" -type f \
+    \( -name '*.old' -o -name '*.bak-*' \) -delete
 
 # Reader settings carry the last-opened book and last directory, which are
 # recent-file runtime state just like history.lua.

@@ -122,22 +122,25 @@ progress bar keeps working.
 The bindings below are KOReader’s factory defaults for a device with a
 keyboard, plus this snapshot’s overrides (marked “this snapshot”): the
 hotkeys in `settings/hotkeys.lua`, plus `scrollstep.koplugin`: `Ctrl+J` /
-`Ctrl+K` scroll 30% in the reader and page the History list; `f` returns from
-History to the File Browser. Vim/Sioyek-style: `j`/`k` small-scroll, `h`
-History, `f` File Browser, `q` quit; chapters via `t` (TOC).
+`Ctrl+K` scroll 30% in the reader and page the History/TOC lists; `f` returns
+from History to the File Browser. Vim/Sioyek-style: `j`/`k` small-scroll, `h`
+History, `f` File Browser, `m` top menu, `p` rich status bar toggle, `q` quit;
+chapters via `t` (TOC).
 
 | Key | Action |
 | --- | --- |
 | `j` (this snapshot) | Scroll down (small step) |
 | `k` (this snapshot) | Scroll up (small step) |
-| `Ctrl+J` (this snapshot) | Scroll down 30% of the screen (scroll mode); page turn in page mode / PDFs; next History page |
-| `Ctrl+K` (this snapshot) | Scroll up 30% of the screen (scroll mode); page turn in page mode / PDFs; previous History page |
-| `h` (this snapshot) | History — recent files (in the reader; in the file manager use `Ctrl+H`) |
+| `Ctrl+J` (this snapshot) | Scroll down 30% of the screen (scroll mode); page turn in page mode / PDFs; next History or TOC page |
+| `Ctrl+K` (this snapshot) | Scroll up 30% of the screen (scroll mode); page turn in page mode / PDFs; previous History or TOC page |
+| `h` (this snapshot) | History — recent files, in both the reader and File Manager |
 | `f` (this snapshot) | File Browser (closes the book from the reader or its open History view) |
+| `m` (this snapshot) | Open the top reader menu |
+| `p` (this snapshot) | Show/hide the complete status bar |
 | `q` (this snapshot) | Quit KOReader |
 | `t` | Table of contents |
 | `b` | Bookmarks |
-| Enter | Reader gear menu (in menus: open / confirm) |
+| Enter | Open / confirm the focused menu item |
 | Esc | Back / close menu |
 | Shift+Back | Open the previously read document |
 | Space | Next page in page mode (PDFs); unbound in scroll mode |
@@ -148,6 +151,20 @@ History, `f` File Browser, `q` quit; chapters via `t` (TOC).
 | F6 / F7 | Previous / next view |
 | Home | Return to the file-manager home (library) |
 | Gear menu | Switch reading mode (page / continuous scroll) |
+
+### Top-menu keyboard flow
+
+After `m` opens the top menu, `j` / `k` move focus down/up, `h` returns to the
+parent menu (or closes the root), and `l` / Enter activates the focused item.
+Native arrow, Tab, Enter, and Esc navigation remains available.
+
+### Rich status bar
+
+The snapshot enables “show all selected items at once”: current/total page,
+percentage, clock, pages left in the chapter, chapter/book time remaining, and
+the progress bar share one footer. `p` toggles this complete footer off/on
+instead of cycling one field at a time. The clock auto-refreshes each minute;
+unavailable values are omitted.
 
 ### Keys KOReader cannot bind on desktop
 
@@ -165,12 +182,12 @@ Vim-style, from this snapshot’s `settings/hotkeys.lua`:
 
 | Key | Action |
 | --- | --- |
-| `Ctrl+H` (this snapshot) | History |
+| `h` (this snapshot) | History |
 | `Ctrl+J` / `Ctrl+K` (this snapshot) | Next / previous page of the file list |
 
-Single letters are not usable as hotkeys in the file manager: the built-in
-item shortcuts (`Q`..`M` jump to list items) consume them first. Cursor
-movement stays on the native ↑ / ↓ keys.
+The File Manager keeps its native per-item letter shortcuts except `H`, which
+this plugin reserves for opening History. Cursor movement stays on native
+↑ / ↓; `Ctrl+J` / `Ctrl+K` page the list.
 
 Native keys, no binding needed:
 
@@ -183,14 +200,12 @@ Native keys, no binding needed:
 | Esc | Up one directory / close |
 ## Switching books
 
-- `h` opens History — the recent-files shelf — while reading; in the file
-  manager, use `Ctrl+H` (single letters are consumed by the file list’s native
-  item shortcuts, which jump to items). KOReader always starts on the file
-  browser (`lastdir`), with no native “start on History” option, so `h` /
-  `Ctrl+H` is the one-key recent shelf.
-- Inside History, `Ctrl+J` / `Ctrl+K` page the recent-file list and `f` closes
-  History and the book into the File Browser. The plugin disables History’s
-  native letter-to-item shortcuts so they cannot consume `f`.
+- `h` opens History — the recent-files shelf — from either the reader or File
+  Manager. KOReader still starts on the file browser (`lastdir`), with no
+  native “start on History” option, so `h` is the one-key recent shelf.
+- Inside History, per-book letter shortcuts remain enabled except reserved
+  `F`; `Ctrl+J` / `Ctrl+K` page the recent-file list, and `f` closes History
+  and the book into the File Browser.
 - File Manager menu → “Open last document” resumes the most recent book.
 - `Shift+Back` jumps straight to the previously read document.
 - `Home` returns to the file-manager home (bookshelf), pick the next book there.

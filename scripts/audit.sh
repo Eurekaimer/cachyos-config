@@ -39,6 +39,10 @@ for runtime_path in \
     configs/home/.config/koreader/settings/vocabulary_builder.sqlite3; do
     [[ ! -e "$REPO_ROOT/$runtime_path" ]] || fail "Runtime snapshot path found: $runtime_path"
 done
+if find "$REPO_ROOT/configs/home/.config/koreader" -type f \
+    \( -name '*.old' -o -name '*.bak-*' \) -print -quit | grep -q .; then
+    fail "KOReader backup file found in portable snapshot"
+fi
 
 log "Checking secret-shaped content"
 secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authorization:[[:space:]]*Bearer|(^|[^[:alnum:]_])(password|passwd|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"']{8,}"
