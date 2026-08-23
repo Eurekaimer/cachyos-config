@@ -172,6 +172,9 @@ return {
         ["q"] = {
             ["exit"] = true,
         },
+        ["r"] = {
+            ["edit_book_title"] = true,
+        },
         ["j"] = {
             ["key_down"] = true,
         },

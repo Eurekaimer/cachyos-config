@@ -12,23 +12,42 @@
     }
   },
   "display": {
-    "separator": " -> ",
+    "separator": "  ",
     "disableLinewrap": true,
+    "key": { "width": 18 },
     "color": {
-      "keys": "magenta",
-      "title": "blue"
+      "keys": "cyan",
+      "title": "blue",
+      "separator": "bright_black"
     }
   },
   "modules": [
     "title",
     "separator",
-    { "type": "os", "key": " OS" },
-    { "type": "kernel", "key": " Kernel" },
-    { "type": "shell", "key": " Shell" },
-    { "type": "wm", "key": " WM" },
-    { "type": "terminal", "key": " Terminal" },
-    { "type": "cpu", "key": " CPU", "format": "{vendor} {cores-logical}T" },
-    { "type": "gpu", "key": "󰾲 GPU", "format": "{name}" },
-    { "type": "memory", "key": " RAM" }
+    "break",
+
+    { "type": "custom", "key": " ", "format": "╭─ 󰌢  HARDWARE", "outputColor": "blue" },
+    { "type": "board", "key": "├─ 󰇅  Board" },
+    { "type": "bios", "key": "├─ 󰓙  Firmware", "format": "{version} ({type})" },
+    { "type": "cpu", "key": "├─ 󰻠  CPU", "format": "Intel CPU ({cores-physical}C / {cores-logical}T) @ {freq-max}" },
+    { "type": "gpu", "key": "├─ 󰍛  GPU" },
+    { "type": "memory", "key": "├─ 󰘚  Memory", "percent": { "type": ["num", "bar"] } },
+    { "type": "swap", "key": "├─ 󰓡  Swap", "percent": { "type": ["num", "bar"] } },
+    { "type": "physicaldisk", "key": "├─ 󰋊  Storage", "hideVirtual": true, "format": "{name} ({physical-type}, {interconnect}) - {size}" },
+    { "type": "display", "key": "├─ 󰍹  Display" },
+    { "type": "disk", "key": "╰─ 󰋊  Root FS", "folders": ["/"], "format": "{size-used} / {size-total} ({size-percentage}) - {filesystem}" },
+
+    "break",
+    { "type": "custom", "key": " ", "format": "╭─ 󰘧  SOFTWARE", "outputColor": "magenta" },
+    { "type": "os", "key": "├─   OS" },
+    { "type": "kernel", "key": "├─ 󰒋  Kernel" },
+    { "type": "packages", "key": "├─ 󰏖  Packages" },
+    { "type": "shell", "key": "├─   Shell" },
+    { "type": "wm", "key": "├─   WM" },
+    { "type": "theme", "key": "├─ 󰉼  Theme" },
+    { "type": "terminal", "key": "├─ 󰆍  Terminal" },
+    { "type": "locale", "key": "├─ 󰗊  Locale" },
+    { "type": "datetime", "key": "├─ 󰃭  Date" },
+    { "type": "uptime", "key": "╰─ 󰔟  Uptime" }
   ]
 }
