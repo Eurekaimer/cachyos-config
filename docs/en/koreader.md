@@ -94,6 +94,14 @@ page-based progress. PDFs always stay page-turning regardless of the scroll
 default. The bug is documented for upstream in `~/Projects/koreader-issue.md`
 (issue + PR material); drop this patch once upstream merges the guard.
 
+**Config-layer belt-and-suspenders**: the snapshot also ships the same-semantics
+user patch `patches/2-pdf-scroll-guard.lua` (KOReader's user-patch mechanism,
+auto-run at startup): when a document engine lacks `getPosFromXPointer`
+(any PDF), it forces the page-based progress branch; all other documents are
+unaffected. It does not touch `/usr/lib`, so it survives koreader-bin upgrades;
+either the shell script or this patch being present suffices. Verified with
+KOReader's own luajit against the four PDF/CRE x scroll/page combinations.
+
 ## Snapshot boundary
 
 `configs/home/.config/koreader/` mirrors the configuration under

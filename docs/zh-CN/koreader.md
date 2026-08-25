@@ -87,6 +87,13 @@ readerfooter.lua:2203: attempt to call method 'getPosFromXPointer' (a nil value)
 issue/PR 材料（见 `~/Projects/koreader-issue.md`）；上游合并该守卫后即可移除
 本补丁。
 
+**配置层双保险**：快照还带有同语义的用户补丁
+`patches/2-pdf-scroll-guard.lua`（KOReader 官方 user patch 机制，启动时自动
+执行）：文档引擎缺少 `getPosFromXPointer`（即 PDF）时强制走基于页数的进度
+分支，其余文档不受影响。它不依赖改 `/usr/lib`，因此 `koreader-bin` 升级后
+依然生效；与 `patch-koreader-desktop.sh` 任一先命中即可。已用 KOReader 自带
+luajit 对 PDF/CRE × scroll/page 四种组合做了 mock 验证。
+
 ## 快照边界
 
 `configs/home/.config/koreader/` 镜像 `~/.config/koreader/` 下的配置：

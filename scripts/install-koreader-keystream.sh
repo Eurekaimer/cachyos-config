@@ -12,8 +12,8 @@ Usage: scripts/install-koreader-keystream.sh [--dry-run] [--force]
 Clone Eurekaimer/koreader-keystream-config (the canonical KOReader keyboard
 config repo) and restore its contents into ~/.config/koreader:
 
-  plugins/vimkeys.koplugin/   -> ~/.config/koreader/plugins/
-  patches/1-lxgw-fonts.lua    -> ~/.config/koreader/patches/
+  plugins/vimkeys.koplugin/   -> ~/.config/koreader/plugins/ (always mirrored)
+  patches/*.lua               -> ~/.config/koreader/patches/ (always mirrored, code not prefs)
   examples/defaults.custom.lua -> ~/.config/koreader/  (only if absent;
                                   --force overwrites)
   examples/settings/hotkeys.lua -> ~/.config/koreader/settings/ (only if
@@ -76,7 +76,8 @@ restore_component() {
 }
 
 restore_component plugins/vimkeys.koplugin "$koreader_config/plugins/vimkeys.koplugin"
-restore_component patches/1-lxgw-fonts.lua "$koreader_config/patches/1-lxgw-fonts.lua"
+# Patches are code, not user prefs: always mirror the repo's patch set.
+run cp -a -- "$src/patches/." "$koreader_config/patches/"
 restore_component examples/defaults.custom.lua "$koreader_config/defaults.custom.lua"
 restore_component examples/settings/hotkeys.lua "$koreader_config/settings/hotkeys.lua"
 
