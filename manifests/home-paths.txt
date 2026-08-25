@@ -33,4 +33,6 @@
 .local/bin/niri-stack-column
 .local/bin/sioyek
 .omp/agent/config.yml
+Projects/ASS/config/ani.v2.json
+Projects/ASS/config/config.v2.json
 Pictures/Wallpapers

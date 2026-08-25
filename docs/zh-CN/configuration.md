@@ -13,6 +13,7 @@
 
 | 功能 | 当前实际位置 | 仓库位置 |
 | --- | --- | --- |
+| AniRSS（追番 RSS） | `~/Projects/ASS/config/` 下的 `ani.v2.json`、`config.v2.json` | `configs/home/Projects/ASS/config/`；下载器密码/API Key/登录密码/实例 UUID 从公开快照移除 |
 | Autostart（自动启动） | `~/.config/autostart/` 下的白名单文件 | `configs/home/.config/autostart/` |
 | Bash | `~/.bashrc`、`~/.bash_profile`、`~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |

@@ -15,6 +15,7 @@ database.
 
 | Feature | Live location | Snapshot location |
 | --- | --- | --- |
+| AniRSS (anime RSS) | `ani.v2.json`, `config.v2.json` under `~/Projects/ASS/config/` | `configs/home/Projects/ASS/config/`; downloader password/API key/login password/instance UUID removed from the public snapshot |
 | Autostart | Allowlisted entries under `~/.config/autostart/` | `configs/home/.config/autostart/` |
 | Bash | `~/.bashrc`, `~/.bash_profile`, `~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |

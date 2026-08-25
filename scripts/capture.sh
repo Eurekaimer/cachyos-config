@@ -147,6 +147,17 @@ if [[ -f "$config_root/home/.config/QtProject.conf" ]]; then
         "$config_root/home/.config/QtProject.conf"
 fi
 
+# ani-rss snapshot must not publish downloader/API credentials or the
+# instance UUID (public repo); blank them like QtProject above.
+if [[ -f "$config_root/home/Projects/ASS/config/config.v2.json" ]]; then
+    sed -i -E \
+        -e 's/("downloadToolPassword":)[[:space:]]*"[^"]*"/\1 ""/' \
+        -e 's/("apiKey":)[[:space:]]*"[^"]*"/\1 ""/' \
+        -e 's/("uuid":)[[:space:]]*"[^"]*"/\1 ""/' \
+        -e 's/("password":)[[:space:]]*"[^"]*"/\1 ""/' \
+        "$config_root/home/Projects/ASS/config/config.v2.json"
+fi
+
 # Keep the public snapshot useful without publishing the account email.
 if [[ -f "$config_root/home/.gitconfig" ]]; then
     git config --file "$config_root/home/.gitconfig" --unset-all user.email || true
