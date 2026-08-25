@@ -126,4 +126,16 @@ if command -v zsh >/dev/null 2>&1; then
     fi
 fi
 
+# koreader-bin ships two desktop defects (startup crash, PDF crash); apply the
+# repo's fix automatically when the package is present. Restore with
+# scripts/patch-koreader-desktop.sh --restore.
+if [[ -f /usr/lib/koreader/frontend/device.lua ]]; then
+    if (( DRY_RUN )); then
+        print_cmd "$SCRIPT_DIR/patch-koreader-desktop.sh"
+    else
+        "$SCRIPT_DIR/patch-koreader-desktop.sh" || \
+            warn "koreader patch failed; run scripts/patch-koreader-desktop.sh manually"
+    fi
+fi
+
 log "Package installation complete"

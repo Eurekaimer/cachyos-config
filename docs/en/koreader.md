@@ -37,7 +37,13 @@ script after every upgrade:
 ```bash
 ./scripts/patch-koreader-desktop.sh          # apply; prompts for sudo
 ./scripts/patch-koreader-desktop.sh --dry-run  # preview without changing files
+./scripts/patch-koreader-desktop.sh --restore  # restore upstream originals
 ```
+
+`--restore` prefers the dated backup taken at patch time; without one it
+clones the koreader/koreader tag matching the installed version (e.g.
+`v2026.07.1`) and restores those originals. `scripts/install-packages.sh`
+**auto-applies** this patch whenever koreader-bin is present.
 
 The script keeps an idempotent dated backup — the first run copies the shipped
 file to `/usr/lib/koreader/frontend/device.lua.bak-YYYYMMDD` — then removes the

@@ -32,7 +32,13 @@ KOReader 在加载设备模块前会探测设备类型。它的检测逻辑把�
 ```bash
 ./scripts/patch-koreader-desktop.sh             # 应用修复；会提示输入 sudo
 ./scripts/patch-koreader-desktop.sh --dry-run   # 只预览不修改
+./scripts/patch-koreader-desktop.sh --restore   # 复原为厂商原版
 ```
+
+`--restore` 优先用打补丁时留下的日期备份恢复；若无备份，自动 clone
+KOReader 官方仓库中与已装版本匹配的 tag（如 `v2026.07.1`）并复原原版。
+`scripts/install-packages.sh` 在检测到 koreader-bin 已安装后会**自动应用**
+本补丁，无需手动介入。
 
 脚本幂等地保留按日期的备份——首次运行把出厂文件复制为
 `/usr/lib/koreader/frontend/device.lua.bak-YYYYMMDD`——然后删掉 Kobo 探测里的
