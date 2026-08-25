@@ -123,3 +123,14 @@ output "eDP-1" {
 
 ### 10.4 验证
 - 全部脚本 `bash -n` 通过；`./scripts/restore-all.sh --dry-run` 完整跑通（Stage 0–6 命令全部打印）；`install-progress --once` 输出 265/265（清单含新增 2 包）；audit.sh 通过。
+### 10.5 docker-anirss 栈恢复（2026-08-25，重置后）
+
+初始化命令是 `docker-ass`（不是 `docker-anirss`，后者只是模块目录名）。本次三个叠加问题与修复：
+1. **docker 服务未启动**：restore-all Stage 5 只 `enable` 不 `start`（未传 `--now`）。手动 `systemctl start docker`。
+2. **`sg` 依赖 bug（仓库已修）**：`modules/docker-anirss/docker-ass` 的降级路径用 `sg docker -c <cmd>`，而 CachyOS 的 util-linux **已移除 `sg`**（Arch 系只有 `newgrp`/`setpriv`）。docker info 失败（用户不在 docker 组且未 re-login）即触发降级 → "sg: 未找到命令"。已改为 `sudo -g docker -u "$USER" sh -c "<cmd>"`（仓库源码 + `~/.local/bin` 同步）。
+3. **镜像名错误 + registry 被墙**：
+   - `shindoukyou/ani-rss` 在 Docker Hub **404**（不存在）；正确镜像 = **`wushuo894/ani-rss:latest`**（官方 docs.wushuo.top/deploy/docker 确认）。
+   - docker.io 直连超时（大陆网络）；`/etc/docker/daemon.json` 配 `registry-mirrors: ["https://dockerproxy.net"]`（daocloud 有白名单且不含此镜像，别用）+ `system-proxies`（http/https 7897，no-proxy 含 api.github.com）。
+   - compose 文件 `~/Projects/ASS/docker-compose.yml` 按官方参数重写：ani-rss 7789（CONFIG=/config、SERVER_PORT=7789、JAVA_OPTS 官方值），qbittorrent 8080（官方 webui），下载目录 `~/Downloads` 挂成 `/Media`（ani-rss 侧）与 `/downloads`（qb 侧）。
+- **最终状态**：`docker compose up -d` 两容器 Up；http://127.0.0.1:7789（ANI-RSS）与 http://127.0.0.1:8080（qBittorrent）均 200。
+- **注意事项**：用户 `eurekaimer` 已加入 docker 组（`usermod -aG`），**重新登录后 `docker ps` 免 sudo**；daemon.json 与 compose 文件为机器本地，不入 git。
