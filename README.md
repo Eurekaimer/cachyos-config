@@ -58,6 +58,8 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
+Passwordless push setup: [Git authentication](docs/en/git-authentication.md).
+
 **Apply on another machine** (fresh CachyOS install or any other computer):
 
 ```bash

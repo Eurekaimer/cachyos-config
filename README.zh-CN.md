@@ -54,6 +54,8 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
+免密推送配置见 [Git 免密推送（GitHub）](docs/zh-CN/git-authentication.md)。
+
 **在另一台机器上应用**（全新 CachyOS 安装或其他电脑）：
 
 ```bash
