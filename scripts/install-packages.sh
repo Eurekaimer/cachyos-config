@@ -138,4 +138,13 @@ if [[ -f /usr/lib/koreader/frontend/device.lua ]]; then
     fi
 fi
 
+# Restore the canonical KOReader keyboard config from Eurekaimer/
+# koreader-keystream-config (clone + copy; skips existing user files).
+if (( DRY_RUN )); then
+    print_cmd "$SCRIPT_DIR/install-koreader-keystream.sh"
+else
+    "$SCRIPT_DIR/install-koreader-keystream.sh" || \
+        warn "koreader keystream restore failed; run scripts/install-koreader-keystream.sh manually"
+fi
+
 log "Package installation complete"

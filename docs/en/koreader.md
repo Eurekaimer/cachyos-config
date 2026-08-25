@@ -45,6 +45,24 @@ clones the koreader/koreader tag matching the installed version (e.g.
 `v2026.07.1`) and restores those originals. `scripts/install-packages.sh`
 **auto-applies** this patch whenever koreader-bin is present.
 
+## Keyboard config source: koreader-keystream-config
+
+Key bindings, the Vim Keys plugin, and the font patch have their canonical
+source in the standalone `Eurekaimer/koreader-keystream-config` repo. One-shot
+clone-and-restore into `~/.config/koreader/`:
+
+```bash
+./scripts/install-koreader-keystream.sh            # clone + restore; temp checkout, nothing left on disk
+./scripts/install-koreader-keystream.sh --force    # overwrite existing hotkeys/defaults examples
+./scripts/install-koreader-keystream.sh --dry-run  # preview only
+```
+
+Per the upstream README, existing `hotkeys.lua` / `defaults.custom.lua` are
+**not** overwritten (device bindings and per-machine defaults survive); only
+`--force` replaces them with the repo examples. `plugins/vimkeys.koplugin` and
+`patches/1-lxgw-fonts.lua` always track the repo. `scripts/install-packages.sh`
+also runs this restore after package installation.
+
 The script keeps an idempotent dated backup — the first run copies the shipped
 file to `/usr/lib/koreader/frontend/device.lua.bak-YYYYMMDD` — then removes the
 bogus `or lfs.attributes("/usr/bin/hwdetect")` term from the Kobo probe. A
