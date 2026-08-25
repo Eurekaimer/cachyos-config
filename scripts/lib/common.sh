@@ -42,3 +42,13 @@ read_list() {
     [[ -f "$file" ]] || return 0
     sed -e 's/[[:space:]]*#.*$//' -e '/^[[:space:]]*$/d' "$file"
 }
+# Fail fast when an unattended run cannot elevate: sudo may prompt interactively,
+# but a non-interactive session (CI/agent) needs a temporary NOPASSWD entry.
+ensure_sudo() {
+    (( DRY_RUN )) && return 0
+    sudo -n true 2>/dev/null && return 0
+    [[ -t 0 ]] && return 0
+    warn "sudo requires a password and stdin is not a terminal."
+    warn "Unattended runs need a temporary NOPASSWD entry; see AGENT.md §5."
+    return 1
+}

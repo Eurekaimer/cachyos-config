@@ -1,15 +1,13 @@
-baidunetdisk
+baidunetdisk-bin
 clash-verge-rev-bin
 feishu-bin
 flac1.3
-github-desktop-bin
-go-musicfox
+go-musicfox-bin
 google-chrome
 gtkmm
 koreader-bin
 libsoup
 linuxqq
-peazip-qt-bin
 picgo-appimage
 sioyek-git
 ttf-lxgw-wenkai

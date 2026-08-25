@@ -4,9 +4,12 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/proxy.sh
+source "$SCRIPT_DIR/lib/proxy.sh"
 
 require_non_root_user
 require_command pacman
+setup_proxy || true
 
 skip_aur=0
 skip_toolchains=0

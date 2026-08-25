@@ -25,6 +25,8 @@ cachyos-keyring
 cachyos-micro-settings
 cachyos-mirrorlist
 cachyos-niri-noctalia
+noctalia-qs
+noctalia-shell
 cachyos-packageinstaller
 cachyos-plymouth-bootanimation
 cachyos-plymouth-theme
