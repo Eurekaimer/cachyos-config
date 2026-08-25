@@ -3,7 +3,7 @@ format = "$username$directory$git_branch$git_status$time$line_break$character"
 
 [username]
 show_always = true
-format = "[ ○ $user@komari ](fg:#ffffff bg:#2563eb)[](fg:#2563eb bg:#db2777)"
+format = "[ ○ $user@$hostname ](fg:#ffffff bg:#2563eb)[](fg:#2563eb bg:#db2777)"
 
 [directory]
 format = "[ $path ](fg:#ffffff bg:#db2777)[](fg:#db2777 bg:#111827)"
