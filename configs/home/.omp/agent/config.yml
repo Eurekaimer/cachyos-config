@@ -1,0 +1,12 @@
+modelRoles: 
+  smol: opencode-go/deepseek-v4-pro:max
+  default: opencode-go/ox-alpha-free
+symbolPreset: ascii
+theme: 
+  dark: dark-terminal
+setupVersion: 1
+dev: 
+  autoqaConsent: granted
+display: 
+  showTokenUsage: true
+defaultThinkingLevel: auto

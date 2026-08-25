@@ -24,6 +24,7 @@ database.
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
 | Git | `~/.gitconfig` | `configs/home/.gitconfig`; public snapshot removes email |
+| Go-musicfox | `~/.config/go-musicfox/config.toml` | `configs/home/.config/go-musicfox/` |
 | GTK | `~/.config/gtk-3.0/`, `~/.config/gtk-4.0/` | `configs/home/.config/` |
 | Kitty | `~/.config/kitty/` | `configs/home/.config/kitty/` |
 | Micro | `~/.config/micro/settings.json`, `~/.config/micro/colorschemes/` | `configs/home/.config/micro/` |
@@ -34,7 +35,9 @@ database.
 | Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
 | Niri helpers | `~/.local/bin/niri-hotkeys-zh`, `~/.local/bin/niri-stack-column`, hotkey text | `configs/home/.local/bin/`, `configs/home/.local/share/niri/` |
 | Noctalia | `~/.config/noctalia/` | `configs/home/.config/noctalia/` |
+| OMP (Oh My Pi frontend prefs) | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml` (frontend prefs only; runtime state stays out) |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
+| Shelly | `~/.config/shelly/config.json` | `configs/home/.config/shelly/` |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
@@ -115,6 +118,9 @@ The first column is the actual manifest path and is sorted alphabetically.
 ## Excluded from the public repository
 
 SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections,
-`~/.omp` runtime state, cookies, login databases, histories, logs, and caches
-must use a password manager or encrypted backup instead. They are not recovery
-inputs for this public repository.
+`~/.omp` runtime state (agent.db, logs, install-id, sessions), cookies, login
+databases, histories, logs, and caches must use a password manager or encrypted
+backup instead. They are not recovery inputs for this public repository.
+The single `.omp` exception is `agent/config.yml` (secret-free frontend
+preferences), which is a managed config; any other `.omp` content is rejected by
+`audit.sh`.

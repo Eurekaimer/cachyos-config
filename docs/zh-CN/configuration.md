@@ -22,6 +22,7 @@
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
 | Git | `~/.gitconfig` | `configs/home/.gitconfig`；公开快照移除邮箱 |
+| Go-musicfox | `~/.config/go-musicfox/config.toml` | `configs/home/.config/go-musicfox/` |
 | GTK | `~/.config/gtk-3.0/`、`~/.config/gtk-4.0/` | `configs/home/.config/` |
 | Kitty | `~/.config/kitty/` | `configs/home/.config/kitty/` |
 | Micro | `~/.config/micro/settings.json`、`~/.config/micro/colorschemes/` | `configs/home/.config/micro/` |
@@ -32,7 +33,9 @@
 | Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
 | Niri helpers（辅助脚本） | `~/.local/bin/niri-hotkeys-zh`、`~/.local/bin/niri-stack-column`、快捷键文本 | `configs/home/.local/bin/`、`configs/home/.local/share/niri/` |
 | Noctalia | `~/.config/noctalia/` | `configs/home/.config/noctalia/` |
+| OMP（Oh My Pi 前端偏好） | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml`（仅前端偏好，运行态不入） |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`；最近路径元数据会被移除 |
+| Shelly | `~/.config/shelly/config.json` | `configs/home/.config/shelly/` |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers（壁纸） | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
@@ -111,5 +114,7 @@
 ## 明确不进入公开仓库
 
 SSH/GPG 密钥、浏览器目录、Clash profiles、NetworkManager connections、
-`~/.omp` 运行状态、Cookie、登录数据库、历史、日志和缓存必须通过密码管理器或
-加密备份单独迁移，不是本公开仓库的恢复输入。
+`~/.omp` 运行状态（agent.db、logs、install-id、sessions）、Cookie、登录数据库、
+历史、日志和缓存必须通过密码管理器或加密备份单独迁移，不是本公开仓库的恢复输入。
+`~/.omp` 中唯一的例外是 `agent/config.yml`（无密钥的前端偏好），它作为托管配置入库；
+其余任何 `.omp` 内容均被 `audit.sh` 拒绝。

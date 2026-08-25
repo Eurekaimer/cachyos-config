@@ -18,11 +18,17 @@ while IFS= read -r -d '' script; do
 done < <(find "$REPO_ROOT/scripts" -type f -name '*.sh' -print0)
 
 log "Checking forbidden private/runtime paths"
-for forbidden in .ssh .gnupg .aws .kube .omp google-chrome mozilla NetworkManager/system-connections io.github.clash-verge-rev; do
+for forbidden in .ssh .gnupg .aws .kube google-chrome mozilla NetworkManager/system-connections io.github.clash-verge-rev; do
     if find "$REPO_ROOT/configs" -path "*/$forbidden*" -print -quit | grep -q .; then
         fail "Forbidden snapshot path found: $forbidden"
     fi
-done
+ done
+# .omp holds runtime state (agent db, logs, install-id, sessions) and stays forbidden,
+# except the agent's secret-free frontend preferences file, which is a managed config.
+if find "$REPO_ROOT/configs" -path '*/.omp/*' ! -type d \
+    ! -path '*/.omp/agent/config.yml' -print -quit | grep -q .; then
+    fail "Forbidden snapshot path found: .omp"
+fi
 
 for runtime_path in \
     configs/home/.config/mpv/cache \

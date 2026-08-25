@@ -17,6 +17,8 @@
 .config/fastfetch
 .config/mpv
 .config/fcitx5
+.config/go-musicfox
+.config/shelly
 .config/gtk-3.0
 .config/gtk-4.0
 .config/fontconfig
@@ -31,4 +33,5 @@
 .local/share/niri/hotkeys-zh.txt
 .local/bin/niri-stack-column
 .local/bin/sioyek
+.omp/agent/config.yml
 Pictures/Wallpapers
