@@ -1,7 +1,11 @@
 # mpv Config
 
-This directory is installed as `~/.config/mpv` by Home Manager.
-Keep player behavior here; the Nix module should only install packages and link this directory.
+This directory is a snapshot managed by cachyos-config's dotfiles, restored to
+`~/.config/mpv` via `scripts/restore-user.sh`. Keep player behavior here.
+
+Runtime state such as `memo-history.log` and `cache/` (watch-later) is not part
+of the snapshot — `scripts/capture.sh` strips it to avoid leaking file names and
+playback history.
 
 ## Layout
 
@@ -33,6 +37,6 @@ Keep player behavior here; the Nix module should only install packages and link 
 ## Validate
 
 ```sh
-timeout 3s mpv --config-dir=/etc/nixos/modules/home/config/mpv-config \
+timeout 3s mpv --config-dir="$PWD/configs/home/.config/mpv" \
   --idle --vo=null --ao=null --frames=0
 ```
