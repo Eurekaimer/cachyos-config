@@ -116,6 +116,14 @@ capture_group / "$config_root/system/reference" "$manifest_root/system-reference
 rm -rf -- "$config_root/home/.config/mpv/cache"
 rm -f -- "$config_root/home/.config/mpv/memo-history.log"
 
+# OBS profiles contain reusable scene and encoder settings, but service.json
+# stores live-stream keys. Keep credentials out of the portable snapshot.
+obs_profiles="$config_root/home/.config/obs-studio/basic/profiles"
+if [[ -d "$obs_profiles" ]]; then
+    find "$obs_profiles" -type f \
+        \( -name 'service.json' -o -name 'service.json.bak' \) -delete
+fi
+
 # KOReader runtime state is not configuration and may expose filenames.
 rm -rf -- "$config_root/home/.config/koreader/cache"
 rm -rf -- "$config_root/home/.config/koreader/data"
@@ -124,6 +132,7 @@ rm -rf -- "$config_root/home/.config/koreader/help"
 rm -rf -- "$config_root/home/.config/koreader/ota"
 rm -rf -- "$config_root/home/.config/koreader/screenshots"
 rm -f -- "$config_root/home/.config/koreader/history.lua"
+rm -f -- "$config_root/home/.config/koreader/settings/lookup_history.lua"
 find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
     ! -name scrollstep.koplugin -exec rm -rf -- {} +
 rm -f -- "$config_root/home/.config/koreader/scripts"/*

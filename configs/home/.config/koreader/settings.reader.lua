@@ -5,6 +5,7 @@ return {
     ["autoturn_timeout_seconds"] = 0,
     ["autowarmth_fl_off_during_day_offset_s"] = 0,
     ["autowarmth_timezone"] = 0,
+    ["back_in_filemanager"] = "default",
     ["back_in_reader"] = "previous_location",
     ["back_to_exit"] = "prompt",
     ["bookmarks_items_font_size"] = 19,
@@ -435,12 +436,16 @@ return {
     ["footer_presets"] = {},
     ["ges_tap_interval_on_keyboard_ms"] = 0,
     ["header_font"] = "LXGW WenKai",
+    ["highlight_dialog_position"] = "center",
     ["highlight_lighten_factor"] = 0.2,
     ["history_filter"] = "all",
     ["httpinspector"] = {
         ["port"] = 8080,
     },
     ["inertial_scroll"] = true,
+    ["keyboard_chinese_pinyin_settings"] = {
+        ["show_candi"] = true,
+    },
     ["keyboard_key_font_size"] = 22,
     ["keyboard_layouts"] = {},
     ["language"] = "zh_CN",
@@ -493,6 +498,7 @@ return {
     ["terminal_shell"] = "bash",
     ["text_lang_fallback"] = "en-US",
     ["toc_items_per_page"] = 14,
+    ["toc_items_show_chapter_length"] = true,
     ["vocabulary_builder"] = {
         ["enabled"] = false,
         ["with_context"] = true,

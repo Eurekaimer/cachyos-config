@@ -1,46 +1,44 @@
-# STARTED AT: 2026-08-18 16:08:17.179486993 +08:00
+# STARTED AT: 2026-08-28 14:16:08.491847624 +08:00
 # VERSION: 0.30.0
-# ARGS: rate-mirrors --save /tmp/tmp.RtS5TgbiWm arch
+# ARGS: rate-mirrors --save /tmp/tmp.CbX27vhd8l arch
 # FETCHED MIRRORS: 1227
-# PROTOCOL FILTER: 723 -> 297 mirrors
-# MIRRORS LEFT AFTER FILTERING: 297
+# PROTOCOL FILTER: 684 -> 280 mirrors
+# MIRRORS LEFT AFTER FILTERING: 280
 # JUMP #1
 # EXPLORING CN
 # VISITED CN
-# [CN] SpeedTestResult { speed: 9.1 MB/s; elapsed: 743ms; connection_time: 161ms }
-# [CN] SpeedTestResult { speed: 4.1 MB/s; elapsed: 998ms; connection_time: 149ms }
-# [CN] SpeedTestResult { speed: 10.4 MB/s; elapsed: 1.00s; connection_time: 277ms }
-# [CN] FAILED TO CONNECT TO https://mirrors.ustc.edu.cn/archlinux/extra/os/x86_64/extra.files
-#     TOP CONNECTION TIME: CN - 149ms
-#     TOP SPEED: CN - 10.4 MB/s
+# [CN] SpeedTestResult { speed: 6.4 MB/s; elapsed: 923ms; connection_time: 96ms }
+# [CN] SpeedTestResult { speed: 746.9 KB/s; elapsed: 884ms; connection_time: 117ms }
+# [CN] SpeedTestResult { speed: 6.3 MB/s; elapsed: 992ms; connection_time: 300ms }
+# [CN] SpeedTestResult { speed: 1.7 MB/s; elapsed: 723ms; connection_time: 678ms }
+# [CN] SpeedTestResult { speed: 3.5 MB/s; elapsed: 998ms; connection_time: 1.24s }
+#     TOP CONNECTION TIME: CN - 96ms
+#     TOP SPEED: CN - 6.4 MB/s
 # 
 # 
 
 # TESTING UNLABELED MIRRORS
-# SpeedTestResult { speed: 121.8 KB/s; elapsed: 985ms; connection_time: 844ms }
-# SpeedTestResult { speed: 9.6 MB/s; elapsed: 924ms; connection_time: 918ms }
-# SpeedTestResult { speed: 133.6 KB/s; elapsed: 777ms; connection_time: 1.52s }
-# SpeedTestResult { speed: 176.2 KB/s; elapsed: 645ms; connection_time: 1.71s }
-# TOO FEW BYTES LOADED https://geo.mirror.pkgbuild.com/
+# TOO FEW BYTES LOADED https://ftpmirror.infania.net/mirror/archlinux/
+# FAILED TO CONNECT TO https://geo.mirror.pkgbuild.com/extra/os/x86_64/extra.files
+# FAILED TO CONNECT TO https://fastly.mirror.pkgbuild.com/extra/os/x86_64/extra.files
+# FAILED TO CONNECT TO https://mirror.rackspace.com/archlinux/extra/os/x86_64/extra.files
 # 
 
 # RE-TESTING TOP MIRRORS
-# [CN] SpeedTestResult { speed: 9.5 MB/s; elapsed: 997ms; connection_time: 171ms }
-# SpeedTestResult { speed: 5.8 MB/s; elapsed: 483ms; connection_time: 235ms }
-# [CN] SpeedTestResult { speed: 5.5 MB/s; elapsed: 983ms; connection_time: 852ms }
-# [CN] SpeedTestResult { speed: 5.4 MB/s; elapsed: 984ms; connection_time: 166ms }
-# TOO FEW BYTES LOADED https://mirrors.teamcloud.am/archlinux/
+# [CN] SpeedTestResult { speed: 6.3 MB/s; elapsed: 758ms; connection_time: 238ms }
+# [CN] SpeedTestResult { speed: 2.5 MB/s; elapsed: 994ms; connection_time: 121ms }
+# [CN] SpeedTestResult { speed: 2.7 MB/s; elapsed: 928ms; connection_time: 111ms }
+# [CN] SpeedTestResult { speed: 1.4 MB/s; elapsed: 980ms; connection_time: 451ms }
+# [CN] SpeedTestResult { speed: 1.6 MB/s; elapsed: 995ms; connection_time: 126ms }
 # ==== RESULTS (top re-tested) ====
-#   1. [CN] SpeedTestResult { speed: 9.5 MB/s; elapsed: 997ms; connection_time: 171ms } -> https://mirrors.aliyun.com/archlinux/
-#   2. SpeedTestResult { speed: 5.8 MB/s; elapsed: 483ms; connection_time: 235ms } -> https://fastly.mirror.pkgbuild.com/
-#   3. [CN] SpeedTestResult { speed: 5.5 MB/s; elapsed: 983ms; connection_time: 852ms } -> https://mirrors.jlu.edu.cn/archlinux/
-#   4. [CN] SpeedTestResult { speed: 5.4 MB/s; elapsed: 984ms; connection_time: 166ms } -> https://mirrors.wsyu.edu.cn/archlinux/
-#   5. SpeedTestResult { speed: 133.6 KB/s; elapsed: 777ms; connection_time: 1.52s } -> https://mirror.rackspace.com/archlinux/
-#   6. SpeedTestResult { speed: 121.8 KB/s; elapsed: 985ms; connection_time: 844ms } -> https://ftpmirror.infania.net/mirror/archlinux/
-# FINISHED AT: 2026-08-18 16:08:40.797256591 +08:00
-Server = https://mirrors.aliyun.com/archlinux/$repo/os/$arch
-Server = https://fastly.mirror.pkgbuild.com/$repo/os/$arch
+#   1. [CN] SpeedTestResult { speed: 6.3 MB/s; elapsed: 758ms; connection_time: 238ms } -> https://mirrors.jlu.edu.cn/archlinux/
+#   2. [CN] SpeedTestResult { speed: 2.7 MB/s; elapsed: 928ms; connection_time: 111ms } -> https://mirrors.ustc.edu.cn/archlinux/
+#   3. [CN] SpeedTestResult { speed: 2.5 MB/s; elapsed: 994ms; connection_time: 121ms } -> https://mirrors.aliyun.com/archlinux/
+#   4. [CN] SpeedTestResult { speed: 1.6 MB/s; elapsed: 995ms; connection_time: 126ms } -> https://mirrors.hit.edu.cn/archlinux/
+#   5. [CN] SpeedTestResult { speed: 1.4 MB/s; elapsed: 980ms; connection_time: 451ms } -> https://mirrors.wsyu.edu.cn/archlinux/
+# FINISHED AT: 2026-08-28 14:16:27.449439155 +08:00
 Server = https://mirrors.jlu.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
+Server = https://mirrors.aliyun.com/archlinux/$repo/os/$arch
+Server = https://mirrors.hit.edu.cn/archlinux/$repo/os/$arch
 Server = https://mirrors.wsyu.edu.cn/archlinux/$repo/os/$arch
-Server = https://mirror.rackspace.com/archlinux/$repo/os/$arch
-Server = https://ftpmirror.infania.net/mirror/archlinux/$repo/os/$arch

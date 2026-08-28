@@ -1,11 +1,14 @@
-NAME        FSTYPE FSVER LABEL UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
-zram0       swap   1     zram0 db6b0a45-ae40-4c94-9d30-6b67b1599710                [SWAP]
-nvme0n1                                                                            
-├─nvme0n1p1 vfat   FAT32       5ED2-98F6                               2.2G    46% /boot
-└─nvme0n1p2 btrfs              3c68adfc-2431-48f4-bebe-70d35489365a  119.4G    87% /home
-                                                                                   /var/cache
-                                                                                   /var/tmp
-                                                                                   /var/log
-                                                                                   /srv
-                                                                                   /root
-                                                                                   /
+NAME        FSTYPE FSVER LABEL  UUID                                 FSAVAIL FSUSE% MOUNTPOINTS
+loop0       ext4   1.0   /      1d721c11-b7e0-43c9-aa74-6ffaa41ee270  186.2G    80% /var/lib/waydroid/rootfs
+loop1       ext4   1.0   vendor 747795a1-8a8b-46e5-b84f-d4cfb080e8c5  186.2G    80% /var/lib/waydroid/rootfs/vendor
+zram0       swap   1     zram0  f21ccbce-62ab-4b60-b89a-97e6c4deeea4                [SWAP]
+nvme0n1                                                                             
+├─nvme0n1p1 vfat   FAT32        5ED2-98F6                               2.9G    28% /boot
+└─nvme0n1p2 btrfs               3c68adfc-2431-48f4-bebe-70d35489365a  186.2G    80% /var/lib/waydroid/rootfs/vendor/waydroid.prop
+                                                                                    /var/cache
+                                                                                    /var/log
+                                                                                    /var/tmp
+                                                                                    /home
+                                                                                    /root
+                                                                                    /srv
+                                                                                    /

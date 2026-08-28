@@ -25,8 +25,6 @@ cachyos-keyring
 cachyos-micro-settings
 cachyos-mirrorlist
 cachyos-niri-noctalia
-noctalia-qs
-noctalia-shell
 cachyos-packageinstaller
 cachyos-plymouth-bootanimation
 cachyos-plymouth-theme
@@ -50,6 +48,7 @@ dmraid
 dnsmasq
 docker
 docker-compose
+dosbox
 dosfstools
 duf
 e2fsprogs
@@ -127,6 +126,7 @@ lsb-release
 lsscsi
 lutris
 lvm2
+lzip
 man-db
 man-pages
 mangohud
@@ -151,11 +151,13 @@ nilfs-utils
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+npm
 nss-mdns
 ntfs-3g
 ntfsprogs
 nvidia-settings
 nvidia-utils
+obs-studio
 obsidian
 opencl-nvidia
 openssh

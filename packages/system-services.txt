@@ -28,3 +28,4 @@ virtlockd-admin.socket
 virtlockd.socket
 virtlogd-admin.socket
 virtlogd.socket
+waydroid-container.service
