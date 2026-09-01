@@ -34,6 +34,7 @@
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop
 .local/bin/niri-hotkeys-zh
+.local/bin/fcitx5-toggle-japanese
 .local/share/niri/hotkeys-zh.txt
 .local/bin/niri-stack-column
 .local/bin/sioyek
