@@ -1,4 +1,6 @@
 # Required by managed configuration or recovery scripts.
+7zip
+curl
 jq
 fd
 npm

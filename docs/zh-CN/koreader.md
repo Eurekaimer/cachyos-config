@@ -40,22 +40,28 @@ KOReader 官方仓库中与已装版本匹配的 tag（如 `v2026.07.1`）并复
 `scripts/install-packages.sh` 在检测到 koreader-bin 已安装后会**自动应用**
 本补丁，无需手动介入。
 
-## 键盘配置源：koreader-keystream-config
+## 键盘与 ECDICT 配置源：koreader-keystream-config
 
-键位、Vim Keys 插件与字体补丁的**权威源**是独立的
-`Eurekaimer/koreader-keystream-config` 仓库。一键 clone 并复原到
+键位、Vim Keys 插件、字体补丁与 KOReader 版 ECDICT 安装器的**权威源**
+是独立的 `Eurekaimer/koreader-keystream-config` 仓库。一键 clone 并复原到
 `~/.config/koreader/`：
 
 ```bash
 ./scripts/install-koreader-keystream.sh            # clone + 复原；临时 checkout，不留盘
 ./scripts/install-koreader-keystream.sh --force    # 覆盖已有 hotkeys/defaults 示例
 ./scripts/install-koreader-keystream.sh --dry-run  # 只预览
+./scripts/install-koreader-keystream.sh --skip-dictionary     # 只复原键位、插件和补丁
+./scripts/install-koreader-keystream.sh --refresh-dictionary  # 强制重建 ECDICT
 ```
 
 按上游 README 约定，已存在的 `hotkeys.lua` / `defaults.custom.lua` **不会**被
 覆盖（保护设备绑定与单机默认值），`--force` 才替换为仓库示例；
-`plugins/vimkeys.koplugin` 与 `patches/1-lxgw-fonts.lua` 始终同步为仓库
-最新版。`scripts/install-packages.sh` 也会在安装后自动执行本复原。
+`plugins/vimkeys.koplugin` 与补丁始终同步为仓库最新版。默认流程还会下载
+经 SHA-256 校验的固定 ECDICT 数据，流式生成 3,402,564 个英汉 StarDict
+词条到 `~/.config/koreader/data/dict/ecdict-en-zh/`；已有正确版本时幂等跳过。
+安装后重启 KOReader，并保持“使用外部词典”关闭。`scripts/install-packages.sh`
+会在安装后自动执行本复原；`packages/required-extra.txt` 负责补齐 `7zip`
+和 `curl`。
 
 脚本幂等地保留按日期的备份——首次运行把出厂文件复制为
 `/usr/lib/koreader/frontend/device.lua.bak-YYYYMMDD`——然后删掉 Kobo 探测里的
