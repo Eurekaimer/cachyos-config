@@ -2,7 +2,7 @@ return {
   -- Snacks replaces separate dashboard, explorer, picker, notifier, and terminal plugins.
   {
     "folke/snacks.nvim",
-    priority = 1000,
+    priority = 900,
     lazy = false,
     opts = {
       bigfile = { enabled = true },
@@ -36,6 +36,41 @@ return {
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
-    opts = { delay = 300, preset = "modern" },
+    opts = {
+      delay = 300,
+      preset = "modern",
+      spec = {
+        { "<leader>b", group = "缓冲区" },
+        { "<leader>c", group = "代码" },
+        { "<leader>f", group = "查找" },
+        { "<leader>g", group = "Git" },
+        { "<leader>m", group = "Markdown" },
+        { "<leader>s", group = "保存/搜索/诊断" },
+        { "<leader>w", group = "窗口" },
+      },
+    },
+  },
+
+  -- Neovide already animates its cursor; use this text-cell approximation elsewhere.
+  {
+    "sphamba/smear-cursor.nvim",
+    event = "VeryLazy",
+    cond = function()
+      return not vim.g.neovide
+    end,
+    opts = {
+      smear_between_buffers = true,
+      smear_between_neighbor_lines = true,
+      scroll_buffer_space = true,
+      smear_insert_mode = true,
+      stiffness = 0.8,
+      trailing_stiffness = 0.6,
+      stiffness_insert_mode = 0.7,
+      trailing_stiffness_insert_mode = 0.7,
+      damping = 0.95,
+      damping_insert_mode = 0.95,
+      distance_stop_animating = 0.5,
+      legacy_computing_symbols_support = false,
+    },
   },
 }

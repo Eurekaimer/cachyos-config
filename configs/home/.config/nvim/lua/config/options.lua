@@ -9,6 +9,15 @@ for _, directory in ipairs({ "~/.cargo/bin", "~/.cache/.bun/bin" }) do
   end
 end
 
+-- Keep long cursor jumps easy to track in Neovide.
+if vim.g.neovide then
+  vim.g.neovide_cursor_animation_length = 0.15
+  vim.g.neovide_cursor_short_animation_length = 0.04
+  vim.g.neovide_cursor_trail_size = 1.0
+  vim.g.neovide_cursor_vfx_mode = "ripple"
+end
+
+opt.termguicolors = true
 opt.number = true
 opt.relativenumber = true
 opt.cursorline = true
@@ -54,5 +63,5 @@ if vim.fn.executable("wl-copy") == 1 or vim.fn.executable("xclip") == 1 then
   opt.clipboard = "unnamedplus"
 end
 
--- Prefer a bundled colorscheme over a dedicated theme plugin.
+-- Keep a built-in theme active until the configured colorscheme loads.
 vim.cmd.colorscheme("habamax")

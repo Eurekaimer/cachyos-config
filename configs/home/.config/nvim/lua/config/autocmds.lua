@@ -19,6 +19,15 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
+-- Tutor feedback uses paired extmarks that Snacks' status column can mask.
+vim.api.nvim_create_autocmd("FileType", {
+  group = group,
+  pattern = "tutor",
+  callback = function()
+    vim.wo.statuscolumn = ""
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = group,
   command = "checktime",

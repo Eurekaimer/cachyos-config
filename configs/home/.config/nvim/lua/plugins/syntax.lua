@@ -1,5 +1,5 @@
+-- Syntax parsers are centralized here because Markdown rendering and image discovery reuse them.
 return {
-  -- Treesitter is the only syntax plugin; Neovim provides the highlighter itself.
   {
     "nvim-treesitter/nvim-treesitter",
     lazy = false,
@@ -32,18 +32,5 @@ return {
         "yaml",
       })
     end,
-  },
-
-  -- Surround editing has no equivalent in core Neovim and saves repeated edits.
-  {
-    "nvim-mini/mini.surround",
-    version = "*",
-    opts = {},
-  },
-
-  -- This command-only training plugin never loads during normal editing.
-  {
-    "ThePrimeagen/vim-be-good",
-    cmd = "VimBeGood",
   },
 }
