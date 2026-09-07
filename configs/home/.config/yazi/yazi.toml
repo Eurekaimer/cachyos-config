@@ -7,6 +7,8 @@
 [open]
 prepend_rules = [
   { use = "sioyek-new", mime = "application/pdf" },
+  { use = "markdown-open", mime = "text/{markdown,x-markdown}" },
+  { use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
 ]
 
 [opener]
@@ -15,4 +17,9 @@ prepend_rules = [
   # native Wayland path fails to present its first frame under Qt 6.11 + niri.
 sioyek-new = [
   { run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+]
+
+# Use the Markdown launcher even when a .md file is detected as text/plain.
+markdown-open = [
+  { run = 'gtk-launch neovim-markdown %s', desc = "Open Markdown in Neovim (new window)", orphan = true },
 ]

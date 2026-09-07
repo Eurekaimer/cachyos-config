@@ -12,7 +12,7 @@ Yazi 是工作站的终端文件管理器。配置文件 `~/.config/yazi/yazi.to
 
 ```toml
 [open]
-rules = [
+prepend_rules = [
   { use = "sioyek-new", mime = "application/pdf" },
 ]
 
@@ -27,6 +27,22 @@ opener 直接调用 `~/.local/bin/sioyek` 而不是 `sioyek`，因为这个包�
 在 Yazi 中选中 PDF 按回车，即可同时打开多个 Sioyek 窗口，互不干扰；`orphan = true` 保证 Yazi 退出后窗口仍保留。
 
 已知限制：`--new-instance` 对同一个文件重复回车会开重复窗口；Sioyek 的 `--new-window`（同实例新窗口、同文件复用）在 2.0.0.r1147 下发送给已有实例后实测无效。
+
+## Markdown 多窗口打开
+
+Markdown MIME 类型和 `*.{md,markdown,mdown,mkd}` 路径使用
+`gtk-launch neovim-markdown %s`，直接调用已保存的 Kitty/Neovim 桌面启动器。
+每次回车启动独立窗口，`orphan = true` 不阻塞 Yazi。修改配置后需重启 Yazi。
+路径规则覆盖被识别为 `text/plain` 的 Markdown；不经 `xdg-open`，避免落到
+普通文本默认程序 Kate。其他文本文件的默认程序保持不变。
+
+## 更新后 Sioyek 缺少共享库
+
+2026-09-07，`libmupdf` 从 1.28.0 升到 1.28.3 后，原有 AUR
+`sioyek-git` 仍链接 `libmupdf.so.28.0`。用当前库重编译并重新安装
+同一源码版本后恢复，无需回退库或创建兼容软链接。
+完整更新使用 `paru -Syu`，之后运行已安装的 `checkrebuild`。
+AUR 包即使没有版本更新，也可能因依赖 ABI 变化而需要重新编译。
 
 ## Yazi 26 配置语法注意
 

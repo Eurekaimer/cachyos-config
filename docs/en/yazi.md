@@ -18,7 +18,7 @@ each document gets its own process and window:
 
 ```toml
 [open]
-rules = [
+prepend_rules = [
   { use = "sioyek-new", mime = "application/pdf" },
 ]
 
@@ -42,6 +42,25 @@ Known limitation: `--new-instance` opens a duplicate window when Enter is
 pressed again on the same file. Sioyek's `--new-window` (new window in the
 same instance, reusing the window of an already-open file) was tested on
 2.0.0.r1147 and does not take effect when sent to an existing instance.
+
+## Multi-window Markdown opening
+
+Markdown MIME types and `*.{md,markdown,mdown,mkd}` paths use
+`gtk-launch neovim-markdown %s` to invoke the captured Kitty/Neovim desktop
+launcher directly. Each Enter opens a separate window without blocking Yazi.
+Restart Yazi after changing its configuration. The path rule also covers
+Markdown detected as `text/plain`; bypassing `xdg-open` avoids opening it in
+Kate. Other plain-text associations are unchanged.
+
+## Missing Sioyek libraries after an upgrade
+
+On 2026-09-07, upgrading `libmupdf` from 1.28.0 to 1.28.3 left the locally
+built AUR `sioyek-git` linked to `libmupdf.so.28.0`. Rebuilding and reinstalling
+the same source revision against the installed library restored startup.
+Do not substitute library symlinks or downgrade the library as a workaround.
+Use full updates (`paru -Syu`) and run the installed `checkrebuild` afterward:
+AUR packages may require rebuilding after dependency ABI changes even when
+their own version has not changed.
 
 ## Yazi 26 configuration syntax notes
 
