@@ -32,6 +32,33 @@ return {
     },
   },
 
+  {
+    "stevearc/aerial.nvim",
+    cmd = { "AerialToggle", "AerialOpen", "AerialClose", "AerialInfo" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    keys = {
+      { "<leader>a", "<cmd>AerialToggle<CR>", desc = "切换标题/代码大纲" },
+    },
+    opts = {
+      layout = { default_direction = "right", min_width = 24 },
+      -- Markdown folds include section contents; leave other filetypes' folds alone.
+      manage_folds = { markdown = true, ["_"] = false },
+      link_tree_to_folds = true,
+      keymaps = {
+        -- Preserve global save, window navigation, and end-of-line mappings.
+        ["<C-s>"] = false,
+        ["<C-j>"] = false,
+        ["<C-k>"] = false,
+        ["L"] = false,
+        -- Keep native paragraph/section motions; j/k select, Enter jumps.
+        ["{"] = false,
+        ["}"] = false,
+        ["[["] = false,
+        ["]]"] = false,
+      },
+    },
+  },
+
   -- which-key is retained for discoverability while learning modal editing.
   {
     "folke/which-key.nvim",

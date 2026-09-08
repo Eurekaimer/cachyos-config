@@ -93,6 +93,7 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Kanagawa Wave 主题 | 启动优先加载 |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | dashboard、explorer、picker、通知、zen、bufdelete、LazyGit | 启动加载 |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | 中文快捷键分组提示 | `VeryLazy` |
+| [aerial.nvim](https://github.com/stevearc/aerial.nvim) | 多级标题/代码大纲、跳转、Markdown 正文折叠 | `<leader>a` 或 Aerial 命令 |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | 在终端中模拟 Neovide 光标拖尾 | `VeryLazy`；Neovide 内禁用 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 语法树、高亮及 Markdown 结构解析 | 启动加载 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
@@ -192,6 +193,30 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | `<leader>gg` | LazyGit |
 | `<leader>z` | 专注模式 |
 | `<leader>n` | 通知历史 |
+
+### 标题与代码大纲（Aerial）
+
+普通模式按 `<leader>a`（空格后按 `a`）打开右侧大纲并进入；再次按下关闭。
+Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整个章节（包括子标题及内容），不会删除文字。
+其他语言仍可浏览代码符号，但不接管正文折叠。
+
+以下按键仅在大纲窗口中生效：
+
+| 按键 | 作用 |
+|---|---|
+| `j` / `k` | 向下/向上选择可见标题，包含不同层级 |
+| `<Enter>` | 跳到所选标题并回到正文 |
+| `p` | 正文滚动到所选标题，焦点留在大纲 |
+| `h` / `l` | 收起/展开当前节点 |
+| `zC` / `zO` | 递归收起/展开当前节点及全部子节点 |
+| `za` / `zA` | 切换当前节点/递归切换 |
+| `zM` / `zR` | 收起/展开整个大纲 |
+| `q` | 关闭大纲 |
+| `?` | 查看大纲快捷键 |
+
+保留全局 `Ctrl-h/j/k/l` 窗口切换、`Ctrl-s` 保存和 `L` 行尾映射；
+大纲是只读窗口，保存正文前先用 `Ctrl-h` 返回正文。
+未采用上游示例的 `{` / `}` 标题跳转映射，避免覆盖原有段落移动。
 
 ### Markdown
 
