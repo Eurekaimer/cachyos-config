@@ -116,4 +116,5 @@ for the current user at restore time.
 ### Diagnostics and optional scripts
 
 + [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
++ [Touchpad boot self-recovery (Lenovo 82XF)](docs/en/touchpad-boot-recovery.md) · [中文](docs/zh-CN/touchpad-boot-recovery.md)
 + [Optional user scripts](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md)

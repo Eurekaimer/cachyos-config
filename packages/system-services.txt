@@ -23,6 +23,7 @@ systemd-resolved-varlink.socket
 systemd-resolved.service
 systemd-timesyncd.service
 systemd-userdbd.socket
+touchpad-boot-recovery.service
 ufw.service
 virtlockd-admin.socket
 virtlockd.socket

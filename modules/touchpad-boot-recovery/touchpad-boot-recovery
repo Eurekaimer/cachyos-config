@@ -1,0 +1,88 @@
+#!/usr/bin/python3
+"""Boot-time self-recovery for the Lenovo 82XF I2C touchpad.
+
+The i2c_designware controller for the touchpad sometimes fails to probe the
+MSFT0002:00 touchpad at boot (IRQ 27 "nobody cared", i2c-MSFT0002:00 probe
+-110). When the input device is missing, rebind the controller once.
+
+One-shot, device-specific, no timers, no rules, no restarts.
+"""
+import sys
+import time
+from pathlib import Path
+
+DRIVER_DIR = Path("/sys/bus/platform/drivers/i2c_designware")
+CONTROLLER = "i2c_designware.0"
+I2C_SUBPATH = Path("i2c-0/i2c-MSFT0002:00")
+INPUT_NAME = "MSFT0002:00 06CB:CEFE Touchpad"
+POLL_INTERVAL = 0.25
+PRE_BIND_TIMEOUT = 10.0
+POST_BIND_TIMEOUT = 5.0
+
+
+def touchpad_registered() -> bool:
+    """True when the target touchpad input device is registered.
+
+    A match requires an exact input device name AND the device resolving
+    under this controller's real sysfs path, so a different touchpad or a
+    bare "Mouse" sub-device can never count.
+    """
+    controller = (DRIVER_DIR / CONTROLLER).resolve()
+    for event in Path("/sys/class/input").glob("event*"):
+        try:
+            if event.joinpath("device", "name").read_text().strip() != INPUT_NAME:
+                continue
+            device = event.joinpath("device").resolve()
+        except FileNotFoundError:
+            # Hotplug race: sysfs entry vanished mid-scan; skip it.
+            continue
+        if device == controller or controller in device.parents:
+            return True
+    return False
+
+
+def topology_absent() -> bool:
+    """True when the controller or its touchpad I2C sub-path is missing."""
+    controller = DRIVER_DIR / CONTROLLER
+    return not controller.is_dir() or not (controller / I2C_SUBPATH).is_dir()
+
+
+def main() -> int:
+    if touchpad_registered():
+        print("Touchpad already registered; no recovery needed.")
+        return 0
+
+    deadline = time.monotonic() + PRE_BIND_TIMEOUT
+    while time.monotonic() < deadline:
+        time.sleep(POLL_INTERVAL)
+        if touchpad_registered():
+            print("Touchpad already registered; no recovery needed.")
+            return 0
+
+    if topology_absent():
+        print("Target touchpad topology absent; skipping recovery.")
+        return 0
+
+    # Rebind once. Both writes target the fixed driver directory, which
+    # outlives the controller's device subdirectories.
+    print("Touchpad missing; rebinding i2c_designware.0 once.")
+    try:
+        (DRIVER_DIR / "unbind").write_text(CONTROLLER)
+        (DRIVER_DIR / "bind").write_text(CONTROLLER)
+    except Exception as exc:  # noqa: BLE001 - report, do not retry
+        print(f"Touchpad recovery failed: rebind error: {exc}", file=sys.stderr)
+        return 1
+
+    deadline = time.monotonic() + POST_BIND_TIMEOUT
+    while time.monotonic() < deadline:
+        time.sleep(POLL_INTERVAL)
+        if touchpad_registered():
+            print("Touchpad registered after recovery.")
+            return 0
+
+    print("Touchpad recovery failed: input device still absent.", file=sys.stderr)
+    return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

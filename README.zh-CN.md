@@ -110,4 +110,5 @@ sudo reboot
 ### 诊断与可选脚本
 
 + [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
++ [触摸板开机自恢复（Lenovo 82XF）](docs/zh-CN/touchpad-boot-recovery.md) · [English](docs/en/touchpad-boot-recovery.md)
 + [可选用户脚本](docs/zh-CN/user-scripts.md) · [English](docs/en/user-scripts.md)

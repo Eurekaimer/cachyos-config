@@ -1,6 +1,6 @@
 # Optional user scripts
 
-Three machine-specific helpers are kept out of the generic
+Four machine-specific helpers are kept out of the generic
 snapshot restore because not every machine needs them. Install each one with
 its own script; each module ships an `uninstall.sh`.
 
@@ -9,10 +9,14 @@ its own script; each module ships an `uninstall.sh`.
 | `campus-login` | Open the Nankai campus-network authentication page in an isolated Chrome profile with proxies bypassed, so Clash/mihomo cannot intercept the captive portal | `./scripts/install-campus-login.sh` | `modules/campus-login/uninstall.sh` |
 | `docker-ass` | Manage the ANI-RSS + qBittorrent docker compose stack and open its web interfaces | `./scripts/install-docker-anirss.sh` | `modules/docker-anirss/uninstall.sh` |
 | `komari-call` | Build the KOMABELIKA terminal companion from GitHub with cargo and link it into `~/.local/bin` | `./scripts/install-komari-call.sh` | `modules/komari-call/uninstall.sh` |
+| `touchpad-boot-recovery` | Boot-time self-recovery for the Lenovo 82XF I2C touchpad: rebinds `i2c_designware.0` once when the touchpad is still missing after boot (intermittent-failure workaround, not a kernel fix) | `./scripts/install-touchpad-boot-recovery.sh` | `modules/touchpad-boot-recovery/uninstall.sh` |
 
 All installers accept `--dry-run` to preview without changing the machine.
-Installed files land in `~/.local/bin`; previous versions are backed up to
-`~/.local/state/cachyos-config/module-backups/` before replacement.
+The user scripts land in `~/.local/bin`; `touchpad-boot-recovery` installs
+`/usr/local/sbin/touchpad-boot-recovery` and
+`/etc/systemd/system/touchpad-boot-recovery.service` (as root). Previous
+versions are backed up to `~/.local/state/cachyos-config/module-backups/`
+before replacement.
 
 ## campus-login
 
@@ -40,3 +44,14 @@ non-docker-group login session.
 --force komari-call`, then `~/.local/bin/komari-call` symlinks to
 `~/.cargo/bin/komari-call`. Requires a Rust toolchain (CachyOS:
 `sudo pacman -S rust`, or rustup). The first build takes a few minutes.
+
+## touchpad-boot-recovery
+
+Device-limited workaround for the Lenovo 82XF I2C touchpad that fails to
+register on some boots (`irq 27: nobody cared` → `i2c_designware.0:
+controller timed out` → probe `-110`). The oneshot service waits up to 10 s
+after boot; if the touchpad is still missing it rebinds `i2c_designware.0`
+once and verifies the input device reappears. It is a persistent response to
+an intermittent failure, **not a kernel root-cause fix**; see
+[Touchpad boot self-recovery](touchpad-boot-recovery.md) for the symptom
+details, upstream reports, and boundaries.

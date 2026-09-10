@@ -134,3 +134,12 @@ output "eDP-1" {
    - compose 文件 `~/Projects/ASS/docker-compose.yml` 按官方参数重写：ani-rss 7789（CONFIG=/config、SERVER_PORT=7789、JAVA_OPTS 官方值），qbittorrent 8080（官方 webui），下载目录 `~/Downloads` 挂成 `/Media`（ani-rss 侧）与 `/downloads`（qb 侧）。
 - **最终状态**：`docker compose up -d` 两容器 Up；http://127.0.0.1:7789（ANI-RSS）与 http://127.0.0.1:8080（qBittorrent）均 200。
 - **注意事项**：用户 `eurekaimer` 已加入 docker 组（`usermod -aG`），**重新登录后 `docker ps` 免 sudo**；daemon.json 与 compose 文件为机器本地，不入 git。
+
+## 11. 触摸板开机自恢复模块（2026-09-10）
+
+- **问题**：Lenovo 82XF（IdeaPad Slim 5 16IRL8，i5-13500H，BIOS LACN22WW）I2C 触摸板（`MSFT0002:00 06CB:CEFE`）部分开机无法注册：`irq 27: nobody cared`（handlers `idma64.0, i2c_designware.0`）→ `i2c_designware.0: controller timed out` → `i2c-MSFT0002:00` 探测 `-110`。6.18.42-1/6.18.48-1（有成功也有失败）/7.2.0-1/7.2.2-1 均出现，非单版本回归；已注册设备还会在运行中停事件（11:05 复现，重绑恢复，11:10 root 捕获 34 个真实多指事件）。根因未定（时序/固件/驱动交互皆为可能性）。
+- **上游检索结论**（详见 `docs/en/touchpad-boot-recovery.md`）：同族报告已有——CachyOS/linux-cachyos#858（HP ENVY 13，SYNA329D，签名完全一致）、#982（7.2.0-rc7 延迟探测）、Arch 论坛 312363（同型号 IdeaPad Slim 5 16IRL8，ELAN06FA，12/13 冷启动失败）、Ubuntu 2072612（82ND 运行中失效，转 bugzilla 219101）。本机数据点（82XF + 06CB:CEFE + 多内核 + 运行中失效）未见任何一条包含，建议评论补充而非开新票（#858 评论待用户确认后代发）。
+- **新增**：`modules/touchpad-boot-recovery/`（脚本 + unit + install/uninstall + 双语 README）、`scripts/install-touchpad-boot-recovery.sh`（包装，--dry-run、ensure_sudo）、`docs/{en,zh-CN}/touchpad-boot-recovery.md`（现象/上游/边界）、README 双语索引 + user-scripts 双语清单、`packages/system-services.txt` +touchpad-boot-recovery.service（restore-services 幂等，目标机无此 unit 时只告警跳过）。
+- **设计边界**：oneshot 开机自恢复（Before=display-manager.service），最多等 10s 后一次性 unbind/bind `i2c_designware.0`，再等 5s 验证注册；不循环、不卸载共享模块、不加 irqpoll/timer/udev 规则。**是间歇故障应对，不是根因修复**。
+- **当前机状态**：unit 已 enabled 并运行（10:53 重绑成功）；仓库内文件与系统内文件逐字节一致（diff 通过）。真实下一次启动验证仍需用户自主重启后查 `journalctl -b _COMM=touchpad-boot-recovery` 与实际操作。
+

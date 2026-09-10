@@ -1,0 +1,13 @@
+[Unit]
+Description=Recover the Lenovo I2C touchpad when missing at boot
+After=systemd-modules-load.service systemd-udev-trigger.service
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/touchpad-boot-recovery
+TimeoutStartSec=30
+RemainAfterExit=yes
+
+[Install]
+WantedBy=graphical.target
