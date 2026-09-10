@@ -69,7 +69,7 @@ nvim
     ├── plugins/
     │   ├── theme.lua           # Kanagawa Wave
     │   ├── ui.lua              # Snacks、which-key、smear-cursor
-    │   ├── editing.lua         # mini.surround、LuaSnip、vim-be-good
+    │   ├── editing.lua         # mini.surround、auto-save、LuaSnip、vim-be-good
     │   ├── syntax.lua          # Treesitter parsers
     │   ├── markdown.lua        # render-markdown、image.nvim
     │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
@@ -97,6 +97,7 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | 在终端中模拟 Neovide 光标拖尾 | `VeryLazy`；Neovide 内禁用 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 语法树、高亮及 Markdown 结构解析 | 启动加载 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
+| [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式 snippets | 仅 `markdown` |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
@@ -355,6 +356,7 @@ image.nvim 使用 Kitty Graphics Protocol：
 
 - 全小写搜索忽略大小写；出现大写字符时自动区分大小写；
 - 持久化撤销，关闭 swapfile；
+- 退出插入模式或文本变化后自动写盘（`auto-save.nvim`）：断电或窗口被强杀时最多丢失一次防抖窗口内的改动；
 - 重新打开文件恢复上次光标位置；
 - yank 后高亮 150 ms；
 - 回到编辑器或离开终端后自动检测磁盘上的文件变化；

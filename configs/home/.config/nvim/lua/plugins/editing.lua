@@ -6,6 +6,14 @@ return {
     opts = {},
   },
 
+  -- Continuous persistence: a power loss must not cost more than one debounce window.
+  {
+    "okuuva/auto-save.nvim",
+    version = "^1.0.0",
+    event = { "InsertLeave", "TextChanged" },
+    opts = {},
+  },
+
   {
     "L3MON4D3/LuaSnip",
     version = "v2.*",
