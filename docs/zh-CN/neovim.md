@@ -16,7 +16,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 4. **可选工具延迟加载。** VimBeGood 只有执行命令时才加载。
 5. **锁定结果。** `lazy-lock.json` 记录插件版本，保证恢复可重复。
 
-最终锁文件只包含 **15 个插件仓库**，其中已经包括插件管理器本身。
+最终锁文件只包含 **17 个插件仓库**，其中已经包括插件管理器本身。
 
 ## 配置结构
 
@@ -29,8 +29,8 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/config/lazy.lua` | 引导 lazy.nvim 并导入插件声明 |
 | `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测和主题兜底 |
 | `lua/plugins/theme.lua` | Kanagawa Wave 配色 |
-| `lua/plugins/ui.lua` | Snacks、which-key 和光标动画 |
-| `lua/plugins/editing.lua` | 成对符号编辑、snippets 引擎和移动练习 |
+| `lua/plugins/ui.lua` | Snacks、Aerial 大纲、which-key 和光标动画 |
+| `lua/plugins/editing.lua` | 成对符号编辑、自动保存、snippets 引擎和移动练习 |
 | `lua/plugins/syntax.lua` | Treesitter 解析器与高亮 |
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
@@ -46,6 +46,8 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 
 | 项目 | 加载方式 | 作用 | 保留原因与动机 |
 | --- | --- | --- | --- |
+| [aerial.nvim](https://github.com/stevearc/aerial.nvim) | `AerialToggle` 等命令 | 多级标题/代码大纲、跳转、Markdown 正文折叠 | 长 Markdown 需要能同步驱动折叠的结构视图；一个插件同时覆盖浏览与折叠，其他语言不接管其折叠设置。 |
+| [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | `InsertLeave`、`TextChanged` | 离开插入模式或文本变化后自动写盘 | 防止写作内容因断电或窗口被强杀而丢失；手动保存仍然有效，也不需要额外快捷键。 |
 | [image.nvim](https://github.com/3rd/image.nvim) | 仅 Kitty + `markdown` | 在编辑器内显示 Markdown 内联图片和图片文件 | 图片无法由 Neovim 核心渲染；只在支持 Kitty 图形协议的终端启用，其他终端自动跳过。 |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | 启动时 | 提供 Kanagawa Wave 配色 | 长时间阅读与写作需要低对比度、护眼的配色；`options.lua` 仍保留内置配色兜底。 |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | 启动时 | 安装插件、解析依赖、延迟加载并维护锁文件 | 可重复安装插件需要一个足够小的管理器；它也避免了自己维护 clone/update 脚本。 |
@@ -142,6 +144,34 @@ Snacks 是唯一的通用 UI 层。
 
 忘记快捷键时优先使用 `Space sk`，它比死记本文档更快、更可靠。
 
+## 文件树与代码大纲
+
+文件浏览与预览仍由 Snacks 负责：`Space e` 切换文件树，`Space Space` 或 `Space ff` 打开
+带预览窗格的 picker，`Space mr` / `Space mi` 控制 Markdown 渲染与内联图片。这是日常
+最常用的两个文件管理入口——`Space e` 看目录树，`Space a` 看当前文件结构。
+
+标题与代码大纲由 Aerial 负责。普通模式按 `Space a`（空格后按 `a`）在右侧打开大纲并进入，
+再次按下关闭。Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整个章节
+（包括子标题及内容），不会删除文字；其他语言仍可浏览代码符号，但不接管正文折叠。
+
+以下按键仅在大纲窗口中生效：
+
+| 按键 | 作用 |
+| --- | --- |
+| `j` / `k` | 向下/向上选择可见标题，包含不同层级 |
+| `<Enter>` | 跳到所选标题并回到正文 |
+| `p` | 正文滚动到所选标题，焦点留在大纲 |
+| `h` / `l` | 收起/展开当前节点 |
+| `zC` / `zO` | 递归收起/展开当前节点及全部子节点 |
+| `za` / `zA` | 切换当前节点/递归切换 |
+| `zM` / `zR` | 收起/展开整个大纲 |
+| `q` | 关闭大纲 |
+| `?` | 查看大纲快捷键 |
+
+保留全局 `Ctrl-h/j/k/l` 窗口切换、`Ctrl-s` 保存和 `L` 行尾映射；大纲是只读窗口，
+保存正文前先用 `Ctrl-h` 返回正文。未采用上游示例的 `{` / `}` 标题跳转映射，
+避免覆盖原有段落移动。
+
 ## 编辑与窗口快捷键
 
 | 快捷键 | 功能 |
@@ -174,6 +204,9 @@ mini.surround 使用当前默认键位：
 | `sa{motion}{char}` | 添加包围符号 |
 | `sd{char}` | 删除包围符号 |
 | `sr{old}{new}` | 替换包围符号 |
+
+退出插入模式或文本变化后会自动写盘（`auto-save.nvim`），断电或窗口被强杀时最多丢失
+一次防抖窗口内的改动；手动保存仍然有效。
 
 执行 `:VimBeGood` 开始移动练习。这个插件按命令加载，正常启动没有额外成本。
 

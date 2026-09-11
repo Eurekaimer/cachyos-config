@@ -21,7 +21,7 @@ plugin.
 5. **Pin the result.** `lazy-lock.json` records plugin revisions for repeatable
    restores.
 
-The resulting lockfile contains **15 plugin repositories**, including the plugin
+The resulting lockfile contains **17 plugin repositories**, including the plugin
 manager itself.
 
 ## Configuration layout
@@ -35,8 +35,8 @@ manager itself.
 | `lua/config/lazy.lua` | Bootstraps lazy.nvim and imports plugin specifications |
 | `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, and theme fallback |
 | `lua/plugins/theme.lua` | Kanagawa Wave colorscheme |
-| `lua/plugins/ui.lua` | Snacks, which-key, and cursor animation |
-| `lua/plugins/editing.lua` | Surround editing, snippet engine, and motion practice |
+| `lua/plugins/ui.lua` | Snacks, the Aerial outline, which-key, and cursor animation |
+| `lua/plugins/editing.lua` | Surround editing, autosave, snippet engine, and motion practice |
 | `lua/plugins/syntax.lua` | Treesitter parsers and highlighting |
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
@@ -52,6 +52,8 @@ boundary; the reason column is the acceptance test for keeping it.
 
 | Project | Load behavior | Purpose | Why it is retained |
 | --- | --- | --- | --- |
+| [aerial.nvim](https://github.com/stevearc/aerial.nvim) | `AerialToggle` and the other Aerial commands | Multi-level heading/code outline, jump navigation, and Markdown body folding | Long Markdown documents need a structural view that also drives folding; one plugin covers browsing and folding, and other filetypes keep their own fold settings. |
+| [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | `InsertLeave`, `TextChanged` | Writes the buffer to disk after leaving Insert mode or on text changes | Guards writing work against a power loss or a killed window; manual saving still works and no extra mapping is added. |
 | [image.nvim](https://github.com/3rd/image.nvim) | Kitty + `markdown` only | Renders Markdown inline images and image files inside the editor | Core Neovim cannot draw images. It activates only in terminals that speak the Kitty graphics protocol and is skipped elsewhere. |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Startup | Provides the Kanagawa Wave colorscheme | Long reading and writing sessions need a low-contrast palette; `options.lua` still keeps a built-in fallback. |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | Startup | Plugin installation, dependency resolution, lazy-loading, lockfile management | A small manager is required to reproduce the plugin set. It also removes the need for custom clone/update scripts. |
@@ -151,6 +153,40 @@ Snacks is the only general UI layer.
 `Space sk` is the preferred escape hatch when a mapping is forgotten; it is
 faster and more reliable than memorizing this document.
 
+## File tree and code outline
+
+File browsing and previews remain Snacks responsibilities: `Space e` toggles the
+file tree, `Space Space` or `Space ff` opens the picker with its preview pane,
+and `Space mr` / `Space mi` control Markdown rendering and inline images. These
+are the two everyday entry points—`Space e` for the directory tree, `Space a`
+for the structure of the current file.
+
+Headings and code structure are handled by Aerial. In Normal mode, `Space a`
+(space, then `a`) opens the outline on the right and focuses it; pressing it
+again closes the outline. Markdown opens fully expanded, and collapsing an
+outline node also folds the matching section body, subheadings included, without
+deleting text. Other filetypes still list their code symbols, but section
+folding is not taken over.
+
+These mappings only apply inside the outline window:
+
+| Mapping | Action |
+| --- | --- |
+| `j` / `k` | Select the next/previous visible heading across levels |
+| `<Enter>` | Jump to the selected heading and return to the body |
+| `p` | Scroll the body to the selected heading, keeping focus in the outline |
+| `h` / `l` | Collapse/expand the current node |
+| `zC` / `zO` | Recursively collapse/expand the current node and all children |
+| `za` / `zA` | Toggle the current node / toggle recursively |
+| `zM` / `zR` | Collapse/expand the whole outline |
+| `q` | Close the outline |
+| `?` | Show the outline mappings |
+
+The global `Ctrl-h/j/k/l` window switches, `Ctrl-s` save, and `L` end-of-line
+mapping are preserved. The outline window is read-only, so return to the body
+with `Ctrl-h` before saving. The upstream `{` / `}` heading jumps are not
+adopted, to avoid overriding the original paragraph motions.
+
 ## Editing and window mappings
 
 | Mapping | Action |
@@ -183,6 +219,10 @@ mini.surround uses its current default mappings:
 | `sa{motion}{char}` | Add a surrounding pair |
 | `sd{char}` | Delete a surrounding pair |
 | `sr{old}{new}` | Replace a surrounding pair |
+
+Buffers are also written automatically after leaving Insert mode and on text
+changes (`auto-save.nvim`); a power loss or a killed window costs at most one
+debounce window of edits, and manual saving still works.
 
 Run `:VimBeGood` for motion practice. Because the plugin is command-loaded, it
 has no normal startup cost.
