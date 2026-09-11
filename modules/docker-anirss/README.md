@@ -2,7 +2,7 @@
 
 管理 `~/Projects/ASS/docker-compose.yml` 定义的 ANI-RSS 与 qBittorrent 容器栈：
 启动后打印两个服务地址并自动打开 ANI-RSS 页面。容器未运行时通过
-`sg docker` 进入 docker 组执行，避免重复输 sudo 密码。
+`sudo -g docker -u "$USER"` 进入 docker 组执行，避免重复输 sudo 密码。
 
 这是个人用途脚本（需要自备 compose 文件），不属于通用快照恢复内容，单独安装。
 

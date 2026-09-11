@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# bili-live-hime：哔哩哔哩直播姬（仮）启动器
+#
+# 启动 ~/Projects/bili-live-hime 的发布版构建（Tauri + React），用于获取
+# B 站 RTMP/SRT 推流地址、改直播间信息、看弹幕。项目目录可用
+# BILI_LIVE_HIME_DIR 覆盖；产物缺失时自动构建一次。
+set -Eeuo pipefail
+
+usage() {
+    cat <<'EOF'
+用法：bili-live-hime [--rebuild] [应用参数...]
+
+  --rebuild   先执行 npm run tauri build 再启动（首次约需数分钟）
+  -h, --help  显示本帮助
+
+项目目录默认为 ~/Projects/bili-live-hime，可用 BILI_LIVE_HIME_DIR 覆盖。
+EOF
+}
+
+project_dir="${BILI_LIVE_HIME_DIR:-$HOME/Projects/bili-live-hime}"
+binary="$project_dir/src-tauri/target/release/bili-live-hime"
+rebuild=0
+
+while (($#)); do
+    case "$1" in
+        --rebuild)
+            rebuild=1
+            shift
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *) break ;;
+    esac
+done
+
+[[ -d "$project_dir" ]] || {
+    printf '错误：找不到项目目录 %s\n' "$project_dir" >&2
+    printf '请先运行 scripts/install-bili-live-hime.sh，或用 BILI_LIVE_HIME_DIR 指定位置。\n' >&2
+    exit 1
+}
+
+build_app() {
+    command -v npm >/dev/null 2>&1 || {
+        printf '错误：缺少 npm。请安装 Node.js 20+（CachyOS：sudo pacman -S nodejs npm）。\n' >&2
+        exit 1
+    }
+    printf '正在构建 %s（首次约需数分钟）...\n' "$project_dir" >&2
+    (cd "$project_dir" && npm run tauri build -- --no-bundle)
+}
+
+if (( rebuild )) || [[ ! -x "$binary" ]]; then
+    build_app
+elif [[ -n "$(find "$project_dir/src" "$project_dir/src-tauri/src" "$project_dir/package.json" \
+    -newer "$binary" -print -quit 2>/dev/null)" ]]; then
+    printf '提示：源文件比构建产物新，加 --rebuild 可重新构建。\n' >&2
+fi
+
+exec "$binary" "$@"

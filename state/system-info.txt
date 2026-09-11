@@ -1,5 +1,5 @@
-captured_at=2026-08-29T00:08:43+08:00
-kernel=Linux 7.1.8-1-cachyos x86_64 GNU/Linux
+captured_at=2026-09-11T15:12:05+08:00
+kernel=Linux 7.2.3-1-cachyos x86_64 GNU/Linux
 shell=/usr/bin/zsh
 NAME="CachyOS Linux"
 PRETTY_NAME="CachyOS"

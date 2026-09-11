@@ -12,11 +12,11 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
    单一问题。**
 2. **禁止职责重叠。** Snacks 是唯一的搜索器、文件树、启动页、通知和浮动终端层。
 3. **优先使用 Neovim 0.12。** 原生 LSP 补全替代补全框架，内置 `gc` 替代注释
-   插件，内置 `habamax` 替代主题插件。
+   插件；主题只在 `lua/plugins/theme.lua` 保留一套 Kanagawa Wave。
 4. **可选工具延迟加载。** VimBeGood 只有执行命令时才加载。
 5. **锁定结果。** `lazy-lock.json` 记录插件版本，保证恢复可重复。
 
-最终锁文件只包含 **9 个插件仓库**，其中已经包括插件管理器本身。
+最终锁文件只包含 **15 个插件仓库**，其中已经包括插件管理器本身。
 
 ## 配置结构
 
@@ -27,10 +27,14 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/config/autocmds.lua` | 通用生命周期钩子和 fcitx5 状态管理 |
 | `lua/config/keymaps.lua` | 全局快捷键和原生补全菜单控制 |
 | `lua/config/lazy.lua` | 引导 lazy.nvim 并导入插件声明 |
-| `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测和内置配色 |
-| `lua/plugins/editor.lua` | Treesitter、成对符号编辑和移动练习 |
+| `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测和主题兜底 |
+| `lua/plugins/theme.lua` | Kanagawa Wave 配色 |
+| `lua/plugins/ui.lua` | Snacks、which-key 和光标动画 |
+| `lua/plugins/editing.lua` | 成对符号编辑、snippets 引擎和移动练习 |
+| `lua/plugins/syntax.lua` | Treesitter 解析器与高亮 |
+| `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
-| `lua/plugins/ui.lua` | Snacks 和 which-key |
+| `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式片段 |
 
 配置注释统一使用简洁、规范的英文句子；which-key 中面向使用者的快捷键说明保留
 中文，避免日常操作时还要翻译。
@@ -42,14 +46,20 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 
 | 项目 | 加载方式 | 作用 | 保留原因与动机 |
 | --- | --- | --- | --- |
+| [image.nvim](https://github.com/3rd/image.nvim) | 仅 Kitty + `markdown` | 在编辑器内显示 Markdown 内联图片和图片文件 | 图片无法由 Neovim 核心渲染；只在支持 Kitty 图形协议的终端启用，其他终端自动跳过。 |
+| [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | 启动时 | 提供 Kanagawa Wave 配色 | 长时间阅读与写作需要低对比度、护眼的配色；`options.lua` 仍保留内置配色兜底。 |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | 启动时 | 安装插件、解析依赖、延迟加载并维护锁文件 | 可重复安装插件需要一个足够小的管理器；它也避免了自己维护 clone/update 脚本。 |
+| [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | 仅 `markdown` | 展开 Markdown 中的 TeX 公式片段 | 公式片段需要可维护的 snippet 引擎；只对 markdown 文件加载，不影响其他语言。 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 六种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则六个服务器要分别处理系统包、npm、Go 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 启动时 | 添加、删除、查找、高亮和替换引号/括号等包围符号 | Neovim 核心没有等价操作；它能直接消除大量“删除旧括号再输入新括号”的重复编辑。 |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | 启动时 | 为常见语言服务器提供经过维护的默认配置 | LSP 客户端属于 Neovim，但服务器命令、文件类型和项目根目录规则仍需要可靠默认值。 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 启动时 | 为 Neovim 原生 Treesitter 下载解析器和查询文件 | 高亮器属于 Neovim，但常用语言解析器和查询文件不会全部随核心提供；一个插件即可覆盖所有语言。 |
+| [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 仅 `markdown` | 在编辑器内渲染标题、列表、表格和代码块 | 写作时不必开预览窗口；`Space mr` 可随时关闭渲染查看源码。 |
+| [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | 在终端中模拟 Neovide 的光标拖尾动画 | 同一份配置在终端与 Neovide 下手感一致；Neovide 内自动禁用，无额外成本。 |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | 启动时，具体模块按需运行 | 启动页、文件树、模糊搜索、通知、大文件处理、状态列、专注模式、buffer 删除和 LazyGit 终端 | 一个仓库替代多个传统 UI 插件，是在保持易用性的同时压低插件数量的关键。 |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | 仅执行 `:VimBeGood` 时 | 交互式 Vim 移动练习 | 它直接服务于当前的 Vim 学习目标，普通编辑时完全不加载；形成肌肉记忆后可以删除。 |
+| [vim-repeat](https://github.com/tpope/vim-repeat) | LuaSnip 依赖 | 让 snippet 展开正确接入 `.` 重复操作 | LuaSnip 的配套依赖，缺少它时重复展开会丢失语义。 |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | 按下 leader/前缀键后显示可继续按的键 | 在学习阶段，“可发现性”比少一个很小的插件更重要；快捷键形成肌肉记忆后可以重新评估。 |
 
 ## 明确没有安装的插件
@@ -66,7 +76,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) 及其补全源/代码片段扩展 | 不安装。使用 `vim.lsp.completion`，一次删除六个仓库；文件路径补全仍可使用原生 `Ctrl-X Ctrl-F`。 |
 | [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) | 不安装。文件浏览统一由 Snacks explorer 负责。 |
 | [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) | 不安装。文件、全文、buffer、帮助、诊断、快捷键和 LSP 搜索统一由 Snacks picker 负责。 |
-| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | 不安装。使用 Neovim 内置 `habamax`，不产生下载和锁文件记录。 |
+| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | 不安装。配色由 `lua/plugins/theme.lua` 的 Kanagawa Wave 负责，不需要第二套主题插件。 |
 
 ## 外部依赖
 

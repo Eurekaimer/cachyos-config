@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![Snapshot](https://img.shields.io/badge/snapshot-2026--08--20-2dba4e)
+![Snapshot](https://img.shields.io/badge/snapshot-2026--09--11-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
@@ -104,6 +104,7 @@ for the current user at restore time.
 + [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
 + [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
 + [TeX Live](docs/en/texlive.md) · [中文](docs/zh-CN/texlive.md)
++ [Waydroid (Android container)](docs/en/waydroid.md) · [中文](docs/zh-CN/waydroid.md)
 
 ### Packages and services
 
@@ -117,4 +118,5 @@ for the current user at restore time.
 
 + [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
 + [Touchpad boot self-recovery (Lenovo 82XF)](docs/en/touchpad-boot-recovery.md) · [中文](docs/zh-CN/touchpad-boot-recovery.md)
++ [Bilibili streaming (bili-live-hime + OBS)](docs/en/bili-live-hime.md) · [中文](docs/zh-CN/bili-live-hime.md)
 + [Optional user scripts](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md)

@@ -1,11 +1,12 @@
 # Optional user scripts
 
-Four machine-specific helpers are kept out of the generic
+Five machine-specific helpers are kept out of the generic
 snapshot restore because not every machine needs them. Install each one with
 its own script; each module ships an `uninstall.sh`.
 
 | Script | Purpose | Install | Remove |
 | --- | --- | --- | --- |
+| `bili-live-hime` | Launch the release build of `~/Projects/bili-live-hime` (Bilibili streaming companion: ingest URL/key, room edits, danmaku) | `./scripts/install-bili-live-hime.sh` | `modules/bili-live-hime/uninstall.sh` |
 | `campus-login` | Open the Nankai campus-network authentication page in an isolated Chrome profile with proxies bypassed, so Clash/mihomo cannot intercept the captive portal | `./scripts/install-campus-login.sh` | `modules/campus-login/uninstall.sh` |
 | `docker-ass` | Manage the ANI-RSS + qBittorrent docker compose stack and open its web interfaces | `./scripts/install-docker-anirss.sh` | `modules/docker-anirss/uninstall.sh` |
 | `komari-call` | Build the KOMABELIKA terminal companion from GitHub with cargo and link it into `~/.local/bin` | `./scripts/install-komari-call.sh` | `modules/komari-call/uninstall.sh` |
@@ -17,6 +18,15 @@ The user scripts land in `~/.local/bin`; `touchpad-boot-recovery` installs
 `/etc/systemd/system/touchpad-boot-recovery.service` (as root). Previous
 versions are backed up to `~/.local/state/cachyos-config/module-backups/`
 before replacement.
+
+## bili-live-hime
+
+Wraps the release build of `~/Projects/bili-live-hime` (override with
+`BILI_LIVE_HIME_DIR`) as a `bili-live-hime` command: the installer only fills
+gaps (`git clone`, `npm install`, `npm run tauri build`). Launch with
+`bili-live-hime`, rebuild after pulling upstream changes with
+`bili-live-hime --rebuild`. The OBS pairing and the excluded credential path are
+covered in [Bilibili streaming (bili-live-hime + OBS)](bili-live-hime.md).
 
 ## campus-login
 
@@ -35,7 +45,7 @@ captures traffic at the network layer, which Chrome flags cannot bypass.
 Wrapper around `docker compose -f ~/Projects/ASS/docker-compose.yml` (override
 with `ANI_RSS_COMPOSE_FILE`) for the ANI-RSS + qBittorrent stack: `start`
 (default), `qbit`, `status`, `stop`, `restart`, `logs`, `update`. Runs through
-`sg docker` when the docker daemon is not reachable, so it works in a
+`sudo -g docker -u "$USER"` when the docker daemon is not reachable, so it works in a
 non-docker-group login session.
 
 ## komari-call

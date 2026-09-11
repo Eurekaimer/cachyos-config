@@ -13,7 +13,19 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
-`capture.sh` 按 `manifests/` 中的白名单重建快照，导出 dconf，并记录显式安装的 Pacman/AUR 软件包、Rust 与 Bun 工具、已启用服务、系统信息和硬件参考。`llama-cpp` 与 `ollama` 属于本机模型工具，不进入可恢复软件清单。公开快照生成前会移除 Git 邮箱、MPV 播放历史和缓存、Qt 与桌面文件选择器的最近路径、gThumb 最近文件，以及壁纸目录中的应用元数据。
+`capture.sh` 按 `manifests/` 中的白名单重建快照，导出 dconf，并记录显式安装的 Pacman/AUR 软件包、Rust 与 Bun 工具、已启用服务、系统信息和硬件参考。`llama-cpp` 与 `ollama` 属于本机模型工具，不进入可恢复软件清单。
+
+公开快照生成前会剔除凭据与运行态：
+
+| 内容 | 处理 |
+| --- | --- |
+| Git 用户邮箱 | 移除 |
+| Shell rc（`.zshrc`、`.bashrc`、`.bash_profile`）中名字含 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的导出变量 | 值置空，变量名保留；恢复后从密码管理器补回 |
+| OBS `basic/profiles/*/service.json`（推流密钥） | 删除 |
+| AniRSS 下载器密码/API Key/登录密码/实例 UUID | 置空 |
+| KOReader 缓存、历史、`lookup_history.lua`、`wikipedia_history.lua`、统计数据库、阅读器最近文件 | 删除 |
+| MPV 播放历史与缓存、Qt 与桌面文件选择器的最近路径、gThumb 最近文件 | 移除 |
+| 壁纸目录中的应用元数据 | 删除 |
 
 缺失的可选路径会显示警告；受保护的系统文件通过 `sudo` 复制，无法使用 `sudo` 时不可读文件会显示警告并跳过。采集后应人工检查 `configs/`、`packages/` 和 `state/`，并且只有审计通过后才可发布。采集不会读写磁盘 UUID、`/etc/machine-id`、`/etc/fstab` 或 `/etc/hostname`；后两者仅由单独的 hardware 层处理。
 

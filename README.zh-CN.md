@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![快照](https://img.shields.io/badge/快照-2026--08--20-2dba4e)
+![快照](https://img.shields.io/badge/快照-2026--09--11-2dba4e)
 ![脚本](https://img.shields.io/badge/脚本-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![文档](https://img.shields.io/badge/文档-English%20%7C%20中文-8A2BE2)](README.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
@@ -98,6 +98,7 @@ sudo reboot
 + [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
 + [Java 工具链：双版本 OpenJDK 与 Maven](docs/zh-CN/jdk.md) · [English](docs/en/jdk.md)
 + [TeX Live](docs/zh-CN/texlive.md) · [English](docs/en/texlive.md)
++ [Waydroid（Android 容器）](docs/zh-CN/waydroid.md) · [English](docs/en/waydroid.md)
 
 ### 软件包与服务
 
@@ -111,4 +112,5 @@ sudo reboot
 
 + [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
 + [触摸板开机自恢复（Lenovo 82XF）](docs/zh-CN/touchpad-boot-recovery.md) · [English](docs/en/touchpad-boot-recovery.md)
++ [B 站直播（bili-live-hime + OBS）](docs/zh-CN/bili-live-hime.md) · [English](docs/en/bili-live-hime.md)
 + [可选用户脚本](docs/zh-CN/user-scripts.md) · [English](docs/en/user-scripts.md)

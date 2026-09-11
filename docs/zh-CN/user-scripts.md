@@ -1,10 +1,11 @@
 # 可选用户脚本
 
-以下四个与机器绑定的脚本刻意不进通用快照恢复（`restore-all.sh`），因为不是
+以下五个与机器绑定的脚本刻意不进通用快照恢复（`restore-all.sh`），因为不是
 每台机器都需要。每个脚本单独安装；每个模块自带 `uninstall.sh`。
 
 | 脚本 | 用途 | 安装 | 卸载 |
 | --- | --- | --- | --- |
+| `bili-live-hime` | 启动 `~/Projects/bili-live-hime` 的发布版构建（B 站直播姬替代：取推流地址/流密钥、改直播间、看弹幕） | `./scripts/install-bili-live-hime.sh` | `modules/bili-live-hime/uninstall.sh` |
 | `campus-login` | 隔离临时 Chrome profile 直连打开南开校园网认证页，绕过 Clash/mihomo 代理劫持 | `./scripts/install-campus-login.sh` | `modules/campus-login/uninstall.sh` |
 | `docker-ass` | 管理 ANI-RSS + qBittorrent 容器栈并打开 Web 界面 | `./scripts/install-docker-anirss.sh` | `modules/docker-anirss/uninstall.sh` |
 | `komari-call` | 从 GitHub 用 cargo 构建 KOMABELIKA 终端聊天程序并链接到 `~/.local/bin` | `./scripts/install-komari-call.sh` | `modules/komari-call/uninstall.sh` |
@@ -15,6 +16,14 @@
 `/usr/local/sbin/touchpad-boot-recovery` 与
 `/etc/systemd/system/touchpad-boot-recovery.service`。替换前旧版本备份到
 `~/.local/state/cachyos-config/module-backups/`。
+
+## bili-live-hime
+
+把 `~/Projects/bili-live-hime`（可用 `BILI_LIVE_HIME_DIR` 覆盖）的发布版构建
+封装成 `bili-live-hime` 命令：安装器按需 `git clone`、`npm install`、
+`npm run tauri build`，只有缺什么才补什么。日常用 `bili-live-hime` 启动，
+拉取上游更新后用 `bili-live-hime --rebuild` 重建。推流侧与 OBS 的配合、
+被排除的凭据路径见 [B 站直播（bili-live-hime + OBS）](bili-live-hime.md)。
 
 ## campus-login
 
@@ -31,7 +40,7 @@
 `docker compose -f ~/Projects/ASS/docker-compose.yml`（可用
 `ANI_RSS_COMPOSE_FILE` 覆盖）的封装，管理 ANI-RSS + qBittorrent 栈：
 `start`（默认）、`qbit`、`status`、`stop`、`restart`、`logs`、`update`。
-docker 守护进程不可达时自动走 `sg docker`，非 docker 组登录会话也能用。
+docker 守护进程不可达时自动改用 `sudo -g docker -u "$USER"`，非 docker 组登录会话也能用。
 
 ## komari-call
 

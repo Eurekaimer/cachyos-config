@@ -18,7 +18,7 @@ while IFS= read -r -d '' script; do
 done < <(find "$REPO_ROOT/scripts" -type f -name '*.sh' -print0)
 
 log "Checking forbidden private/runtime paths"
-for forbidden in .ssh .gnupg .aws .kube google-chrome mozilla NetworkManager/system-connections io.github.clash-verge-rev; do
+for forbidden in .ssh .gnupg .aws .kube google-chrome mozilla NetworkManager/system-connections io.github.clash-verge-rev com.rsplwe.bili-live-hime; do
     if find "$REPO_ROOT/configs" -path "*/$forbidden*" -print -quit | grep -q .; then
         fail "Forbidden snapshot path found: $forbidden"
     fi
@@ -40,6 +40,7 @@ for runtime_path in \
     configs/home/.config/koreader/ota \
     configs/home/.config/koreader/screenshots \
     configs/home/.config/koreader/history.lua \
+    configs/home/.config/koreader/settings/wikipedia_history.lua \
     configs/home/.config/koreader/settings/bookinfo_cache.sqlite3 \
     configs/home/.config/koreader/settings/statistics.sqlite3 \
     configs/home/.config/koreader/settings/vocabulary_builder.sqlite3; do
@@ -51,11 +52,16 @@ if find "$REPO_ROOT/configs/home/.config/koreader" -type f \
 fi
 
 log "Checking secret-shaped content"
-secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authorization:[[:space:]]*Bearer|(^|[^[:alnum:]_])(password|passwd|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"']{8,}"
+secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authorization:[[:space:]]*Bearer|(^|[^[:alnum:]])(password|passwd|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"']{8,}"
+# Vendored uosc (mpv) ships its own public OpenSubtitles API key as a built-in
+# default. Tolerate exactly that value; user overrides live in
+# script-opts/uosc.conf and stay fully scanned, as does everything else.
+uosc_public_key="b0rd16N0bp7DETMpO4pYZwIqmQkZbYQr"
 while IFS= read -r match; do
     [[ -n "$match" ]] || continue
     fail "Potential secret: ${match#"$REPO_ROOT/"}"
-done < <(grep -RInE -i --exclude='audit.sh' --exclude='PolkitWindow.qml' --exclude-dir='.git' --exclude-dir='.venv' --exclude-dir='__pycache__' --binary-files=without-match "$secret_pattern" "$REPO_ROOT" || true)
+done < <(grep -RInE -i --exclude='audit.sh' --exclude='PolkitWindow.qml' --exclude-dir='.git' --exclude-dir='.venv' --exclude-dir='__pycache__' --binary-files=without-match "$secret_pattern" "$REPO_ROOT" \
+    | grep -vF -- "$uosc_public_key" || true)
 
 log "Checking escaping symlinks"
 while IFS= read -r -d '' link; do

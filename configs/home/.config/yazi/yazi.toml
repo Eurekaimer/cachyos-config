@@ -6,6 +6,7 @@
 # placeholders are %s1 (first file) / %s (spread), not the deprecated $@.
 [open]
 prepend_rules = [
+  { use = "neovim-open", url = "*.gitignore" },
   { use = "sioyek-new", mime = "application/pdf" },
   { use = "markdown-open", mime = "text/{markdown,x-markdown}" },
   { use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
@@ -22,4 +23,8 @@ sioyek-new = [
 # Use the Markdown launcher even when a .md file is detected as text/plain.
 markdown-open = [
   { run = 'gtk-launch neovim-markdown %s', desc = "Open Markdown in Neovim (new window)", orphan = true },
+]
+
+neovim-open = [
+  { run = 'kitty --title Neovim nvim -- %s', desc = "Open in Neovim (new window)", orphan = true },
 ]

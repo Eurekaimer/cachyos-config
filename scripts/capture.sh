@@ -133,6 +133,9 @@ rm -rf -- "$config_root/home/.config/koreader/ota"
 rm -rf -- "$config_root/home/.config/koreader/screenshots"
 rm -f -- "$config_root/home/.config/koreader/history.lua"
 rm -f -- "$config_root/home/.config/koreader/settings/lookup_history.lua"
+# The Wikipedia lookup plugin keeps its own history: looked-up words plus the
+# book they came from, exactly the recent-file class of runtime state.
+rm -f -- "$config_root/home/.config/koreader/settings/wikipedia_history.lua"
 find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
     ! -name scrollstep.koplugin -exec rm -rf -- {} +
 rm -f -- "$config_root/home/.config/koreader/scripts"/*
@@ -147,6 +150,17 @@ if [[ -f "$config_root/home/.config/koreader/settings.reader.lua" ]]; then
     sed -i -e '/\["lastfile"\]/d' -e '/\["lastdir"\]/d' \
         "$config_root/home/.config/koreader/settings.reader.lua"
 fi
+
+# Shell rc files export credentials for CLI tools (agent API keys, tokens).
+# Blank the values while keeping the variable names, so a restore reproduces the
+# structure and the user re-adds the secret from the password manager.
+for rc_file in .zshrc .bashrc .bash_profile; do
+    rc_path="$config_root/home/$rc_file"
+    [[ -f "$rc_path" ]] || continue
+    sed -i -E \
+        '/^[[:space:]]*(export[[:space:]]+)?[A-Za-z0-9_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD)[A-Za-z0-9_]*=/I s/=.*$/='"''"'/' \
+        "$rc_path"
+done
 
 # Drop application-generated metadata and recent-path history from the
 # portable snapshot. These values are runtime state and may expose filenames.

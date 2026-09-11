@@ -8,8 +8,8 @@ source scripts/lib/proxy.sh && setup_proxy
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
-（`~/.zshrc` / `~/.bashrc` 各自内联了同款检测块——家目录 shell 无法 source 仓库，属有意重复；
-脚本统一走 lib，改端口只动 `PROXY_HOST` / `PROXY_PORT` 环境变量即可。）
+（家目录 shell 不再内联代理检测块：代理改由 Clash Verge 与应用自身/`git config` 承担，
+仓库脚本统一走 lib，改端口只动 `PROXY_HOST` / `PROXY_PORT` 环境变量即可。）
 
 > 校验：`curl -x http://127.0.0.1:7897 -s -o /dev/null -w '%{speed_download}\n' --max-time 15 https://github.com/` 应 >100000（B/s）。
 # 检测并导出代理（install-packages.sh 顶部已内置同款检测，手工操作前也要执行）

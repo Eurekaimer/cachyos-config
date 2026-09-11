@@ -15,13 +15,13 @@ plugin.
 2. **No overlapping plugins.** Snacks is the only picker, explorer, dashboard,
    notification, and floating-terminal layer.
 3. **Use Neovim 0.12 first.** Native LSP completion replaces a completion
-   framework; native `gc` replaces a comment plugin; `habamax` replaces a theme
-   plugin.
+   framework; native `gc` replaces a comment plugin; the theme is a single
+   Kanagawa Wave setup in `lua/plugins/theme.lua`.
 4. **Lazy-load optional tools.** VimBeGood loads only when its command is run.
 5. **Pin the result.** `lazy-lock.json` records plugin revisions for repeatable
    restores.
 
-The resulting lockfile contains **9 plugin repositories**, including the plugin
+The resulting lockfile contains **15 plugin repositories**, including the plugin
 manager itself.
 
 ## Configuration layout
@@ -33,10 +33,14 @@ manager itself.
 | `lua/config/autocmds.lua` | General lifecycle hooks and fcitx5 state handling |
 | `lua/config/keymaps.lua` | Global mappings and native completion-menu controls |
 | `lua/config/lazy.lua` | Bootstraps lazy.nvim and imports plugin specifications |
-| `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, and bundled colorscheme |
-| `lua/plugins/editor.lua` | Treesitter, surround editing, and movement training |
+| `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, and theme fallback |
+| `lua/plugins/theme.lua` | Kanagawa Wave colorscheme |
+| `lua/plugins/ui.lua` | Snacks, which-key, and cursor animation |
+| `lua/plugins/editing.lua` | Surround editing, snippet engine, and motion practice |
+| `lua/plugins/syntax.lua` | Treesitter parsers and highlighting |
+| `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
-| `lua/plugins/ui.lua` | Snacks and which-key |
+| `lua/snippets/markdown.lua` | Markdown-only TeX formula snippets |
 
 Configuration comments are concise English sentences. User-facing
 key descriptions remain Chinese so which-key is useful during normal editing.
@@ -48,14 +52,20 @@ boundary; the reason column is the acceptance test for keeping it.
 
 | Project | Load behavior | Purpose | Why it is retained |
 | --- | --- | --- | --- |
+| [image.nvim](https://github.com/3rd/image.nvim) | Kitty + `markdown` only | Renders Markdown inline images and image files inside the editor | Core Neovim cannot draw images. It activates only in terminals that speak the Kitty graphics protocol and is skipped elsewhere. |
+| [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Startup | Provides the Kanagawa Wave colorscheme | Long reading and writing sessions need a low-contrast palette; `options.lua` still keeps a built-in fallback. |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | Startup | Plugin installation, dependency resolution, lazy-loading, lockfile management | A small manager is required to reproduce the plugin set. It also removes the need for custom clone/update scripts. |
+| [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | `markdown` only | Expands TeX formula snippets in Markdown | Formula snippets need a maintainable snippet engine; it loads only for markdown files and costs nothing elsewhere. |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the six-server install list declarative and avoids duplicating package-name mappings. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require six separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | Startup | Adds, deletes, finds, highlights, and replaces surrounding pairs | Core Neovim has no equivalent operator for changing quotes/brackets around text. This removes many repeated delete-and-insert edits. |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | Startup | Supplies maintained defaults for common language servers | Neovim owns the LSP client, but server-specific commands, filetypes, and root markers still need reliable defaults. |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Startup | Downloads parser sources and queries for Neovim's native Treesitter runtime | Neovim provides the highlighter, but not all language parsers and queries. One plugin covers every configured language. |
+| [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | `markdown` only | Renders headings, lists, tables, and code blocks inside the editor | Writing no longer needs a preview window; `Space mr` toggles rendering off to read the source. |
+| [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | Simulates Neovide's cursor-trail animation in the terminal | The same configuration feels consistent in the terminal and in Neovide; it disables itself inside Neovide at no cost. |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | Startup, modules on demand | Dashboard, explorer, fuzzy picker, notifications, big-file handling, status column, Zen mode, buffer deletion, and LazyGit terminal | This single repository replaces several conventional UI plugins and is the main reason the plugin stack stays small. |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Only on `:VimBeGood` | Interactive motion practice | It directly supports learning Vim motions, never loads during normal editing, and can be removed after the training period. |
+| [vim-repeat](https://github.com/tpope/vim-repeat) | LuaSnip dependency | Makes snippet expansion work with `.` repeat | LuaSnip's companion dependency; without it repeated expansions lose their semantics. |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | Shows available continuations after leader/prefix keys | While the user is still learning modal editing, discoverability is worth more than one tiny plugin; revisit it once the mappings become muscle memory. |
 
 ## Omitted plugins
@@ -73,7 +83,7 @@ retained plugin owns the same responsibility.
 | [nvim-cmp](https://github.com/hrsh7th/nvim-cmp) and its source/snippet extensions | Omitted. `vim.lsp.completion` provides LSP completion, reducing six repositories to zero. Native `Ctrl-X Ctrl-F` remains available for path completion. |
 | [nvim-tree.lua](https://github.com/nvim-tree/nvim-tree.lua) | Omitted. Snacks explorer owns file browsing. |
 | [telescope.nvim](https://github.com/nvim-telescope/telescope.nvim) | Omitted. Snacks picker owns file, grep, buffer, help, diagnostic, keymap, and LSP searches. |
-| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Omitted. Neovim's bundled `habamax` colorscheme is sufficient and requires no download or lock entry. |
+| [tokyonight.nvim](https://github.com/folke/tokyonight.nvim) | Omitted. The Kanagawa Wave setup in `lua/plugins/theme.lua` owns the palette; a second theme plugin is unnecessary. |
 
 ## External requirements
 

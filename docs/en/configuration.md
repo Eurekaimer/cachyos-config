@@ -36,6 +36,7 @@ database.
 | Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
 | Niri helpers | `~/.local/bin/niri-hotkeys-zh`, `~/.local/bin/niri-stack-column`, hotkey text | `configs/home/.local/bin/`, `configs/home/.local/share/niri/` |
 | Noctalia | `~/.config/noctalia/` | `configs/home/.config/noctalia/` |
+| OBS Studio | `~/.config/obs-studio/` (`global.ini`, `user.ini`, `basic/scenes/`, `basic/profiles/`, `plugin_manager/modules.json`) | `configs/home/.config/obs-studio/`; `service.json` (stream key) is deleted before publishing; logs and profiler data stay out |
 | OMP (Oh My Pi frontend prefs) | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml` (frontend prefs only; runtime state stays out) |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
 | Shelly | `~/.config/shelly/config.json` | `configs/home/.config/shelly/` |

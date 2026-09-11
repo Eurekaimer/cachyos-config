@@ -372,6 +372,7 @@ return {
             ["highlight_formatting"] = true,
         },
     },
+    ["external_dict_lookup"] = false,
     ["extra_plugin_paths"] = {
         [1] = "/home/eurekaimer/.config/koreader/plugins/",
     },
@@ -439,6 +440,7 @@ return {
     ["highlight_dialog_position"] = "center",
     ["highlight_lighten_factor"] = 0.2,
     ["history_filter"] = "all",
+    ["home_dir"] = "/home/eurekaimer/Library",
     ["httpinspector"] = {
         ["port"] = 8080,
     },
@@ -503,4 +505,5 @@ return {
         ["enabled"] = false,
         ["with_context"] = true,
     },
+    ["wikipedia_last_language"] = "en",
 }
