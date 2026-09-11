@@ -145,3 +145,20 @@ output "eDP-1" {
 - **设计边界**：oneshot 开机自恢复（Before=display-manager.service），最多等 10s 后一次性 unbind/bind `i2c_designware.0`，再等 5s 验证注册；不循环、不卸载共享模块、不加 irqpoll/timer/udev 规则。**是间歇故障应对，不是根因修复**。
 - **当前机状态**：unit 已 enabled 并运行（10:53 重绑成功）；仓库内文件与系统内文件逐字节一致（diff 通过）。真实下一次启动验证仍需用户自主重启后查 `journalctl -b _COMM=touchpad-boot-recovery` 与实际操作。
 
+
+## 12. Neovim Java 与 clang-format 插件（2026-09-11）
+
+- **新增插件**（`lazy-lock.json` 已锁定）：
+  - `nvim-jdtls`（`lua/plugins/java.lua`）——启动 eclipse.jdt.ls，提供整理 import、提取变量/常量/方法、`:JdtCompile` / `:JdtRestart` 等 JDT 扩展。
+  - `vim-clang-format`（`lua/plugins/editing.lua`）——驱动系统 `clang-format` 二进制，覆盖 C 系与 Java 等文件类型。
+- **架构决策（关键）**：`lsp.lua` 把 `jdtls` 列入 Mason 的 `ensure_installed`（新增 `plugin_managed_servers` 列表），但**不**调用 `vim.lsp.enable("jdtls")`，Java 客户端统一由 `java.lua` 通过 `require("jdtls").start_or_attach()` 启动。若两处都启用会同时 attach 两个客户端。
+- **实测验证**（headless，`/tmp/java-probe/`）：
+  - 客户端 attach 成功：`root=/tmp/java-probe`、`cmd=jdtls -data ~/.cache/nvim/jdtls/java-probe`、重复 `edit!` 后仍只有 1 个客户端。
+  - `textDocument/formatting` 不在初始 `server_capabilities` 里，而是 eclipse.jdt.ls 稍后**动态注册**——需要等待（实测 ~1–2s 内到位），`vim.lsp.buf.format()` 随后确实重排了乱缩进文件。
+  - `require("jdtls").organize_imports()` 生效：删除未使用的 `import java.util.Map;`。
+  - 补全可用：光标处 `textDocument/completion` 返回 28 项。
+  - `vim-clang-format`：`ugly.c` 与 `Ugly.java` 均被重排；`.clang-format` 存在时走 `-style=file`（把 IndentWidth 改成 8 后输出缩进随之变 8），不存在时回退 `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`。
+- **Mason 安装 jdtls 的坑**：`projectlombok.org` 的 `lombok.jar` 会下载失败（`wget exit 4`），但 lombok 只是可选的注解支持，报错发生在 jdtls 主体解包**之后**；`lombok.jar` 实际已就位（2.0 MiB，zip 可读，1086 条目），包 66 MiB 完整可用。复现时直接确认 jar 是否存在即可，无需重装。
+- **包清单**：`packages/pacman-explicit.txt` +`clang`（`clang-format` 由它提供；原来只装了 `llvm-libs` 相关依赖，`clang` 本身未显式安装）。JDK 已在清单中（`jdk-openjdk` 26 + `jdk21-openjdk`）。
+- **文档**：`configs/home/.config/nvim/README.md`、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 三处同步更新（插件表、目录结构、LSP 表 +Java 行、外部依赖 +clang/JDK、Java 与 clang-format 小节、排障表）；语言服务器计数由六个改为七个。
+- **待办**：无。插件与配置均在实时配置与仓库快照中一致。

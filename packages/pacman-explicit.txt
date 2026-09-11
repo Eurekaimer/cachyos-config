@@ -37,6 +37,7 @@ cachyos-wallpapers
 cachyos-zsh-config
 cantarell-fonts
 chwd
+clang
 cpupower
 cryptsetup
 ddcutil

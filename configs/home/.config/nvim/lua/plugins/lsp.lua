@@ -8,6 +8,10 @@ local servers = {
   "ts_ls",
 }
 
+-- Mason installs these, but nvim-jdtls starts the Java server itself so that its
+-- JDT-specific commands and code-action extensions are available (plugins/java.lua).
+local plugin_managed_servers = { "jdtls" }
+
 return {
   {
     "neovim/nvim-lspconfig",
@@ -51,8 +55,10 @@ return {
       })
     end,
     config = function()
+      local ensure_installed = vim.deepcopy(servers)
+      vim.list_extend(ensure_installed, plugin_managed_servers)
       require("mason-lspconfig").setup({
-        ensure_installed = servers,
+        ensure_installed = ensure_installed,
         automatic_enable = false,
       })
 

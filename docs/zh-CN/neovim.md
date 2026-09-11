@@ -33,6 +33,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/plugins/editing.lua` | 成对符号编辑、自动保存、snippets 引擎和移动练习 |
 | `lua/plugins/syntax.lua` | Treesitter 解析器与高亮 |
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
+| `lua/plugins/java.lua` | nvim-jdtls：Java 语言服务器与 JDT 扩展命令 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
 | `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式片段 |
 
@@ -52,15 +53,17 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | 启动时 | 提供 Kanagawa Wave 配色 | 长时间阅读与写作需要低对比度、护眼的配色；`options.lua` 仍保留内置配色兜底。 |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | 启动时 | 安装插件、解析依赖、延迟加载并维护锁文件 | 可重复安装插件需要一个足够小的管理器；它也避免了自己维护 clone/update 脚本。 |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | 仅 `markdown` | 展开 Markdown 中的 TeX 公式片段 | 公式片段需要可维护的 snippet 引擎；只对 markdown 文件加载，不影响其他语言。 |
-| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 六种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
-| [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则六个服务器要分别处理系统包、npm、Go 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
+| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 七种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
+| [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则七个服务器要分别处理系统包、npm、Go、Java 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 启动时 | 添加、删除、查找、高亮和替换引号/括号等包围符号 | Neovim 核心没有等价操作；它能直接消除大量“删除旧括号再输入新括号”的重复编辑。 |
+| [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` 文件类型 | 为 eclipse.jdt.ls 提供 JDT 扩展：整理 import、提取变量/常量/方法、编译与重启命令 | 裸 LSP 客户端只能做补全和跳转，`vim.lsp.enable("jdtls")` 拿不到这些 Java 专属操作；Java 是当前要写的主要语言，需要它们。 |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | 启动时 | 为常见语言服务器提供经过维护的默认配置 | LSP 客户端属于 Neovim，但服务器命令、文件类型和项目根目录规则仍需要可靠默认值。 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 启动时 | 为 Neovim 原生 Treesitter 下载解析器和查询文件 | 高亮器属于 Neovim，但常用语言解析器和查询文件不会全部随核心提供；一个插件即可覆盖所有语言。 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 仅 `markdown` | 在编辑器内渲染标题、列表、表格和代码块 | 写作时不必开预览窗口；`Space mr` 可随时关闭渲染查看源码。 |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | 在终端中模拟 Neovide 的光标拖尾动画 | 同一份配置在终端与 Neovide 下手感一致；Neovide 内自动禁用，无额外成本。 |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | 启动时，具体模块按需运行 | 启动页、文件树、模糊搜索、通知、大文件处理、状态列、专注模式、buffer 删除和 LazyGit 终端 | 一个仓库替代多个传统 UI 插件，是在保持易用性的同时压低插件数量的关键。 |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | 仅执行 `:VimBeGood` 时 | 交互式 Vim 移动练习 | 它直接服务于当前的 Vim 学习目标，普通编辑时完全不加载；形成肌肉记忆后可以删除。 |
+| [vim-clang-format](https://github.com/rhysd/vim-clang-format) | C 系与 Java 文件类型 | 调用系统 `clang-format` 二进制格式化代码 | Neovim 没有内置 C 系格式化器；直接驱动官方二进制可完全复用项目里的 `.clang-format`，不必再维护一份样式。 |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | LuaSnip 依赖 | 让 snippet 展开正确接入 `.` 重复操作 | LuaSnip 的配套依赖，缺少它时重复展开会丢失语义。 |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | 按下 leader/前缀键后显示可继续按的键 | 在学习阶段，“可发现性”比少一个很小的插件更重要；快捷键形成肌肉记忆后可以重新评估。 |
 
@@ -87,7 +90,9 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 
 | 依赖 | 状态 | 用途 |
 | --- | --- | --- |
+| `clang-format`（`clang` 包） | 显式软件包 | `<leader>cF` 格式化 C/C++/Java 等语言 |
 | `fd` | 必需额外依赖 | Snacks picker 快速查找文件 |
+| `jdk-openjdk` / `jdk21-openjdk` | 显式软件包 | eclipse.jdt.ls 需要 Java 21+ 运行时 |
 | `lazygit` | 显式软件包 | `Space gg` Git 界面 |
 | `neovim` | 显式软件包；当前配置面向 0.12 | 编辑器、原生 LSP 补全、原生注释和原生代码片段能力 |
 | `npm` | 必需额外依赖 | Mason 安装 Bash、Pyright 和 TypeScript 语言服务器 |
@@ -218,6 +223,7 @@ mini.surround 使用当前默认键位：
 | --- | --- | --- |
 | Bash | `bashls` | `bash-language-server` |
 | Go | `gopls` | `gopls` |
+| Java | `jdtls`（由 nvim-jdtls 启动） | `jdtls` |
 | JavaScript / TypeScript | `ts_ls` | `typescript-language-server` |
 | Lua | `lua_ls` | `lua-language-server` |
 | Python | `pyright` | `pyright` |
@@ -241,6 +247,39 @@ LSP 快捷键是 buffer-local，只有语言服务器成功连接后才出现：
 
 格式化是否可用取决于服务器能力。例如 Go 和 Rust 服务器可以直接格式化；Pyright
 主要是类型检查器，不能替代 Python 格式化工具。
+
+### Java
+
+Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls。`lsp.lua` 只让 Mason 安装 `jdtls`
+启动器，不调用 `vim.lsp.enable("jdtls")`，否则会同时出现两个客户端。项目根目录按
+`gradlew`、`mvnw`、`settings.gradle{,.kts}`、`pom.xml`、`build.gradle{,.kts}`、
+`.git` 依次向上查找，索引缓存在 `~/.cache/nvim/jdtls/<项目名>`。
+
+`.java` 缓冲区除上表通用键位外还有：
+
+| 快捷键 | 功能 |
+| --- | --- |
+| `Space co` | 整理 import |
+| `Space cv` | 提取变量（可视模式提取选中表达式） |
+| `Space cc` | 提取常量（同上） |
+| `Space cm` | 提取方法（仅可视模式） |
+
+`eclipse.jdt.ls` 自带 `textDocument/formatting`，因此 `Space cf` 在 Java 中同样可用。
+另有 `:JdtCompile`、`:JdtRestart`、`:JdtBytecode`、`:JdtUpdateConfig` 等命令。
+
+### 格式化（clang-format）
+
+`vim-clang-format` 驱动系统 `clang-format` 二进制（`clang` 包提供），覆盖
+`c`、`cpp`、`objc`、`java`、`javascript`、`typescript`、`proto`、`cuda`、`vala`。
+在这些文件类型中按 `Space cF` 格式化整个文件，可视模式下只格式化选区。
+
+样式解析顺序：
+
+1. 从当前文件目录向上查找 `.clang-format` 或 `_clang-format`，找到就用 `-style=file`；
+2. 找不到则回退到 `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`。
+
+`Space cf`（LSP 格式化）与 `Space cF`（clang-format）是两条独立路径：前者由语言
+服务器执行，后者始终走外部二进制。
 
 ## Treesitter
 
@@ -295,5 +334,7 @@ git push
 | 文件或全文搜索为空 | 确认 `fd` 和 `rg` 位于 `PATH`，然后执行 `:checkhealth snacks`。 |
 | Bash/Python/TypeScript LSP 安装失败 | 检查 `npm --version`，然后在 `:Mason` 中重试。 |
 | 解析器编译失败 | 检查 `tree-sitter --version` 和 C 编译器，再执行 `:TSUpdate`。 |
+| Java 无响应或报 `Java XY language features are not available` | 确认 JDK 21+ 在 `PATH`，再执行 `:JdtRestart`；索引缓存在 `~/.cache/nvim/jdtls/`，可删除后重建。 |
+| `Space cF` 报找不到 clang-format | `pacman -S clang`，并确认 `clang-format --version` 可执行。 |
 | 插件启动失败 | 打开 `:Lazy` 查看失败任务，然后重新执行同步。 |
 | 系统剪贴板不可用 | 安装 `wl-clipboard`；配置只在检测到 provider 时启用 `unnamedplus`。 |

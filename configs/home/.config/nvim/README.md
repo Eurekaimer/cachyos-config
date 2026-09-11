@@ -5,6 +5,7 @@
 - Kanagawa Wave 彩色主题；
 - Snacks 文件导航、查找、通知和启动页；
 - Neovim 原生 LSP 与补全；
+- Java（eclipse.jdt.ls）与 clang-format 格式化；
 - Markdown 编辑器内渲染、Kitty 图片显示；
 - Markdown 中的 TeX 数学公式 snippets；
 - 终端与 Neovide 各自适配的光标动画；
@@ -50,8 +51,10 @@ nvim
 | `fcitx5-remote` | 普通模式与插入模式间自动切换输入法 |
 | `wl-copy` 或 `xclip` | 系统剪贴板集成 |
 | LazyGit | `<leader>gg` Git 界面 |
+| `clang-format`（`clang` 包） | `<leader>cF` 格式化 C 系与 Java 文件 |
+| JDK 21+ | 运行 eclipse.jdt.ls（当前 `jdk-openjdk` 26 可用，`jdk21-openjdk` 亦在清单中） |
 
-当前机器已验证：Neovim 0.12.5、Kitty 0.48.2、ImageMagick 7 均可用。
+当前机器已验证：Neovim 0.12.5、Kitty 0.48.2、ImageMagick 7、clang-format 22.1.8、OpenJDK 26.0.2 均可用。
 
 ## 配置结构
 
@@ -72,6 +75,7 @@ nvim
     │   ├── editing.lua         # mini.surround、auto-save、LuaSnip、vim-be-good
     │   ├── syntax.lua          # Treesitter parsers
     │   ├── markdown.lua        # render-markdown、image.nvim
+    │   ├── java.lua            # nvim-jdtls（eclipse.jdt.ls）
     │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
     └── snippets/
         └── markdown.lua        # Markdown 专用 TeX 公式片段
@@ -98,11 +102,13 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 语法树、高亮及 Markdown 结构解析 | 启动加载 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
 | [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
+| [vim-clang-format](https://github.com/rhysd/vim-clang-format) | 调用系统 `clang-format` 格式化 C/C++/Java 等语言 | C 系与 Java 文件类型 |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式 snippets | 仅 `markdown` |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
 | [image.nvim](https://github.com/3rd/image.nvim) | Markdown 内联图片及图片文件显示 | 仅 Kitty + `markdown` |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Vim 操作训练 | `:VimBeGood` 时加载 |
+| [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | Java 的 eclipse.jdt.ls 客户端扩展（整理 import、提取变量/常量/方法、编译命令） | 仅 `java` |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP server 配置来源 | 按需 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 外部语言服务器管理 | LSP 依赖 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Mason 与 Neovim LSP 对接 | LSP 依赖 |
@@ -243,6 +249,40 @@ Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整�
 | `<leader>cf` | 异步格式化 |
 | `<leader>cd` | 当前诊断浮窗 |
 | `[d` / `]d` | 上一个/下一个诊断 |
+
+### Java
+
+Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls（Mason 只负责安装 `jdtls` 启动器，
+`lsp.lua` 不启用它，避免出现两个客户端）。项目根目录按 `gradlew`、`mvnw`、
+`settings.gradle{,.kts}`、`pom.xml`、`build.gradle{,.kts}`、`.git` 依次向上查找，
+索引缓存在 `~/.cache/nvim/jdtls/<项目名>`。
+
+除上表的通用 LSP 键位外，`.java` 缓冲区额外提供：
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>co` | 整理 import |
+| `<leader>cv` | 提取变量（可视模式提取选中表达式） |
+| `<leader>cc` | 提取常量（同上） |
+| `<leader>cm` | 提取方法（仅可视模式） |
+
+`eclipse.jdt.ls` 自身也提供 `textDocument/formatting`，所以 `<leader>cf`
+在 Java 里同样可用；命令 `:JdtCompile`、`:JdtRestart`、`:JdtBytecode`、
+`:JdtUpdateConfig` 也可用。需要 Java 21+ 运行时。
+
+### 格式化（clang-format）
+
+`vim-clang-format` 调用系统的 `clang-format` 二进制（`clang` 包提供），
+适用于 `c`、`cpp`、`objc`、`java`、`javascript`、`typescript`、`proto`、
+`cuda`、`vala`。在这些文件类型中按 `<leader>cF` 格式化整个文件（可视模式格式化选区）。
+
+样式解析顺序：
+
+1. 从当前文件目录向上查找 `.clang-format` 或 `_clang-format`，找到就用 `-style=file`；
+2. 找不到则回退到 `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`。
+
+`<leader>cf`（LSP 格式化）与 `<leader>cF`（clang-format）是两条独立路径：
+前者由语言服务器执行，后者始终走外部二进制。
 
 ### 可视模式
 

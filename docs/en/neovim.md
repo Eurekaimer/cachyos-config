@@ -39,6 +39,7 @@ manager itself.
 | `lua/plugins/editing.lua` | Surround editing, autosave, snippet engine, and motion practice |
 | `lua/plugins/syntax.lua` | Treesitter parsers and highlighting |
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
+| `lua/plugins/java.lua` | nvim-jdtls: the Java language server and JDT extension commands |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
 | `lua/snippets/markdown.lua` | Markdown-only TeX formula snippets |
 
@@ -58,15 +59,17 @@ boundary; the reason column is the acceptance test for keeping it.
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Startup | Provides the Kanagawa Wave colorscheme | Long reading and writing sessions need a low-contrast palette; `options.lua` still keeps a built-in fallback. |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | Startup | Plugin installation, dependency resolution, lazy-loading, lockfile management | A small manager is required to reproduce the plugin set. It also removes the need for custom clone/update scripts. |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | `markdown` only | Expands TeX formula snippets in Markdown | Formula snippets need a maintainable snippet engine; it loads only for markdown files and costs nothing elsewhere. |
-| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the six-server install list declarative and avoids duplicating package-name mappings. |
-| [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require six separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
+| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the seven-server install list declarative and avoids duplicating package-name mappings. |
+| [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require seven separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | Startup | Adds, deletes, finds, highlights, and replaces surrounding pairs | Core Neovim has no equivalent operator for changing quotes/brackets around text. This removes many repeated delete-and-insert edits. |
+| [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` filetype | JDT extensions for eclipse.jdt.ls: organize imports, extract variable/constant/method, and compile/restart commands | A bare LSP client only completes and navigates; `vim.lsp.enable("jdtls")` cannot reach these Java-specific operations, and Java is the primary language being written right now. |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | Startup | Supplies maintained defaults for common language servers | Neovim owns the LSP client, but server-specific commands, filetypes, and root markers still need reliable defaults. |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Startup | Downloads parser sources and queries for Neovim's native Treesitter runtime | Neovim provides the highlighter, but not all language parsers and queries. One plugin covers every configured language. |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | `markdown` only | Renders headings, lists, tables, and code blocks inside the editor | Writing no longer needs a preview window; `Space mr` toggles rendering off to read the source. |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | Simulates Neovide's cursor-trail animation in the terminal | The same configuration feels consistent in the terminal and in Neovide; it disables itself inside Neovide at no cost. |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | Startup, modules on demand | Dashboard, explorer, fuzzy picker, notifications, big-file handling, status column, Zen mode, buffer deletion, and LazyGit terminal | This single repository replaces several conventional UI plugins and is the main reason the plugin stack stays small. |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Only on `:VimBeGood` | Interactive motion practice | It directly supports learning Vim motions, never loads during normal editing, and can be removed after the training period. |
+| [vim-clang-format](https://github.com/rhysd/vim-clang-format) | C-family and Java filetypes | Formats code by driving the system `clang-format` binary | Neovim ships no C-family formatter; driving the official binary reuses each project's existing `.clang-format` instead of maintaining a second style definition. |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | LuaSnip dependency | Makes snippet expansion work with `.` repeat | LuaSnip's companion dependency; without it repeated expansions lose their semantics. |
 | [which-key.nvim](https://github.com/folke/which-key.nvim) | `VeryLazy` | Shows available continuations after leader/prefix keys | While the user is still learning modal editing, discoverability is worth more than one tiny plugin; revisit it once the mappings become muscle memory. |
 
@@ -95,7 +98,9 @@ The first column is alphabetized. Required extras are recorded in
 
 | Requirement | Status | Used by |
 | --- | --- | --- |
+| `clang-format` (`clang` package) | Explicit package | `Space cF` formatting for C/C++/Java and other C-family files |
 | `fd` | Required extra | Fast file discovery in Snacks picker |
+| `jdk-openjdk` / `jdk21-openjdk` | Explicit packages | eclipse.jdt.ls needs a Java 21+ runtime |
 | `lazygit` | Explicit package | `Space gg` Git interface |
 | `neovim` | Explicit package; current config targets 0.12 | Editor, native LSP completion, native comments, native snippets |
 | `npm` | Required extra | Mason packages for Bash, Pyright, and TypeScript language servers |
@@ -235,6 +240,7 @@ Configured servers are alphabetized by language:
 | --- | --- | --- |
 | Bash | `bashls` | `bash-language-server` |
 | Go | `gopls` | `gopls` |
+| Java | `jdtls` (started by nvim-jdtls) | `jdtls` |
 | JavaScript / TypeScript | `ts_ls` | `typescript-language-server` |
 | Lua | `lua_ls` | `lua-language-server` |
 | Python | `pyright` | `pyright` |
@@ -259,6 +265,45 @@ LSP mappings are buffer-local and appear only after a server attaches:
 Formatting depends on server capability. For example, Go and Rust servers
 format directly; Pyright is primarily a type checker and does not replace a
 Python formatter.
+
+### Java
+
+Java runs on eclipse.jdt.ls, started by `nvim-jdtls`. `lsp.lua` only asks Mason
+to install the `jdtls` launcher; it deliberately does not call
+`vim.lsp.enable("jdtls")`, which would attach a second client. The project root
+is found by walking upward through `gradlew`, `mvnw`, `settings.gradle{,.kts}`,
+`pom.xml`, `build.gradle{,.kts}`, and finally `.git`; the index is cached under
+`~/.cache/nvim/jdtls/<project>`.
+
+In addition to the mappings listed above, `.java` buffers get:
+
+| Mapping | Action |
+| --- | --- |
+| `Space co` | Organize imports |
+| `Space cv` | Extract variable (visual mode: the selected expression) |
+| `Space cc` | Extract constant (same) |
+| `Space cm` | Extract method (visual mode only) |
+
+`eclipse.jdt.ls` also advertises `textDocument/formatting`, so `Space cf` works
+in Java as well. The commands `:JdtCompile`, `:JdtRestart`, `:JdtBytecode`,
+and `:JdtUpdateConfig` are available too.
+
+### Formatting with clang-format
+
+`vim-clang-format` drives the system `clang-format` binary (shipped by the
+`clang` package) for `c`, `cpp`, `objc`, `java`, `javascript`, `typescript`,
+`proto`, `cuda`, and `vala`. In those filetypes `Space cF` formats the whole
+file, or only the selected range in visual mode.
+
+Style resolution order:
+
+1. Walk upward from the file's directory looking for `.clang-format` or
+   `_clang-format`; when one is found, pass `-style=file`.
+2. Otherwise fall back to `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`.
+
+`Space cf` (LSP formatting) and `Space cF` (clang-format) are independent
+paths: the former runs inside the language server, the latter always invokes
+the external binary.
 
 ## Treesitter
 
@@ -315,5 +360,7 @@ committed; the configuration and lockfile reproduce them.
 | File or text search is empty | Verify `fd` and `rg` are on `PATH`; run `:checkhealth snacks`. |
 | LSP installation fails for Bash/Python/TypeScript | Verify `npm --version`, then retry from `:Mason`. |
 | Parser compilation fails | Verify `tree-sitter --version` and a C compiler are available, then run `:TSUpdate`. |
+| Java does not respond, or reports `Java XY language features are not available` | Verify a JDK 21+ is on `PATH`, then run `:JdtRestart`; the index lives under `~/.cache/nvim/jdtls/` and can be deleted to rebuild it. |
+| `Space cF` reports that clang-format is missing | Install `clang` and confirm `clang-format --version` runs. |
 | Plugin startup fails | Open `:Lazy`, inspect the failed task, then run sync again. |
 | System clipboard is unavailable | Install `wl-clipboard`; the config enables `unnamedplus` only when a provider exists. |
