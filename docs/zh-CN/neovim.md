@@ -55,10 +55,12 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | 仅 `markdown` | 展开 Markdown 中的 TeX 公式片段 | 公式片段需要可维护的 snippet 引擎；只对 markdown 文件加载，不影响其他语言。 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 七种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则七个服务器要分别处理系统包、npm、Go、Java 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
+| [mini.pairs](https://github.com/nvim-mini/mini.pairs) | 启动时 | 括号、方括号、花括号和引号自动成对，`<BS>` 删除整对，`<CR>` 展开成缩进块 | 手写 Java 时每个 `(` 和 `{` 都要再打一次闭符号；插件只在进入插入模式时加载，不占启动时间。 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 启动时 | 添加、删除、查找、高亮和替换引号/括号等包围符号 | Neovim 核心没有等价操作；它能直接消除大量“删除旧括号再输入新括号”的重复编辑。 |
 | [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` 文件类型 | 为 eclipse.jdt.ls 提供 JDT 扩展：整理 import、提取变量/常量/方法、编译与重启命令 | 裸 LSP 客户端只能做补全和跳转，`vim.lsp.enable("jdtls")` 拿不到这些 Java 专属操作；Java 是当前要写的主要语言，需要它们。 |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | 启动时 | 为常见语言服务器提供经过维护的默认配置 | LSP 客户端属于 Neovim，但服务器命令、文件类型和项目根目录规则仍需要可靠默认值。 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 启动时 | 为 Neovim 原生 Treesitter 下载解析器和查询文件 | 高亮器属于 Neovim，但常用语言解析器和查询文件不会全部随核心提供；一个插件即可覆盖所有语言。 |
+| [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 启动加载 | 按嵌套深度给 `()` `[]` `{}` 逐层着色（Treesitter 驱动） | 深嵌套括号同色时无法分辨层级；七种色相按「相邻层对比最强」的顺序排列，颜色取自 Kanagawa palette，不引入第二套配色。 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 仅 `markdown` | 在编辑器内渲染标题、列表、表格和代码块 | 写作时不必开预览窗口；`Space mr` 可随时关闭渲染查看源码。 |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | 在终端中模拟 Neovide 的光标拖尾动画 | 同一份配置在终端与 Neovide 下手感一致；Neovide 内自动禁用，无额外成本。 |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | 启动时，具体模块按需运行 | 启动页、文件树、模糊搜索、通知、大文件处理、状态列、专注模式、buffer 删除和 LazyGit 终端 | 一个仓库替代多个传统 UI 插件，是在保持易用性的同时压低插件数量的关键。 |
@@ -210,6 +212,31 @@ mini.surround 使用当前默认键位：
 | `sd{char}` | 删除包围符号 |
 | `sr{old}{new}` | 替换包围符号 |
 
+mini.pairs 在插入模式下自动补全成对符号：
+
+| 输入 | 结果 |
+| --- | --- |
+| `(` `[` `{` | 同时插入另一半，光标停在中间 |
+| `"` `'` `` ` `` | 插入成对引号 |
+| 闭括号位于自动补全位置 | 跳过而不是重复插入 |
+| 空对中间按 `<BS>` | 一次删除整对 |
+| 空对中间按 `Enter` | 展开为缩进块，光标停在块内 |
+
+反斜杠后不触发；单引号前是字母时不触发（避免 `don't` 被拆开）；要原样输入单个符号
+用 `Ctrl-V` 前缀。
+
+括号按嵌套层级着色（rainbow-delimiters.nvim，基于 Treesitter），七种颜色依次循环：
+
+| 层级 | 高亮组 | 层级 | 高亮组 |
+| --- | --- | --- | --- |
+| 1 | `RainbowDelimiterRed` | 5 | `RainbowDelimiterGreen` |
+| 2 | `RainbowDelimiterYellow` | 6 | `RainbowDelimiterViolet` |
+| 3 | `RainbowDelimiterBlue` | 7 | `RainbowDelimiterCyan` |
+| 4 | `RainbowDelimiterOrange` | | |
+
+颜色取自 Kanagawa palette，定义在 `lua/plugins/theme.lua` 的 `overrides` 中，
+主题切换后重新应用；没有对应解析器的语言不生效。
+
 退出插入模式或文本变化后会自动写盘（`auto-save.nvim`），断电或窗口被强杀时最多丢失
 一次防抖窗口内的改动；手动保存仍然有效。
 
@@ -234,6 +261,7 @@ LSP 快捷键是 buffer-local，只有语言服务器成功连接后才出现：
 | 快捷键 | 功能 |
 | --- | --- |
 | Insert 模式 `Ctrl-Space` | 主动请求补全 |
+| Insert 模式 `Alt-s` | 显示函数签名帮助（服务器支持时） |
 | 补全菜单打开时 `Enter` | 接受当前补全项 |
 | `K` | 查看悬停文档 |
 | 补全菜单打开时 `Shift-Tab` / `Tab` | 上一个/下一个补全项 |
@@ -267,6 +295,9 @@ Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls。`lsp.lua` 只让 Mason 安装 `jdt
 `eclipse.jdt.ls` 自带 `textDocument/formatting`，因此 `Space cf` 在 Java 中同样可用。
 另有 `:JdtCompile`、`:JdtRestart`、`:JdtBytecode`、`:JdtUpdateConfig` 等命令。
 
+Java 还启用了 on-type formatting：jdtls 声明 `;`、换行和 `}` 为触发字符，`lsp.lua`
+按服务器能力探测后调用 `vim.lsp.on_type_formatting.enable()`，其他服务器未声明该能力时自动跳过。
+
 ### 格式化（clang-format）
 
 `vim-clang-format` 驱动系统 `clang-format` 二进制（`clang` 包提供），覆盖
@@ -285,9 +316,12 @@ Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls。`lsp.lua` 只让 Mason 安装 `jdt
 
 解析器按名称排序：
 
-`bash`、`go`、`javascript`、`json`、`lua`、`markdown`、
+`bash`、`c`、`cpp`、`go`、`java`、`javascript`、`json`、`lua`、`markdown`、
 `markdown_inline`、`python`、`query`、`rust`、`toml`、`typescript`、
 `vim`、`vimdoc`、`yaml`。
+
+`java`、`c`、`cpp` 是本次为括号着色新加的解析器（rainbow-delimiters 没有解析器时
+不工作）。
 
 实际高亮由 Neovim 完成。nvim-treesitter 只负责安装解析器和查询文件，随后由
 `FileType` autocmd 在解析器存在时调用 `vim.treesitter.start()`。没有启用会与核心

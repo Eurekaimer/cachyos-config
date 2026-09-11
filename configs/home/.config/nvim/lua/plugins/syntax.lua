@@ -1,4 +1,4 @@
--- Syntax parsers are centralized here because Markdown rendering and image discovery reuse them.
+-- Syntax parsers and delimiter highlighting are centralized here because Markdown rendering and image discovery reuse them.
 return {
   {
     "nvim-treesitter/nvim-treesitter",
@@ -16,7 +16,10 @@ return {
       require("nvim-treesitter").setup()
       require("nvim-treesitter").install({
         "bash",
+        "c",
+        "cpp",
         "go",
+        "java",
         "javascript",
         "json",
         "lua",
@@ -32,5 +35,14 @@ return {
         "yaml",
       })
     end,
+  },
+
+  -- Tree-sitter powered rainbow delimiters: every nesting level gets its own
+  -- colour so deep bracket nests stay distinguishable. This only loads the
+  -- highlighter; the seven RainbowDelimiter* groups are defined in theme.lua, and
+  -- the plugin's default order already maximises adjacent-level contrast.
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    lazy = false,
   },
 }

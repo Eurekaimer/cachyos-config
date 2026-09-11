@@ -1,4 +1,4 @@
--- Editing primitives: structural edits, formatters, Markdown math snippets, and optional training.
+-- Editing primitives: autopairs, structural edits, formatters, Markdown math snippets, and optional training.
 
 -- clang-format covers the C family plus Java, JavaScript, TypeScript and Protobuf.
 local clang_format_filetypes = {
@@ -16,6 +16,15 @@ local clang_format_filetypes = {
 return {
   {
     "nvim-mini/mini.surround",
+    version = "*",
+    opts = {},
+  },
+
+  -- Autopairs: an opener inserts its partner, <BS> deletes the whole pair, and
+  -- <CR> inside an empty pair opens an indented block. Pressing <CR> is wired in
+  -- config/keymaps.lua, which owns the completion-confirm branch.
+  {
+    "nvim-mini/mini.pairs",
     version = "*",
     opts = {},
   },

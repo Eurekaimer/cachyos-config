@@ -43,8 +43,14 @@ map({ "i", "s" }, "<S-Tab>", function()
   return snippet_backward() or "<S-Tab>"
 end, { expr = true, silent = true, desc = "补全上一项或返回片段" })
 map("i", "<CR>", function()
-  return vim.fn.pumvisible() == 1 and "<C-y>" or "<CR>"
-end, { expr = true, desc = "确认补全" })
+  if vim.fn.pumvisible() == 1 then
+    return "<C-y>"
+  end
+  -- Inside a pair registered by mini.pairs this opens an indented block;
+  -- otherwise MiniPairs.cr() returns a plain <CR>.
+  local ok, pairs = pcall(require, "mini.pairs")
+  return ok and pairs.cr() or "<CR>"
+end, { expr = true, desc = "确认补全或展开成对括号" })
 
 -- Markdown plugins load by filetype; global guards keep their shortcuts predictable elsewhere.
 map("n", "<leader>mr", function()

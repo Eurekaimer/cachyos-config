@@ -5,6 +5,7 @@
 - Kanagawa Wave 彩色主题；
 - Snacks 文件导航、查找、通知和启动页；
 - Neovim 原生 LSP 与补全；
+- 成对括号自动补全与逐层配色的括号高亮；
 - Java（eclipse.jdt.ls）与 clang-format 格式化；
 - Markdown 编辑器内渲染、Kitty 图片显示；
 - Markdown 中的 TeX 数学公式 snippets；
@@ -70,7 +71,7 @@ nvim
     │   ├── autocmds.lua        # 自动命令、fcitx5、光标恢复
     │   └── lazy.lua            # lazy.nvim 引导与插件导入
     ├── plugins/
-    │   ├── theme.lua           # Kanagawa Wave
+    │   ├── theme.lua           # Kanagawa Wave 与括号逐层配色
     │   ├── ui.lua              # Snacks、which-key、smear-cursor
     │   ├── editing.lua         # mini.surround、auto-save、LuaSnip、vim-be-good
     │   ├── syntax.lua          # Treesitter parsers
@@ -101,10 +102,12 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | 在终端中模拟 Neovide 光标拖尾 | `VeryLazy`；Neovide 内禁用 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 语法树、高亮及 Markdown 结构解析 | 启动加载 |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
+| [mini.pairs](https://github.com/nvim-mini/mini.pairs) | 括号/引号自动成对、`<BS>` 整对删除、`<CR>` 展开成块 | 常驻 |
 | [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
 | [vim-clang-format](https://github.com/rhysd/vim-clang-format) | 调用系统 `clang-format` 格式化 C/C++/Java 等语言 | C 系与 Java 文件类型 |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式 snippets | 仅 `markdown` |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
+| [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 按嵌套层级给 `()` `[]` `{}` 逐层着色 | 启动加载 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
 | [image.nvim](https://github.com/3rd/image.nvim) | Markdown 内联图片及图片文件显示 | 仅 Kitty + `markdown` |
 | [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Vim 操作训练 | `:VimBeGood` 时加载 |
@@ -163,8 +166,9 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 |---|---|---|
 | `<Tab>` | 插入/选择 | 下一补全项、展开 snippet 或跳到下一占位符 |
 | `<S-Tab>` | 插入/选择 | 上一补全项或返回上一占位符 |
-| `<CR>` | 插入 | 补全菜单存在时确认，否则正常换行 |
+| `<CR>` | 插入 | 补全菜单存在时确认，否则展开成对括号（成块）或正常换行 |
 | `<C-Space>` | 插入 | 手动触发 LSP 补全 |
+| `<A-s>` | 插入 | 显示函数签名帮助（服务器支持时） |
 
 ### 窗口
 
@@ -270,6 +274,15 @@ Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls（Mason 只负责安装 `jdtls` 启�
 在 Java 里同样可用；命令 `:JdtCompile`、`:JdtRestart`、`:JdtBytecode`、
 `:JdtUpdateConfig` 也可用。需要 Java 21+ 运行时。
 
+Java 还启用了 on-type formatting：jdtls 声明了 `;`、换行和 `}` 作为触发字符，
+`vim.lsp.on_type_formatting` 在这些字符输入后请服务器调整缩进（`lsp.lua` 中按能力
+探测启用，其他服务器未声明该能力时自动跳过）。
+
+### 签名帮助
+
+`<A-s>` 在插入模式下显示当前调用的签名。Neovim 默认把 `CTRL-S` 映射到签名帮助，
+而本配置把 `CTRL-S` 用作保存，因此改用 `Alt+s`。
+
 ### 格式化（clang-format）
 
 `vim-clang-format` 调用系统的 `clang-format` 二进制（`clang` 包提供），
@@ -373,6 +386,44 @@ image.nvim 使用 Kitty Graphics Protocol：
 | `aln` | Markdown 块级公式内的 `aligned` 多行等式 |
 
 展开后用 `<Tab>` 前进，`<S-Tab>` 后退。片段定义集中在 `lua/snippets/markdown.lua`。
+
+## 撰写辅助
+
+### 成对括号（mini.pairs）
+
+| 输入 | 结果 |
+|---|---|
+| `(` `[` `{` | 同时插入配对的另一半，光标停在中间 |
+| `"` `'` `` ` `` | 插入成对引号 |
+| 已自动补全的闭括号处再输入闭括号 | 跳过而不重复插入 |
+| `<BS>` 在空对中间 | 一次删除整对 |
+| `<CR>` 在空对中间 | 展开为缩进块，光标停在块内 |
+
+反斜杠后不触发（`\(` 保持原样）；单引号前是字母时也不触发，避免 `don't` 被拆开。
+需要原样输入单个符号时用 `<C-v>` 前缀。
+
+### 括号层级配色（rainbow-delimiters.nvim）
+
+基于 Treesitter，按嵌套深度循环使用七种颜色，相邻两层的色相刻意拉开：
+
+```text
+第 1 层 RainbowDelimiterRed     第 5 层 RainbowDelimiterGreen
+第 2 层 RainbowDelimiterYellow  第 6 层 RainbowDelimiterViolet
+第 3 层 RainbowDelimiterBlue    第 7 层 RainbowDelimiterCyan
+第 4 层 RainbowDelimiterOrange
+```
+
+颜色取自 Kanagawa palette（`waveRed`、`carpYellow`、`crystalBlue`、`roninYellow`、
+`springGreen`、`oniViolet`、`waveAqua2`），定义在 `lua/plugins/theme.lua` 的
+`overrides` 中，随主题切换一起生效。需要对应语言的 Treesitter 解析器；
+`java`、`c`、`cpp` 已在 `syntax.lua` 的安装列表里。
+
+需要临时关闭时：
+
+```vim
+:lua require("rainbow-delimiters").disable(0)   -- 当前缓冲区
+:lua require("rainbow-delimiters").enable(0)
+```
 
 ## 编辑器行为
 

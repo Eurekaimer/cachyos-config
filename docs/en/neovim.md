@@ -61,10 +61,12 @@ boundary; the reason column is the acceptance test for keeping it.
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | `markdown` only | Expands TeX formula snippets in Markdown | Formula snippets need a maintainable snippet engine; it loads only for markdown files and costs nothing elsewhere. |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the seven-server install list declarative and avoids duplicating package-name mappings. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require seven separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
+| [mini.pairs](https://github.com/nvim-mini/mini.pairs) | Startup | Auto-inserts the partner of brackets and quotes, deletes a whole pair with `<BS>`, and expands an empty pair into an indented block with `<CR>` | Writing Java by hand needs a second keystroke for every `(` and `{`; the plugin loads only on entering Insert mode, so startup is unaffected. |
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | Startup | Adds, deletes, finds, highlights, and replaces surrounding pairs | Core Neovim has no equivalent operator for changing quotes/brackets around text. This removes many repeated delete-and-insert edits. |
 | [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` filetype | JDT extensions for eclipse.jdt.ls: organize imports, extract variable/constant/method, and compile/restart commands | A bare LSP client only completes and navigates; `vim.lsp.enable("jdtls")` cannot reach these Java-specific operations, and Java is the primary language being written right now. |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | Startup | Supplies maintained defaults for common language servers | Neovim owns the LSP client, but server-specific commands, filetypes, and root markers still need reliable defaults. |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Startup | Downloads parser sources and queries for Neovim's native Treesitter runtime | Neovim provides the highlighter, but not all language parsers and queries. One plugin covers every configured language. |
+| [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | Startup | Colours `()` `[]` `{}` per nesting depth using Tree-sitter | Deeply nested brackets are indistinguishable in one colour; the seven hues are ordered for maximum adjacent-level contrast and come from the Kanagawa palette, so no second colourscheme is introduced. |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | `markdown` only | Renders headings, lists, tables, and code blocks inside the editor | Writing no longer needs a preview window; `Space mr` toggles rendering off to read the source. |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | Simulates Neovide's cursor-trail animation in the terminal | The same configuration feels consistent in the terminal and in Neovide; it disables itself inside Neovide at no cost. |
 | [snacks.nvim](https://github.com/folke/snacks.nvim) | Startup, modules on demand | Dashboard, explorer, fuzzy picker, notifications, big-file handling, status column, Zen mode, buffer deletion, and LazyGit terminal | This single repository replaces several conventional UI plugins and is the main reason the plugin stack stays small. |
@@ -225,6 +227,34 @@ mini.surround uses its current default mappings:
 | `sd{char}` | Delete a surrounding pair |
 | `sr{old}{new}` | Replace a surrounding pair |
 
+mini.pairs completes pairs while typing in Insert mode:
+
+| Input | Result |
+| --- | --- |
+| `(` `[` `{` | Inserts the partner and leaves the cursor between them |
+| `"` `'` `` ` `` | Inserts a pair of quotes |
+| A closing bracket at a completed position | Skips over it instead of duplicating |
+| `<BS>` inside an empty pair | Deletes the whole pair at once |
+| `Enter` inside an empty pair | Expands it into an indented block with the cursor inside |
+
+Nothing triggers after a backslash, and a single quote is left alone after a
+letter so `don't` is not split. Prefix with `Ctrl-V` to insert one symbol
+literally.
+
+Brackets are coloured by nesting depth (rainbow-delimiters.nvim, Tree-sitter
+driven) cycling through seven hues:
+
+| Depth | Highlight group | Depth | Highlight group |
+| --- | --- | --- | --- |
+| 1 | `RainbowDelimiterRed` | 5 | `RainbowDelimiterGreen` |
+| 2 | `RainbowDelimiterYellow` | 6 | `RainbowDelimiterViolet` |
+| 3 | `RainbowDelimiterBlue` | 7 | `RainbowDelimiterCyan` |
+| 4 | `RainbowDelimiterOrange` | | |
+
+The colours come from the Kanagawa palette and are defined in the `overrides`
+function of `lua/plugins/theme.lua`, so a colourscheme change re-applies them.
+Languages without a matching parser are untouched.
+
 Buffers are also written automatically after leaving Insert mode and on text
 changes (`auto-save.nvim`); a power loss or a killed window costs at most one
 debounce window of edits, and manual saving still works.
@@ -251,6 +281,7 @@ LSP mappings are buffer-local and appear only after a server attaches:
 | Mapping | Action |
 | --- | --- |
 | `Ctrl-Space` in Insert mode | Request completion |
+| `Alt-s` in Insert mode | Show signature help (when the server supports it) |
 | `Enter` with menu visible | Accept the selected completion |
 | `K` | Show hover documentation |
 | `Shift-Tab` / `Tab` with menu visible | Previous/next completion item |
@@ -288,6 +319,10 @@ In addition to the mappings listed above, `.java` buffers get:
 in Java as well. The commands `:JdtCompile`, `:JdtRestart`, `:JdtBytecode`,
 and `:JdtUpdateConfig` are available too.
 
+On-type formatting is enabled as well: jdtls advertises `;`, newline, and `}` as
+trigger characters, and `lsp.lua` enables `vim.lsp.on_type_formatting` after
+checking that capability, so servers without it are skipped automatically.
+
 ### Formatting with clang-format
 
 `vim-clang-format` drives the system `clang-format` binary (shipped by the
@@ -309,8 +344,12 @@ the external binary.
 
 Configured parsers are alphabetized:
 
-`bash`, `go`, `javascript`, `json`, `lua`, `markdown`, `markdown_inline`,
-`python`, `query`, `rust`, `toml`, `typescript`, `vim`, `vimdoc`, `yaml`.
+`bash`, `c`, `cpp`, `go`, `java`, `javascript`, `json`, `lua`, `markdown`,
+`markdown_inline`, `python`, `query`, `rust`, `toml`, `typescript`, `vim`,
+`vimdoc`, `yaml`.
+
+`java`, `c`, and `cpp` were added for bracket colouring: rainbow-delimiters does
+nothing without the matching parser.
 
 Neovim performs highlighting. nvim-treesitter only installs parsers and queries,
 then a `FileType` autocmd calls `vim.treesitter.start()` when a parser exists.

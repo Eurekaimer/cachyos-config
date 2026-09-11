@@ -162,3 +162,21 @@ output "eDP-1" {
 - **包清单**：`packages/pacman-explicit.txt` +`clang`（`clang-format` 由它提供；原来只装了 `llvm-libs` 相关依赖，`clang` 本身未显式安装）。JDK 已在清单中（`jdk-openjdk` 26 + `jdk21-openjdk`）。
 - **文档**：`configs/home/.config/nvim/README.md`、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 三处同步更新（插件表、目录结构、LSP 表 +Java 行、外部依赖 +clang/JDK、Java 与 clang-format 小节、排障表）；语言服务器计数由六个改为七个。
 - **待办**：无。插件与配置均在实时配置与仓库快照中一致。
+
+## 13. Neovim 撰写辅助：autopair 与括号层级配色（2026-09-11）
+
+- **新增插件**：
+  - `mini.pairs`（`lua/plugins/editing.lua`，启动加载：曾用 `InsertEnter` 懒加载，但 headless 无法验证该事件真的加载插件，改为与 `mini.surround` 一致的常驻加载，插件本身很小）——括号/引号自动成对，`<BS>` 删整对，`<CR>` 展开成块。
+  - `rainbow-delimiters.nvim`（`lua/plugins/syntax.lua`，启动加载）——Treesitter 驱动的按嵌套深度着色。
+- **新增 Treesitter 解析器**：`java`、`c`、`cpp`（rainbow-delimiters 无解析器不工作）。`cpp` 首次下载被 TLS EOF 打断，重跑一次成功；`site/parser/` 现共 18 个 `.so`。
+- **改动**：
+  - `lua/config/keymaps.lua`：`<CR>` 表达式映射增加 `MiniPairs.cr()` 分支（补全菜单优先，其次成对展开，最后普通换行）。`vim.g.minipairs_disable` 为 nil 时正常触发。
+  - `lua/plugins/theme.lua`：`overrides` 中新增七个 `RainbowDelimiter*` 组，取自 Kanagawa palette（waveRed / carpYellow / crystalBlue / roninYellow / springGreen / oniViolet / waveAqua2）。插件默认顺序即「相邻层对比最强」，未覆盖 `highlight` 列表。
+  - `lua/plugins/lsp.lua`：新增 on-type formatting 能力探测启用；新增 `<A-s>` 签名帮助映射（Neovim 默认的插入模式 `CTRL-S` 已被本配置用作保存，故改用 `Alt+s`）。
+- **实测验证**（headless）：
+  - 配色：七组 fg 两两不同（`#e46876 / #e6c384 / #7e9cd8 / #ff9e3b / #98bb6c / #957fb8 / #7aa89f`）；在四层嵌套的 `Deep.java` 上同时出现 Red/Yellow/Blue/Orange 四个层级的 extmark，共 23 个。
+  - 成对：`if(` → `if()`；`if(1)` 输入闭括号时跳过不重复；`iif(<BS>` → `if`（整对删除）；`String s = "` → `String s = ""`；`if(1) {` + Enter → 展开为 `{\n\n}`；`if(` + Enter → `(\n\n        )`；反斜杠后不触发。
+  - `<BS>` 映射由 mini.pairs 在 setup 时创建（`v:lua.MiniPairs.bs()`），与 `<CR>` 无冲突。
+  - 签名帮助映射存在（`<A-s>` = 「签名帮助」），jdtls 声明 `signatureHelpProvider.triggerCharacters = ["(", ","]`。
+  - on-type formatting：`client._otf_enabled = true`、`vim.on_key` 已注册、jdtls 声明 `documentOnTypeFormattingProvider = {firstTriggerCharacter=";", moreTriggerCharacter=["\n","}"]}`。**注意**：headless 下用合成请求测试该能力返回空编辑列表（`edits={}`），且 `nvim_input`/`feedkeys` 在无 UI 环境无法可靠模拟真实键入，因此「打字时自动缩进」的**实际效果未能在本环境观察到**；配置本身按服务器能力探测启用，能力缺失的服务器自动跳过。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步新增「撰写辅助」小节、插件表条目、解析器列表、LSP 映射行与 Java on-type 说明。

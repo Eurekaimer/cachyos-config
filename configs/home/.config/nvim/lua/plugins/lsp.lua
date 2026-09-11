@@ -28,6 +28,12 @@ return {
             vim.lsp.completion.enable(true, client.id, args.buf, { autotrigger = true })
           end
 
+          -- jdtls re-indents on `;`, `}` and newline, so Java keeps its shape while
+          -- typing instead of waiting for an explicit format.
+          if client and client:supports_method("textDocument/onTypeFormatting") then
+            vim.lsp.on_type_formatting.enable(true, { client_id = client.id })
+          end
+
           local map = function(mode, lhs, rhs, desc)
             vim.keymap.set(mode, lhs, rhs, { buffer = args.buf, desc = desc })
           end
@@ -51,6 +57,11 @@ return {
             vim.diagnostic.jump({ count = 1, float = true })
           end, "下一个诊断")
           map("i", "<C-Space>", vim.lsp.completion.get, "触发补全")
+          -- Neovim's default insert-mode signature-help key is CTRL-S, which
+          -- config/keymaps.lua already uses for saving.
+          if client and client:supports_method("textDocument/signatureHelp") then
+            map("i", "<A-s>", vim.lsp.buf.signature_help, "签名帮助")
+          end
         end,
       })
     end,

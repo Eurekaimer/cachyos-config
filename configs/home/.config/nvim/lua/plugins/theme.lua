@@ -21,6 +21,7 @@ return {
     },
     overrides = function(colors)
       local ui = colors.theme.ui
+      local palette = colors.palette
       return {
         CursorLine = { bg = ui.bg_p1 },
         FloatBorder = { fg = ui.bg_p2, bg = ui.bg_m1 },
@@ -29,6 +30,17 @@ return {
         Pmenu = { fg = ui.fg, bg = ui.bg_p1 },
         PmenuSel = { fg = ui.special, bg = ui.bg_p2, bold = true },
         WinSeparator = { fg = ui.bg_p2 },
+        -- One hue per nesting level for rainbow-delimiters.nvim, drawn from the
+        -- Kanagawa palette so deeper brackets stay tellable apart without
+        -- leaving the theme. RainbowDelimiter* groups are applied in the plugin's
+        -- default order: Red, Yellow, Blue, Orange, Green, Violet, Cyan.
+        RainbowDelimiterRed = { fg = palette.waveRed },
+        RainbowDelimiterYellow = { fg = palette.carpYellow },
+        RainbowDelimiterBlue = { fg = palette.crystalBlue },
+        RainbowDelimiterOrange = { fg = palette.roninYellow },
+        RainbowDelimiterGreen = { fg = palette.springGreen },
+        RainbowDelimiterViolet = { fg = palette.oniViolet },
+        RainbowDelimiterCyan = { fg = palette.waveAqua2 },
       }
     end,
   },
