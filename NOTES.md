@@ -57,6 +57,8 @@
 ## 3. 输入法与字体状态
 - fcitx5 套件 + Ziranma 双拼 profile 已同步；候选框样式来自 `.config/fcitx5/conf/classicui.conf`（LXGW WenKai 18 号、横排、按屏 DPI），依赖 AUR 字体包 `ttf-lxgw-wenkai`、`ttf-lxgw-wenkai-mono-nerd`（本次经 paru 安装）。
 - noctalia `ui.fontDefault/fontFixed` 也引用 LXGW 两款字体，字体未装时会静默回退。
+- 2026-09-11：为 `wechat-bin 4.1.13.9-1` 添加用户级 `.local/share/applications/wechat.desktop`，并纳入 `manifests/home-paths.txt`。仅微信启动时设置 `QT_IM_MODULE=text-input-unstable-v3`、`XMODIFIERS=@im=fcitx`，不修改 niri 全局输入法环境。来源：[上游讨论 #1](https://github.com/Kraftland/arch-wechat-packaging/discussions/1)。帖子报告此方案可用于 Wayland 主界面；表情搜索仍是已知限制，不能据此宣称已修复。
+- 启动器通过 `desktop-file-validate`，刷新 desktop 数据库后 Gio 按 `wechat.desktop` 解析到用户级覆盖及新参数。用户已确认输入法恢复可用。直接执行 `/usr/bin/wechat` 不经过此 desktop 覆盖；后续修改启动参数仍需完全退出微信后通过应用启动器重开。修改前备份位于 `~/.local/state/cachyos-config/backups/20260911-163440-wechat/`；此前不存在用户级微信启动器。
 
 ## 4. Caps 键行为说明（备忘）
 `cfg/input.kdl` 用 xkb 选项 `caps:super,shift:both_capslock` 把 Caps 映射成 Super，所以 `Super+Space` 与 `Caps+Space` 完全等价；之前唤不出启动器不是键位问题，是外壳没运行（见 2.2）。

@@ -33,6 +33,7 @@
 .config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop
+.local/share/applications/wechat.desktop
 .local/bin/niri-hotkeys-zh
 .local/bin/fcitx5-toggle-japanese
 .local/share/niri/hotkeys-zh.txt
