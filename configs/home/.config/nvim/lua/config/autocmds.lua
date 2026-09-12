@@ -28,6 +28,19 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
+-- Markdown's bundled ftplugin runs `formatoptions-=r`, which stops Vim from
+-- repeating the comment leader on <Enter>. Restoring it makes a quoted line
+-- (`> ...`, i.e. an Obsidian callout) continue with `> ` on every new line.
+-- `-` / `*` bullets continue too; `1.` ordered lists do not, because markdown
+-- defines those markers with the `f` flag (first line only).
+vim.api.nvim_create_autocmd("FileType", {
+  group = group,
+  pattern = "markdown",
+  callback = function()
+    vim.opt_local.formatoptions:append("r")
+  end,
+})
+
 vim.api.nvim_create_autocmd({ "FocusGained", "TermClose", "TermLeave" }, {
   group = group,
   command = "checktime",

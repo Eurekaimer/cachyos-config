@@ -25,7 +25,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `init.lua` | 设置 leader 键并按固定顺序加载核心模块 |
 | `lazy-lock.json` | 固定插件版本 |
 | `lua/config/autocmds.lua` | 通用生命周期钩子和 fcitx5 状态管理 |
-| `lua/config/keymaps.lua` | 全局快捷键和原生补全菜单控制 |
+| `lua/config/keymaps.lua` | 全局快捷键、原生补全菜单控制与 callout 空行折叠 |
 | `lua/config/lazy.lua` | 引导 lazy.nvim 并导入插件声明 |
 | `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测和主题兜底 |
 | `lua/plugins/theme.lua` | Kanagawa Wave 配色 |
@@ -35,7 +35,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/java.lua` | nvim-jdtls：Java 语言服务器与 JDT 扩展命令 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
-| `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式片段 |
+| `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式与 Obsidian callout 片段 |
 
 配置注释统一使用简洁、规范的英文句子；which-key 中面向使用者的快捷键说明保留
 中文，避免日常操作时还要翻译。
@@ -225,6 +225,22 @@ mini.pairs 在插入模式下自动补全成对符号：
 反斜杠后不触发；单引号前是字母时不触发（避免 `don't` 被拆开）；要原样输入单个符号
 用 `Ctrl-V` 前缀。
 
+### Markdown snippets 与 Obsidian callouts
+
+`lua/snippets/markdown.lua` 移植了 Obsidian LaTeX Suite 的触发词：`m`（仅数学模式）对应
+`in_math()` 门控，`A`（自动展开）对应片段是否边打边展开。数学片段共 154 条自动展开、13 条
+Tab 片段，`mk` / `dm` / `aln` 不受门控（用于创建数学环境）。
+
+短的触发器不能是长的前缀，否则长词未打完即被截断：`aligned` / `matrix` / `mathcal` /
+`ddot` / `<->` 自动展开，`align` / `mat` / `dot` / `->` 保留为 Tab 片段或靠 `priority`
+让长触发器优先；纯字母触发器要求词边界，`beta` 不会被 `eta` 吃掉。
+
+`callouts-<类型>` 覆盖 20 种 callout（note、tip、important、warning、question、todo、
+info、success、danger、failure、bug、example、quote、abstract、summary、tldr、hint、
+caution、attention、cite），展开后光标停在已带 `> ` 的正文行。在正文行按 `Enter` 续行；
+出现空 `>` 行时再按 `Enter`，整段连续空 `>` 行折叠为一个空行，光标落到下一行，callout
+到此结束。折叠实现在 `lua/config/keymaps.lua` 的 `collapse_quote_run()`。
+
 括号按嵌套层级着色（rainbow-delimiters.nvim，基于 Treesitter），七种颜色依次循环：
 
 | 层级 | 高亮组 | 层级 | 高亮组 |
@@ -371,4 +387,7 @@ git push
 | Java 无响应或报 `Java XY language features are not available` | 确认 JDK 21+ 在 `PATH`，再执行 `:JdtRestart`；索引缓存在 `~/.cache/nvim/jdtls/`，可删除后重建。 |
 | `Space cF` 报找不到 clang-format | `pacman -S clang`，并确认 `clang-format --version` 可执行。 |
 | 插件启动失败 | 打开 `:Lazy` 查看失败任务，然后重新执行同步。 |
+| snippet 全部不展开（连 `mk` / `dm` 也失效） | 片段文件加载失败会让整个文件作废。执行 `:lua =require("luasnip").available()`，若为空则查看 `~/.local/state/nvim/luasnip.log`；`fmta` 的格式串中出现字面量 `>`（如 `> [!note]`）会报 `Found unescaped > outside placeholder`，改用 `text_node` 构造。 |
+| 打完 `aligned` 等片段没有自动展开 | 自动片段只在触发词完整时匹配，且多数受数学模式门控。确认光标在 `$ $` / `$$ $$` 内；`align`、`mat`、`par` 等有前缀冲突的触发词需按 `<Tab>`。 |
+| Markdown 中按 `Enter` 不自动续 `>` | 检查 `:setlocal formatoptions?`；Markdown ftplugin 会去掉 `r`，本配置在 `FileType markdown` 时加回，正常应为 `ntcqljr`。 |
 | 系统剪贴板不可用 | 安装 `wl-clipboard`；配置只在检测到 provider 时启用 `unnamedplus`。 |

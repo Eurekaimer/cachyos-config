@@ -42,9 +42,50 @@ map({ "i", "s" }, "<S-Tab>", function()
   end
   return snippet_backward() or "<S-Tab>"
 end, { expr = true, silent = true, desc = "补全上一项或返回片段" })
+-- A run of empty quote lines (`>` with nothing after it) is how an Obsidian
+-- callout ends. Pressing <Enter> on one collapses the whole run into a single
+-- blank line and puts the cursor on the line below, so the callout stays tidy
+-- and the next paragraph starts outside the quote. Exported at the bottom of
+-- this file for the <Cmd> mapping below.
+local function blank_quote_line(row)
+  local line = vim.api.nvim_buf_get_lines(0, row - 1, row, false)[1]
+  return line ~= nil and line:match("^%s*>%s*$") ~= nil
+end
+
+local function collapse_quote_run()
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  if not blank_quote_line(row) then
+    return
+  end
+
+  -- The whole contiguous run counts, not just the lines above the cursor, or a
+  -- second empty `>` left below would survive the collapse.
+  local first, final = row, row
+  while first > 1 and blank_quote_line(first - 1) do
+    first = first - 1
+  end
+  while final < vim.api.nvim_buf_line_count(0) and blank_quote_line(final + 1) do
+    final = final + 1
+  end
+
+  -- Replace the run with one blank line, then keep a line below for the cursor
+  -- so the next paragraph starts outside the quote.
+  vim.api.nvim_buf_set_lines(0, first - 1, final, false, { "" })
+  if vim.api.nvim_buf_line_count(0) < first + 1 then
+    vim.api.nvim_buf_set_lines(0, first, first, false, { "" })
+  end
+  vim.api.nvim_win_set_cursor(0, { first + 1, 0 })
+  vim.cmd("startinsert")
+end
+
 map("i", "<CR>", function()
   if vim.fn.pumvisible() == 1 then
     return "<C-y>"
+  end
+  -- Only Markdown counts as callout territory; other filetypes and any line
+  -- holding real text keep the plain newline.
+  if vim.bo.filetype == "markdown" and blank_quote_line(vim.api.nvim_win_get_cursor(0)[1]) then
+    return "<Cmd>lua require('config.keymaps').collapse_quote_run()<CR>"
   end
   -- Inside a pair registered by mini.pairs this opens an indented block;
   -- otherwise MiniPairs.cr() returns a plain <CR>.
@@ -96,3 +137,5 @@ map("v", "J", ":move '>+1<CR>gv=gv", { desc = "选区下移" })
 map("v", "K", ":move '<-2<CR>gv=gv", { desc = "选区上移" })
 map("v", "<", "<gv", { desc = "减少缩进" })
 map("v", ">", ">gv", { desc = "增加缩进" })
+
+return { collapse_quote_run = collapse_quote_run }

@@ -8,7 +8,7 @@
 - 成对括号自动补全与逐层配色的括号高亮；
 - Java（eclipse.jdt.ls）与 clang-format 格式化；
 - Markdown 编辑器内渲染、Kitty 图片显示；
-- Markdown 中的 TeX 数学公式 snippets；
+- Markdown 中的 TeX 数学公式与 Obsidian callout snippets；
 - 终端与 Neovide 各自适配的光标动画；
 - fcitx5 中文输入法状态自动切换。
 
@@ -79,7 +79,7 @@ nvim
     │   ├── java.lua            # nvim-jdtls（eclipse.jdt.ls）
     │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
     └── snippets/
-        └── markdown.lua        # Markdown 专用 TeX 公式片段
+        └── markdown.lua        # Markdown 专用 TeX 公式与 callout 片段
 ```
 
 加载顺序固定为：
@@ -105,7 +105,7 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [mini.pairs](https://github.com/nvim-mini/mini.pairs) | 括号/引号自动成对、`<BS>` 整对删除、`<CR>` 展开成块 | 常驻 |
 | [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
 | [vim-clang-format](https://github.com/rhysd/vim-clang-format) | 调用系统 `clang-format` 格式化 C/C++/Java 等语言 | C 系与 Java 文件类型 |
-| [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式 snippets | 仅 `markdown` |
+| [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式与 Obsidian callout snippets | 仅 `markdown` |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
 | [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 按嵌套层级给 `()` `[]` `{}` 逐层着色 | 启动加载 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
@@ -354,9 +354,14 @@ image.nvim 使用 Kitty Graphics Protocol：
 
 安全说明：配置允许下载远程图片；打开不可信 Markdown 时可能向远程服务器发起请求。如不需要远程图片，将 `download_remote_images` 改为 `false`。
 
-### Markdown TeX 公式 snippets
+### Markdown snippets
 
-这里只支持 **Markdown 中的 TeX 数学语法输入**，没有配置 `.tex` 工程、VimTeX、texlab 或自动编译。
+这里只支持 **Markdown 中的 TeX 数学语法与 Obsidian callout 输入**，没有配置 `.tex` 工程、
+VimTeX、texlab 或自动编译。片段定义集中在 `lua/snippets/markdown.lua`，触发词与选项移植自
+Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/data.json`）：
+原配置的 `m`（仅数学模式）对应 `in_math()` 门控，`A`（自动展开）对应该片段是否边打边展开。
+
+数学片段共 154 条**自动展开**（打完触发词立即生效）与 13 条 Tab 片段；常用触发词见下。
 
 #### 自动展开
 
@@ -386,6 +391,62 @@ image.nvim 使用 Kitty Graphics Protocol：
 | `aln` | Markdown 块级公式内的 `aligned` 多行等式 |
 
 展开后用 `<Tab>` 前进，`<S-Tab>` 后退。片段定义集中在 `lua/snippets/markdown.lua`。
+
+#### 数学模式门控
+
+绝大多数片段只在 `$…$` 或 `$$…$$` 内部触发：`in_math()` 扫描光标之前的所有行，按未转义的
+`$$` 配对判断是否处于块级公式（可跨行），再在本行内按单个 `$` 的奇偶判断行内公式。
+`mk` / `dm` 不受门控（它们正是用来创建数学环境的），在正文中打 `@a` 会保留字面量。
+
+#### 自动展开与前缀冲突
+
+自动片段在触发词打完后立即展开，因此**短的触发器不能是长的前缀**，否则长词还没打完就被
+截断。`aligned` / `matrix` / `mathcal` / `ddot` / `<->` 自动展开，它们的前缀 `align` /
+`mat` / `dot` / `->` 保留为 Tab 片段或靠 `priority` 让长触发器优先。纯字母触发器要求词
+边界，`beta` 不会被 `eta` 吃掉。
+
+#### 常用触发词
+
+| 类别 | 触发词 |
+|---|---|
+| 数学环境 | `mk` `dm` `aln`（Tab）；`beg` `aligned` `pmat` `bmat` `cases` `matrix` |
+| 希腊字母 | `@a` `@b` `@g` `@G` `@d` `@D` `@e` `@z` `@t` `@T` `@i` `@k` `@l` `@L` `@s` `@S` `@u` `@U` `@o` `@O` `@m` `@n` `@p` `@r` `@f` `@c` `@x` `@y`、`:e`、`:t` |
+| 分数与幂 | `//` `bino` `sr` `cb` `rd` `ee` `invs` `conj` |
+| 关系符号 | `**` `xx` `+-` `-+` `...` `->` `<->` `!>` `=>` `=<` `===` `!=` `>=` `<=` `>>` `<<` `sub=` `sup=` |
+| 集合与字母表 | `inn` `notin` `emp` `sete` `RR` `CC` `QQ` `ZZ` `NN` `EE` `KK` `PP` `LL` `HH` `AA` |
+| 分析 | `sum` `prod` `bigcup` `bigcap` `int` `dint` `oinf` `infi` `lim` `limt` `suplim` `inflim` `par` `ddt` `tayl` |
+| 概率统计 | `measpace` `probspace` `scrf` `IID` `meato` `holder` |
+| 括号 | `avg` `norm` `Norm` `ceil` `floor` `mod` `lr(` `lr[` `lr{` `lr|` |
+
+展开后用 `<Tab>` 前进到下一个占位符，`<S-Tab>` 后退。
+
+#### Obsidian callouts
+
+`callouts-<类型>` 覆盖 20 种 callout，展开后光标停在正文行，该行已带 `> `：
+
+```markdown
+> [!todo] 第一章
+> - [ ] 作业1
+```
+
+在正文行内按 `Enter` 自动续 `> `。当出现**空 `>` 行**（即只有引用符号、后面没有内容）时，
+再按一次 `Enter` 会把整段连续空 `>` 行折叠为**一个空行**，光标落到下一行，callout 到此结束：
+
+```markdown
+> [!note] 标题
+> 正文
+
+下一段从这里开始
+```
+
+支持的 20 种类型：`note` `tip` `important` `warning` `question` `todo` `info` `success`
+`danger` `failure` `bug` `example` `quote` `abstract` `summary` `tldr` `hint` `caution`
+`attention` `cite`。
+
+callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自带的 ftplugin 会关掉它
+（实测 `jtcqln`），`lua/config/autocmds.lua` 在 `FileType markdown` 时加回，最终为
+`ntcqljr`。折叠逻辑在 `lua/config/keymaps.lua`：`<CR>` 检测光标行是否为空白引用行，是则
+调用 `collapse_quote_run()`；普通正文行仍走 mini.pairs 的成对展开。
 
 ## 撰写辅助
 

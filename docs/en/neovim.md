@@ -31,7 +31,7 @@ manager itself.
 | `init.lua` | Sets leader keys and loads core modules in deterministic order |
 | `lazy-lock.json` | Pins plugin revisions |
 | `lua/config/autocmds.lua` | General lifecycle hooks and fcitx5 state handling |
-| `lua/config/keymaps.lua` | Global mappings and native completion-menu controls |
+| `lua/config/keymaps.lua` | Global mappings, native completion-menu controls, and callout blank-line collapsing |
 | `lua/config/lazy.lua` | Bootstraps lazy.nvim and imports plugin specifications |
 | `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, and theme fallback |
 | `lua/plugins/theme.lua` | Kanagawa Wave colorscheme |
@@ -41,7 +41,7 @@ manager itself.
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/java.lua` | nvim-jdtls: the Java language server and JDT extension commands |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
-| `lua/snippets/markdown.lua` | Markdown-only TeX formula snippets |
+| `lua/snippets/markdown.lua` | Markdown-only TeX formula and Obsidian callout snippets |
 
 Configuration comments are concise English sentences. User-facing
 key descriptions remain Chinese so which-key is useful during normal editing.
@@ -241,6 +241,28 @@ Nothing triggers after a backslash, and a single quote is left alone after a
 letter so `don't` is not split. Prefix with `Ctrl-V` to insert one symbol
 literally.
 
+### Markdown snippets and Obsidian callouts
+
+`lua/snippets/markdown.lua` ports the trigger words of the Obsidian LaTeX Suite
+configuration: its `m` option (math mode only) becomes the `in_math()` condition,
+and `A` (auto-expand) decides whether a snippet fires while typing or waits for
+<Tab>. There are 154 auto-expanding math snippets and 13 Tab snippets; `mk`, `dm`
+and `aln` are ungated because they create the math environment in the first place.
+
+A short trigger must not be a prefix of a longer one, or the longer word is cut
+off before it is finished: `aligned`, `matrix`, `mathcal`, `ddot` and `<->`
+auto-expand, while `align`, `mat`, `dot` and `->` stay on <Tab> or win through
+`priority`. Letter-only triggers require a word boundary, so `beta` is not eaten
+by `eta`.
+
+`callouts-<type>` covers 20 callout types (note, tip, important, warning,
+question, todo, info, success, danger, failure, bug, example, quote, abstract,
+summary, tldr, hint, caution, attention, cite) and leaves the cursor on a body
+line that already carries `> `. <Enter> continues the quote; on a blank `>` line
+the whole run of blank quote lines collapses into a single blank line and the
+cursor drops to the line below, ending the callout. The collapse lives in
+`collapse_quote_run()` in `lua/config/keymaps.lua`.
+
 Brackets are coloured by nesting depth (rainbow-delimiters.nvim, Tree-sitter
 driven) cycling through seven hues:
 
@@ -401,5 +423,7 @@ committed; the configuration and lockfile reproduce them.
 | Parser compilation fails | Verify `tree-sitter --version` and a C compiler are available, then run `:TSUpdate`. |
 | Java does not respond, or reports `Java XY language features are not available` | Verify a JDK 21+ is on `PATH`, then run `:JdtRestart`; the index lives under `~/.cache/nvim/jdtls/` and can be deleted to rebuild it. |
 | `Space cF` reports that clang-format is missing | Install `clang` and confirm `clang-format --version` runs. |
+| `aligned` and friends do not auto-expand | An autosnippet only matches once the trigger is complete, and most are gated on math mode. Check the cursor is inside `$ $` / `$$ $$`; prefix-crowded triggers such as `align`, `mat` and `par` need <Tab>. |
+| `Enter` does not continue a `>` quote in Markdown | Check `:setlocal formatoptions?`. Markdown's ftplugin strips `r`; this config adds it back on `FileType markdown`, so the expected value is `ntcqljr`. |
 | Plugin startup fails | Open `:Lazy`, inspect the failed task, then run sync again. |
 | System clipboard is unavailable | Install `wl-clipboard`; the config enables `unnamedplus` only when a provider exists. |

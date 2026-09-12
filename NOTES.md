@@ -180,3 +180,46 @@ output "eDP-1" {
   - 签名帮助映射存在（`<A-s>` = 「签名帮助」），jdtls 声明 `signatureHelpProvider.triggerCharacters = ["(", ","]`。
   - on-type formatting：`client._otf_enabled = true`、`vim.on_key` 已注册、jdtls 声明 `documentOnTypeFormattingProvider = {firstTriggerCharacter=";", moreTriggerCharacter=["\n","}"]}`。**注意**：headless 下用合成请求测试该能力返回空编辑列表（`edits={}`），且 `nvim_input`/`feedkeys` 在无 UI 环境无法可靠模拟真实键入，因此「打字时自动缩进」的**实际效果未能在本环境观察到**；配置本身按服务器能力探测启用，能力缺失的服务器自动跳过。
 - **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步新增「撰写辅助」小节、插件表条目、解析器列表、LSP 映射行与 Java on-type 说明。
+
+## 14. Neovim Markdown snippets 与 Obsidian callouts（2026-09-12）
+
+- **背景**：用户报告两件事——新增 `callouts-*` 片段（并让换行自动跟随 `>`），以及「Kanagawa
+  主题不生效、界面全黑」。
+- **主题结论：一直是好的**。对活动窗口截图取像素，背景 `#1f1f28`、正文 `#dcd7ba`、链接
+  `#7fb4ca`，即 Kanagawa Wave；`vim.g.colors_name` 亦为 `kanagawa`。用户看到的「全黑」来自
+  **配置未部署**：`~/.config/nvim` 停留在 9/7 版本，仓库 9/11 的两笔提交（`5988e7f`
+  Java+clang-format、`deead7d` autopair+rainbow）从未同步到实时配置。
+- **插件缺口**：按 `lazy-lock.json` 对比，仓库声明 21 个插件、本机仅 17 个，缺 `mini.pairs`、
+  `nvim-jdtls`、`rainbow-delimiters.nvim`、`vim-clang-format`；Mason 缺 `jdtls`，Treesitter 缺
+  `c`、`cpp`、`java`。执行 `:Lazy! install` + `:TSInstall! c cpp java` + `:MasonInstall jdtls`
+  补齐（解析器 15 → 18 个）。
+- **`mk` / `dm` 失效真因**：`fmta` 以 `<>` 作占位符定界符，格式串里的字面量 `>` 会抛
+  `Found unescaped > outside placeholder`，导致**整个片段文件加载失败**，原有片段一并消失
+  （`~/.local/state/nvim/luasnip.log` 有对应 ERROR）。
+- **`>` 不续行真因**：Markdown 自带 ftplugin 执行 `formatoptions-=r`（实测 `jtcqln`），`r`
+  缺失时 Vim 不在 `<Enter>` 重复 comment leader。
+- **改动**：
+  - `lua/snippets/markdown.lua`：重写为 LaTeX Suite 移植版。捕获到关键语义——原配置的 `A`
+    选项是**自动展开**（不只是 Tab），`m` 是**仅数学模式**；据此把 154 条数学片段做成
+    autosnippet 并经 `in_math()` 门控，13 条留 Tab（`mk` `dm` `aln` `align` `mat` `par`
+    `scr` `limt` `tayl`）。前缀冲突按「长触发器自动、短触发器 Tab」处理，并用 `priority`
+    解决 `ddot`/`dot`、`<->`/`->`（LuaSnip 默认优先级 1000，覆盖值需 > 1000）。纯字母触发器
+    要求词边界，避免 `eta` 吃掉 `beta`。callout 用 `text_node` 构造以规避 `>` 转义问题，
+    并由 `callout_types` 列表生成 20 种类型。
+  - `lua/config/autocmds.lua`：`FileType markdown` → `formatoptions:append("r")`。
+  - `lua/config/keymaps.lua`：`<CR>` 增加空白引用行折叠分支，`collapse_quote_run()` 把整段
+    连续空 `>` 行折叠为一个空行、光标落到下一行（同时向前向后扫描，避免只处理光标上方而
+    残留 `>`）；`return` 导出该函数供 `<Cmd>` 映射调用。
+- **实测验证**：
+  - `aligned` 自动展开；`beta` 不被 `eta` 吞；`<->` 输出 `\leftrightarrow` 而非 `<\to`；`//`
+    展开后光标在第一个括号、`<Tab>` 到第二个。
+  - 20 种 callout 全量矩阵测试通过（`> [!type] T` / `> b` / 空行 / `z`）。
+  - `collapse_quote_run()` 10 个边界用例通过：1/2/3 个空 `>`、光标在中间行、EOF、`> ` 带尾
+    空格、缩进行、非空行不折叠。
+  - 实时 PTY 端到端：`icallouts-todo` + Tab + 标题 + Tab + 两条 `- [ ]` + 两次回车，落盘
+    `> [!todo] C1` / `> - [ ] a` / `> - [ ] b` / 空行 / `next`。
+- **环境注意**：PTY 合成键入在触发词较长时偶发丢键（`body` → `dy`），属测试夹具问题；分块
+  投递（每块一次 write 后停顿）可稳定复现正确行为，逐字节投递反而更差。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步更新（片段表、
+  数学模式门控、前缀冲突规则、callout 一节与折叠语义、配置结构表）。
+- **待办**：无。实时配置与仓库快照一致。
