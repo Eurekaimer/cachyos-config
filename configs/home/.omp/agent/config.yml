@@ -1,6 +1,6 @@
 modelRoles:
   smol: opencode-go/deepseek-v4-pro:max
-  default: commandcode/deepseek/deepseek-v4-flash:max
+  default: commandcode/deepseek/deepseek-v4.1-flash
 symbolPreset: ascii
 theme:
   dark: dark-terminal
@@ -14,3 +14,5 @@ composer:
   shape: box
 codexResets:
   autoRedeem: "no"
+tui:
+  codexResetFireworks: true
