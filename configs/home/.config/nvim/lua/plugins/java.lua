@@ -16,7 +16,8 @@ local root_markers = {
 
 local function workspace_dir(root_dir)
   -- eclipse.jdt.ls keeps a per-project index; caching it keeps restarts cheap.
-  return vim.fs.joinpath(vim.fn.stdpath("cache"), "jdtls", vim.fn.fnamemodify(root_dir, ":p:h:t"))
+  local project = vim.fs.basename(root_dir)
+  return vim.fs.joinpath(vim.fn.stdpath("cache"), "jdtls", project .. "-" .. vim.fn.sha256(root_dir))
 end
 
 return {

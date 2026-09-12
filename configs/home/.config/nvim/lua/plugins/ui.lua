@@ -13,6 +13,7 @@ return {
       picker = { enabled = true },
       quickfile = { enabled = true },
       statuscolumn = { enabled = true },
+      terminal = { enabled = true },
     },
     keys = {
       { "<leader><space>", function() Snacks.picker.smart() end, desc = "智能查找" },
@@ -26,6 +27,10 @@ return {
       { "<leader>sk", function() Snacks.picker.keymaps() end, desc = "查找快捷键" },
       { "<leader>ss", function() Snacks.picker.lsp_symbols() end, desc = "文档符号" },
       { "<leader>gg", function() Snacks.lazygit() end, desc = "LazyGit" },
+      -- Git work happens in a shell surfaced from the editor: one terminal rooted at
+      -- the project, toggled from any buffer. Ctrl+/ is the usual alternative.
+      { "<leader>tt", function() Snacks.terminal() end, desc = "终端" },
+      { "<C-/>", function() Snacks.terminal() end, desc = "终端" },
       { "<leader>bd", function() Snacks.bufdelete() end, desc = "关闭文件" },
       { "<leader>z", function() Snacks.zen() end, desc = "专注模式" },
       { "<leader>n", function() Snacks.notifier.show_history() end, desc = "通知历史" },

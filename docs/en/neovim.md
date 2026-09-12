@@ -246,8 +246,9 @@ literally.
 `lua/snippets/markdown.lua` ports the trigger words of the Obsidian LaTeX Suite
 configuration: its `m` option (math mode only) becomes the `in_math()` condition,
 and `A` (auto-expand) decides whether a snippet fires while typing or waits for
-<Tab>. There are 154 auto-expanding math snippets and 13 Tab snippets; `mk`, `dm`
-and `aln` are ungated because they create the math environment in the first place.
+<Tab>. There are 152 auto-expanding math snippets and 7 Tab snippets; `mk`, `dm`
+and `aln` are ungated because they create the math environment in the first place,
+and the 20 `callouts-<type>` templates also expand on <Tab>.
 
 A short trigger must not be a prefix of a longer one, or the longer word is cut
 off before it is finished: `aligned`, `matrix`, `mathcal`, `ddot` and `<->`
@@ -261,7 +262,11 @@ summary, tldr, hint, caution, attention, cite) and leaves the cursor on a body
 line that already carries `> `. <Enter> continues the quote; on a blank `>` line
 the whole run of blank quote lines collapses into a single blank line and the
 cursor drops to the line below, ending the callout. The collapse lives in
-`collapse_quote_run()` in `lua/config/keymaps.lua`.
+`collapse_quote_run()` in `lua/config/keymaps.lua`. Typing `> [!` on a quote line
+opens the renderer's completion menu with the same 20 types: <Tab>/<Shift-Tab>
+cycle and <Enter> accepts. Supplying the edit range for `[` and `!` needs an
+explicit `textEdit` (`markdown_completions()` in `lua/plugins/markdown.lua`),
+which also reuses the `]` that mini.pairs already inserted.
 
 Brackets are coloured by nesting depth (rainbow-delimiters.nvim, Tree-sitter
 driven) cycling through seven hues:
@@ -326,7 +331,7 @@ to install the `jdtls` launcher; it deliberately does not call
 `vim.lsp.enable("jdtls")`, which would attach a second client. The project root
 is found by walking upward through `gradlew`, `mvnw`, `settings.gradle{,.kts}`,
 `pom.xml`, `build.gradle{,.kts}`, and finally `.git`; the index is cached under
-`~/.cache/nvim/jdtls/<project>`.
+`~/.cache/nvim/jdtls/<project>-<hash of the root path>`.
 
 In addition to the mappings listed above, `.java` buffers get:
 
@@ -421,9 +426,10 @@ committed; the configuration and lockfile reproduce them.
 | File or text search is empty | Verify `fd` and `rg` are on `PATH`; run `:checkhealth snacks`. |
 | LSP installation fails for Bash/Python/TypeScript | Verify `npm --version`, then retry from `:Mason`. |
 | Parser compilation fails | Verify `tree-sitter --version` and a C compiler are available, then run `:TSUpdate`. |
-| Java does not respond, or reports `Java XY language features are not available` | Verify a JDK 21+ is on `PATH`, then run `:JdtRestart`; the index lives under `~/.cache/nvim/jdtls/` and can be deleted to rebuild it. |
+| Java does not respond, or reports `Java XY language features are not available` | Verify a JDK 21+ is on `PATH`, then run `:JdtRestart`; the index lives under `~/.cache/nvim/jdtls/<project>-<hash of the root path>` and can be deleted to rebuild it. |
 | `Space cF` reports that clang-format is missing | Install `clang` and confirm `clang-format --version` runs. |
 | `aligned` and friends do not auto-expand | An autosnippet only matches once the trigger is complete, and most are gated on math mode. Check the cursor is inside `$ $` / `$$ $$`; prefix-crowded triggers such as `align`, `mat` and `par` need <Tab>. |
-| `Enter` does not continue a `>` quote in Markdown | Check `:setlocal formatoptions?`. Markdown's ftplugin strips `r`; this config adds it back on `FileType markdown`, so the expected value is `ntcqljr`. |
+| `Enter` does not continue a `>` quote in Markdown | Check `:setlocal formatoptions?`. Markdown's ftplugin strips `r`; this config adds it back on `FileType markdown`, so the expected value contains `r` (`tcqjlnr` on this machine). |
 | Plugin startup fails | Open `:Lazy`, inspect the failed task, then run sync again. |
 | System clipboard is unavailable | Install `wl-clipboard`; the config enables `unnamedplus` only when a provider exists. |
+| A remote image failed once and never renders again | The upstream downloader caches the path before curl exits and never checks the exit code, so a bad cache entry is permanent. `download_image()` in `lua/plugins/markdown.lua` replaces it: on failure it deletes the temp file, clears the cache, and notifies, so a retry recovers. |

@@ -41,9 +41,13 @@ return {
         group = vim.api.nvim_create_augroup("user_clang_format", { clear = true }),
         pattern = clang_format_filetypes,
         callback = function(args)
-          vim.keymap.set({ "n", "v" }, "<leader>cF", "<cmd>ClangFormat<CR>", {
+          vim.keymap.set("n", "<leader>cF", "<cmd>ClangFormat<CR>", {
             buffer = args.buf,
             desc = "clang-format 格式化",
+          })
+          vim.keymap.set("x", "<leader>cF", ":ClangFormat<CR>", {
+            buffer = args.buf,
+            desc = "clang-format 格式化选区",
           })
         end,
       })

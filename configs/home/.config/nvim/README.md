@@ -259,7 +259,7 @@ Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整�
 Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls（Mason 只负责安装 `jdtls` 启动器，
 `lsp.lua` 不启用它，避免出现两个客户端）。项目根目录按 `gradlew`、`mvnw`、
 `settings.gradle{,.kts}`、`pom.xml`、`build.gradle{,.kts}`、`.git` 依次向上查找，
-索引缓存在 `~/.cache/nvim/jdtls/<项目名>`。
+索引缓存在 `~/.cache/nvim/jdtls/<项目名>-<root 路径哈希>`（同名项目不会共用索引）。
 
 除上表的通用 LSP 键位外，`.java` 缓冲区额外提供：
 
@@ -350,7 +350,15 @@ image.nvim 使用 Kitty Graphics Protocol：
 :ImageReport
 ```
 
+远程图片由配置内的下载器替换 `image.nvim` 的默认实现：默认实现在 curl 的 stdout 关闭时就
+写入缓存、从不检查退出码，并从异步回调里直接抛错，所以一次被截断的下载会让该 URL 永久
+渲染失败。替换后按退出码判定成功，失败会删除临时文件、清理缓存并给出可读错误，重试仍可
+成功；并发请求各用独立临时文件，不再互相覆盖。
+
 限制：当前后端只在 Kitty 或兼容 Kitty Graphics Protocol 的终端内启用。Neovide 不实现该协议，所以 Neovide 中仍显示 Markdown 图片语法文本。
+
+光标拖尾（smear-cursor）会留下隐藏浮窗，`window_overlap_clear_ft_ignore` 已把
+`smear-cursor` 列为忽略项，否则这些浮窗会被当作遮挡窗口而跳过整张图片的渲染。
 
 安全说明：配置允许下载远程图片；打开不可信 Markdown 时可能向远程服务器发起请求。如不需要远程图片，将 `download_remote_images` 改为 `false`。
 
@@ -361,7 +369,8 @@ VimTeX、texlab 或自动编译。片段定义集中在 `lua/snippets/markdown.l
 Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/data.json`）：
 原配置的 `m`（仅数学模式）对应 `in_math()` 门控，`A`（自动展开）对应该片段是否边打边展开。
 
-数学片段共 154 条**自动展开**（打完触发词立即生效）与 13 条 Tab 片段；常用触发词见下。
+数学片段共 152 条**自动展开**（打完触发词立即生效）与 7 条 Tab 片段；`mk` / `dm` / `aln`
+以及 20 条 callout 模板同样按 `<Tab>` 展开。常用触发词见下。
 
 #### 自动展开
 
@@ -369,8 +378,13 @@ Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/d
 
 | 触发词 | 结果 | 光标位置 |
 |---|---|---|
-| `mk` | `$…$` | 两个 `$` 之间 |
-| `dm` | 块级 `$$` 数学环境 | 中间空行 |
+| `aligned` | `aligned` 环境 | 环境内第一行 |
+| `sum` | `\sum_{i=1}^{n}` | 下标 |
+| `int` | `\int_{a}^{b}` | 下限 |
+| `lim` | `\lim_{x \to 0}` | 变量 |
+| `cases` | `cases` 分段函数 | 第一行 |
+| `avg` | `\langle … \rangle` | 内容 |
+| `@a` `@b` `@g` … | 对应希腊字母 | 字母之后 |
 
 #### 手动展开
 
@@ -378,17 +392,17 @@ Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/d
 
 | 触发词 | 模板 |
 |---|---|
-| `fr` | `\frac{分子}{分母}` |
-| `sq` | `\sqrt{内容}` |
-| `sum` | `\sum_{i=1}^{n}` |
-| `int` | `\int_{a}^{b} f(x) \,\mathrm{d}x` |
-| `lim` | `\lim_{x \to 0}` |
-| `vec` | `\vec{v}` |
-| `bf` | `\mathbf{x}` |
-| `lr` | `\left( … \right)` |
-| `mat` | 2×2 `bmatrix` |
-| `cases` | 分段函数 `cases` |
+| `mk` | 行内 `$…$` |
+| `dm` | 块级 `$$` 数学环境 |
 | `aln` | Markdown 块级公式内的 `aligned` 多行等式 |
+| `align` | `align` 环境 |
+| `mat` | 2×2 `bmatrix` |
+| `scrf` | σ-代数 |
+| `lr` | `\left( … \right)` |
+| `par` | 偏导数 |
+| `limt` | 极限 |
+| `tayl` | Taylor 展开 |
+| `callouts-<类型>` | 20 种 Obsidian callout |
 
 展开后用 `<Tab>` 前进，`<S-Tab>` 后退。片段定义集中在 `lua/snippets/markdown.lua`。
 
@@ -443,10 +457,15 @@ Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/d
 `danger` `failure` `bug` `example` `quote` `abstract` `summary` `tldr` `hint` `caution`
 `attention` `cite`。
 
-callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自带的 ftplugin 会关掉它
-（实测 `jtcqln`），`lua/config/autocmds.lua` 在 `FileType markdown` 时加回，最终为
-`ntcqljr`。折叠逻辑在 `lua/config/keymaps.lua`：`<CR>` 检测光标行是否为空白引用行，是则
-调用 `collapse_quote_run()`；普通正文行仍走 mini.pairs 的成对展开。
+callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自带的 ftplugin 会执行
+`formatoptions-=r`（实测为 `tcqjln`），`lua/config/autocmds.lua` 在 `FileType markdown` 时加回
+`r`（最终 `tcqjlnr`）。折叠逻辑在 `lua/config/keymaps.lua`：`<CR>` 检测光标行是否为空白引用行，
+是则调用 `collapse_quote_run()`；普通正文行仍走 mini.pairs 的成对展开。
+
+`render-markdown.nvim` 的内置补全源同时提供 callout 类型：在引用行输入 `> [!` 会弹出
+类型列表，`<Tab>` / `<S-Tab>` 选择、`<Enter>` 接受。补齐 `[` `!` 的编辑范围需要显式指定，
+`lua/plugins/markdown.lua` 里的 `markdown_completions()` 负责给出该范围，并复用 mini.pairs
+已插入的 `]`，因此结果为 `> [!NOTE]` 而不是嵌套或重复的方括号。
 
 ## 撰写辅助
 
@@ -500,7 +519,7 @@ callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自
 ### 中文文本
 
 - 使用软换行，不改变物理行；
-- 在中文标点 `，。！？；：、` 处优先换行；
+- 在中文标点 `，。！？；：、` 处优先换行（由 Neovim 的 Unicode 折行处理，`'breakat'` 只接受 ASCII，未改）；
 - 续行以 `↳` 标记；
 - 如果存在 `fcitx5-remote`：退出插入模式切回英文，重新进入插入模式时恢复之前的中文状态。
 

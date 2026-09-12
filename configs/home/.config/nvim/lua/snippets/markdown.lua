@@ -118,16 +118,6 @@ local function environment(default)
 end
 
 local snippets = {
-  -- Build a math block. Ungated: they exist to create `$` / `$$` in the first
-  -- place. No LaTeX Suite trigger, so `mk` / `dm` match the original marks
-  -- locally and expand with <Tab>.
-  tab("mk", "inline math", fmt([[$<>$<>]], { i(1), i(0) })),
-  tab("dm", "display math", fmt([[
-$$
-<>
-$$<>
-]], { i(1), i(0) })),
-
   -- Environments. `aligned` auto-expands; `align` and `aln` are its prefixes, so
   -- they stay on <Tab>.
   m("aligned", "aligned environment", environment("aligned")),

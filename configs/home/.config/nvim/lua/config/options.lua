@@ -29,8 +29,7 @@ opt.linebreak = true
 opt.breakindent = true
 opt.showbreak = "↳ "
 opt.smoothscroll = true
--- breakat defaults to spaces + ASCII punctuation; add Chinese punctuation.
-vim.o.breakat = vim.o.breakat .. "，。！？；：、"
+-- 'breakat' only supports ASCII; leave Unicode wrapping to Neovim.
 
 opt.tabstop = 4
 opt.shiftwidth = 4

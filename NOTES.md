@@ -223,3 +223,49 @@ output "eDP-1" {
 - **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步更新（片段表、
   数学模式门控、前缀冲突规则、callout 一节与折叠语义、配置结构表）。
 - **待办**：无。实时配置与仓库快照一致。
+
+## 15. Neovim 图片渲染、callout 与配置分叉收口（2026-09-13）
+
+- **背景**：用户报告三件事——图片"有时"渲染失败并抛 curl 错误、callout 的 Tab 失效、
+  回车不再自动续 `>`。
+- **发现配置分叉（根因）**：上一轮提交 `615ffb1` 只改了仓库快照，**从未部署到实时
+  `~/.config/nvim`**。实时配置仍停留在 `615ffb1^`，因此上一轮的 `formatoptions+=r`、
+  空引用行折叠、LaTeX Suite 片段移植在实时环境全部缺失——这正是"回车不续 `>`"的真因。
+  本轮把仓库侧实现反向同步到实时配置。
+- **图片失败真因（上游缺陷）**：`image.nvim` 的 `from_url` 在 curl 的 stdout 关闭时就写入
+  `remote_cache`、从不检查退出码，并在异步回调里直接 `utils.throw`。一次被截断的下载会让
+  该 URL 永久命中坏缓存，之后每次渲染都失败。**未采用 `ignore_download_error` 掩盖**，
+  而是在 `lua/plugins/markdown.lua` 用 `download_image()` 替换下载器：以退出码判定成功、
+  失败时删临时文件并清理缓存、给出可读错误；并发请求各用独立临时文件。放在配置侧是为了
+  插件更新不会覆盖修复。
+- **图片不显示的第二真因**：`smear-cursor` 常驻的隐藏浮窗被 image.nvim 当作遮挡窗口，
+  `window_overlap_clear_enabled` 下直接跳过渲染。已把 `smear-cursor` 加入
+  `window_overlap_clear_ft_ignore`。
+- **图片不显示的第三真因**：`hijack_file_patterns` 只在 `WinNew`/`BufWinEnter`/`TabEnter`
+  生效，而插件仅以 `ft = "markdown"` 懒加载，直接打开 `.png` 时事件已过，故图片文件不会
+  被接管的判断成立。已补 `event = "BufReadPre *.png,..."`。
+- **callout 的 Tab 真因**：并非按键映射损坏。`render-markdown` 的 `opts={}` 让内置补全保持
+  `completions.lsp.enabled=false`，且当时片段文件只有 TeX，没有 callout 模板，因此 Tab 无
+  事可做。本轮启用内置补全并合并上一轮的 20 条 `callouts-<类型>` 模板。`[` `!` 不属关键字
+  字符，原生补全会替换整段关键字，故由 `markdown_completions()` 显式给出 `textEdit` 范围，
+  并复用 mini.pairs 已插入的 `]`，避免产生 `> [![!X]]`。
+- **片段文件缺陷**：上一轮的移植版把 `mk` / `dm` 同时定义为 `tab()` 片段和 autosnippet，
+  触发词重复。已删除 `tab()` 重复项，保留 autosnippet。
+- **审计顺带修复**：`vim.highlight.on_yank` → `vim.hl.on_yank`（0.12 正式位置）；Java 索引
+  缓存由仅 basename 改为 `<项目名>-<sha256(root)>`，避免同名项目共用工作区；可视模式
+  clang-format 改用 `:ClangFormat` 保留 `'<,'>` 范围（原 `<Cmd>` 会格式化整个文件）；
+  `breakat` 追加中文标点无效（`'breakat'` 仅支持 ASCII），已移除并让 Neovim 自行处理 Unicode 折行。
+- **实测验证**（真实 Kitty + 真实键入）：
+  - `callouts-todo` + `<Tab>` → `> [!todo] title` / `> `；
+  - 正文行回车自动续 `> `（`> next line`），空 `>` 行再回车折叠为单个空行；
+  - `> [!` 弹出 27 项补全，`completions()` 返回的 `textEdit` 范围经直接调用核验为
+    `start=2,end=4`、`newText=[!HINT`（复用 `]`）；
+  - 图片 `907x296`，`is_rendered=true`；故障注入脚本 PASS（截断下载恢复、HTTP 404、
+    非图片响应、缓存复用、真实 CDN）。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 修正过期事实——片段计数
+  （152 自动 / 7 Tab）、手动展开表（原表列的 `fr`/`sq`/`vec`/`bf` 在移植版中并不存在）、
+  Java 缓存路径、`'formatoptions'` 期望值（原写 `ntcqljr`，实测 `tcqjlnr`）、中文标点折行说明。
+- **未提交的无关漂移**：本轮 `capture.sh` 同时捕获到与 nvim 无关的机器状态变化
+  （`noctalia` wifi 视图、`.omp` 模型、`.gitconfig` 新增 `core.editor`、`clang` 转为依赖安装、
+  `touchpad-boot-recovery.service` 已不存在）。这些未纳入本次提交，留待用户确认。
+- **待办**：无。实时配置与仓库快照一致。

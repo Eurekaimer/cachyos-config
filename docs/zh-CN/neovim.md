@@ -228,8 +228,9 @@ mini.pairs 在插入模式下自动补全成对符号：
 ### Markdown snippets 与 Obsidian callouts
 
 `lua/snippets/markdown.lua` 移植了 Obsidian LaTeX Suite 的触发词：`m`（仅数学模式）对应
-`in_math()` 门控，`A`（自动展开）对应片段是否边打边展开。数学片段共 154 条自动展开、13 条
-Tab 片段，`mk` / `dm` / `aln` 不受门控（用于创建数学环境）。
+`in_math()` 门控，`A`（自动展开）对应片段是否边打边展开。数学片段共 152 条自动展开、7 条
+Tab 片段，`mk` / `dm` / `aln` 不受门控（用于创建数学环境），20 条 `callouts-<类型>`
+模板同样按 `<Tab>` 展开。
 
 短的触发器不能是长的前缀，否则长词未打完即被截断：`aligned` / `matrix` / `mathcal` /
 `ddot` / `<->` 自动展开，`align` / `mat` / `dot` / `->` 保留为 Tab 片段或靠 `priority`
@@ -240,6 +241,11 @@ info、success、danger、failure、bug、example、quote、abstract、summary�
 caution、attention、cite），展开后光标停在已带 `> ` 的正文行。在正文行按 `Enter` 续行；
 出现空 `>` 行时再按 `Enter`，整段连续空 `>` 行折叠为一个空行，光标落到下一行，callout
 到此结束。折叠实现在 `lua/config/keymaps.lua` 的 `collapse_quote_run()`。
+
+在引用行输入 `> [!` 会弹出渲染器内置的同款类型补全：`<Tab>` / `<S-Tab>` 选择、`<Enter>`
+接受。`[` 与 `!` 不在关键字字符内，需要显式给出 `textEdit` 范围
+（`lua/plugins/markdown.lua` 的 `markdown_completions()`），该函数同时复用 mini.pairs
+已插入的 `]`。
 
 括号按嵌套层级着色（rainbow-delimiters.nvim，基于 Treesitter），七种颜色依次循环：
 
@@ -297,7 +303,7 @@ LSP 快捷键是 buffer-local，只有语言服务器成功连接后才出现：
 Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls。`lsp.lua` 只让 Mason 安装 `jdtls`
 启动器，不调用 `vim.lsp.enable("jdtls")`，否则会同时出现两个客户端。项目根目录按
 `gradlew`、`mvnw`、`settings.gradle{,.kts}`、`pom.xml`、`build.gradle{,.kts}`、
-`.git` 依次向上查找，索引缓存在 `~/.cache/nvim/jdtls/<项目名>`。
+`.git` 依次向上查找，索引缓存在 `~/.cache/nvim/jdtls/<项目名>-<root 路径哈希>`（同名项目不会共用索引）。
 
 `.java` 缓冲区除上表通用键位外还有：
 
@@ -389,5 +395,6 @@ git push
 | 插件启动失败 | 打开 `:Lazy` 查看失败任务，然后重新执行同步。 |
 | snippet 全部不展开（连 `mk` / `dm` 也失效） | 片段文件加载失败会让整个文件作废。执行 `:lua =require("luasnip").available()`，若为空则查看 `~/.local/state/nvim/luasnip.log`；`fmta` 的格式串中出现字面量 `>`（如 `> [!note]`）会报 `Found unescaped > outside placeholder`，改用 `text_node` 构造。 |
 | 打完 `aligned` 等片段没有自动展开 | 自动片段只在触发词完整时匹配，且多数受数学模式门控。确认光标在 `$ $` / `$$ $$` 内；`align`、`mat`、`par` 等有前缀冲突的触发词需按 `<Tab>`。 |
-| Markdown 中按 `Enter` 不自动续 `>` | 检查 `:setlocal formatoptions?`；Markdown ftplugin 会去掉 `r`，本配置在 `FileType markdown` 时加回，正常应为 `ntcqljr`。 |
+| Markdown 中按 `Enter` 不自动续 `>` | 检查 `:setlocal formatoptions?`；Markdown ftplugin 会去掉 `r`，本配置在 `FileType markdown` 时加回，正常应包含 `r`（本机为 `tcqjlnr`）。 |
 | 系统剪贴板不可用 | 安装 `wl-clipboard`；配置只在检测到 provider 时启用 `unnamedplus`。 |
+| 远程图片曾渲染失败，之后一直不显示 | 上游下载器在 curl 结束前就缓存路径、且不检查退出码，坏缓存会永久生效。本配置用 `lua/plugins/markdown.lua` 的 `download_image()` 替换它：失败时删临时文件、清缓存并通知，重试即可恢复。 |
