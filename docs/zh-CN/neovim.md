@@ -398,3 +398,5 @@ git push
 | Markdown 中按 `Enter` 不自动续 `>` | 检查 `:setlocal formatoptions?`；Markdown ftplugin 会去掉 `r`，本配置在 `FileType markdown` 时加回，正常应包含 `r`（本机为 `tcqjlnr`）。 |
 | 系统剪贴板不可用 | 安装 `wl-clipboard`；配置只在检测到 provider 时启用 `unnamedplus`。 |
 | 远程图片曾渲染失败，之后一直不显示 | 上游下载器在 curl 结束前就缓存路径、且不检查退出码，坏缓存会永久生效。本配置用 `lua/plugins/markdown.lua` 的 `download_image()` 替换它：失败时删临时文件、清缓存并通知，重试即可恢复。 |
+| 部分 JPEG 完全不渲染（浏览器/Obsidian 正常） | 上游 `magic.lua` 要求 `FF D9` 恰好是文件最后两字节，因此 JPEG 结束标记后还附着数据（QQ/微信导出图的常见形态）的图片被判为"不是图片"。本配置包装了 `magic.detect_format`：原逻辑失败时倒序分块搜索 `FF D9`，截断下载仍被拒绝。 |
+| 图片能渲染但反复弹"下载失败" | Markdown 集成每次渲染 pass 都会重新请求可视区内的远程图片，代理 TLS 瞬断（curl 35/56）会让同一 URL 反复失败。本配置让 curl 自带 `--retry-all-errors` 重试，并且同一 URL 每次会话最多提示一次。 |

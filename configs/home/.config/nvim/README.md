@@ -355,6 +355,20 @@ image.nvim 使用 Kitty Graphics Protocol：
 渲染失败。替换后按退出码判定成功，失败会删除临时文件、清理缓存并给出可读错误，重试仍可
 成功；并发请求各用独立临时文件，不再互相覆盖。
 
+同一个下载器还负责两件事：
+
+- **瞬断重试与去重提示**：Markdown 集成在每次渲染 pass 都会对可视区内的远程图片重新请求，
+  所以代理偶发 TLS 中断（curl 退出码 35/56）时，同一 URL 会反复触发失败通知，哪怕后续
+  重试已成功、图片也已渲染。现在 curl 带 `--retry 3 --retry-delay 1 --retry-max-time 60
+  --retry-all-errors` 自行重试瞬断，并且同一 URL 每次会话最多只提示一次失败。
+- **带尾部数据的 JPEG**：`image.nvim` 的 `magic.lua` 只读文件最后两个字节判断 JPEG 结束标记
+  （要求 `FF D9` 恰好位于 EOF），因此「JPEG 正常结束（`FF D9`）之后还附着少量数据」的图片
+  ——QQ/微信等导出图的常见形态——会被判为"不是图片"而完全不渲染，尽管 ImageMagick、
+  浏览器、Obsidian 都能正常解码。配置包装了 `magic.detect_format`：先走插件原逻辑
+  （PNG/GIF/WebP 等行为不变），仅在其失败时才从文件末尾按 64 KB 分块倒序搜索 `FF D9`。
+  截断下载因不含结束标记仍会被正确拒绝。上游同一问题的 PR（3rd/image.nvim#379）选择直接
+  删除该校验，本配置的做法保留了截断防护。
+
 限制：当前后端只在 Kitty 或兼容 Kitty Graphics Protocol 的终端内启用。Neovide 不实现该协议，所以 Neovide 中仍显示 Markdown 图片语法文本。
 
 光标拖尾（smear-cursor）会留下隐藏浮窗，`window_overlap_clear_ft_ignore` 已把

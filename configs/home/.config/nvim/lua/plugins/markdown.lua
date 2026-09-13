@@ -5,6 +5,13 @@
 -- when the transfer fails. A truncated download therefore poisons the URL cache
 -- and every later render of that URL fails. Replace the downloader from the
 -- configuration so a plugin update cannot silently drop the fix.
+-- The markdown integration re-requests every visible image on each render pass.
+-- A proxy that drops connections intermittently (curl exit 35/56, seen on this
+-- machine through 127.0.0.1:7897) therefore produced one error notification per
+-- attempt even though a later attempt succeeded and the image rendered. Retry
+-- inside curl, and report a given URL at most once per session.
+local download_failures_reported = {}
+
 local function download_image(url, options, callback, state)
   local from_file = require("image/image").from_file
   local cached = state.remote_cache[url]
@@ -22,7 +29,10 @@ local function download_image(url, options, callback, state)
   local path = state.tmp_dir .. "/" .. vim.fn.fnamemodify(vim.fn.tempname(), ":t")
   local function fail(reason)
     vim.fn.delete(path)
-    vim.notify(("image: 下载失败 %s\n%s"):format(url, reason), vim.log.levels.ERROR)
+    if not download_failures_reported[url] then
+      download_failures_reported[url] = true
+      vim.notify(("image: 下载失败 %s\n%s"):format(url, reason), vim.log.levels.ERROR)
+    end
     callback(nil)
   end
 
@@ -34,6 +44,12 @@ local function download_image(url, options, callback, state)
     "--show-error",
     "--connect-timeout", "10",
     "--max-time", "60",
+    -- --retry covers timeouts and 5xx; --retry-all-errors adds resets and TLS
+    -- drops, which is what the proxy here produces.
+    "--retry", "3",
+    "--retry-delay", "1",
+    "--retry-max-time", "60",
+    "--retry-all-errors",
     "--output", path,
     "--", url,
   }, { text = true }, vim.schedule_wrap(function(result)
@@ -47,10 +63,54 @@ local function download_image(url, options, callback, state)
       return
     end
     state.remote_cache[url] = path
+    download_failures_reported[url] = nil
     callback(image)
   end))
   if not ok then
     fail(tostring(err))
+  end
+end
+
+-- image.nvim only accepts a JPEG when the last two bytes of the file are the
+-- EOI marker (FF D9). Screenshot tools and phone exports append a short trailer
+-- (24 bytes in this image bed) after EOI; those files decode everywhere but are
+-- reported as "not an image", so they never render and never get hijacked.
+-- Keep the SOI header test and accept any complete JPEG stream by searching for
+-- EOI instead of demanding it at EOF; a truncated download still has none.
+local function accept_jpeg_with_trailer()
+  local magic = require("image/utils/magic")
+  local detect_format = magic.detect_format
+
+  -- Scan backwards so a healthy file (EOI within the last bytes, plus trailer)
+  -- costs a single read instead of the whole file.
+  local function has_eoi(file)
+    local chunk_size = 64 * 1024
+    local stop = file:seek("end")
+    local later_first_byte = ""
+    while stop > 0 do
+      local start = math.max(stop - chunk_size, 0)
+      file:seek("set", start)
+      local chunk = file:read(stop - start)
+      if not chunk then return false end
+      if (chunk .. later_first_byte):find("\255\217", 1, true) then return true end
+      later_first_byte = chunk:sub(1, 1)
+      stop = start
+    end
+    return false
+  end
+
+  -- Try the stock detection first, so PNG/GIF/WebP/... keep their exact
+  -- behaviour. Only when it fails do we consider a JPEG with a trailer.
+  magic.detect_format = function(path)
+    local format = detect_format(path)
+    if format then return format end
+
+    local file = io.open(path, "rb")
+    if not file then return nil end
+    local is_jpeg = file:read(3) == "\255\216\255"
+    local complete = is_jpeg and has_eoi(file)
+    file:close()
+    return complete and "jpeg" or nil
   end
 end
 
@@ -112,6 +172,7 @@ return {
     end,
     config = function(_, opts)
       require("image/image").from_url = download_image
+      accept_jpeg_with_trailer()
       require("image").setup(opts)
     end,
     opts = {

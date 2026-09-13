@@ -269,3 +269,52 @@ output "eDP-1" {
   （`noctalia` wifi 视图、`.omp` 模型、`.gitconfig` 新增 `core.editor`、`clang` 转为依赖安装、
   `touchpad-boot-recovery.service` 已不存在）。这些未纳入本次提交，留待用户确认。
 - **待办**：无。实时配置与仓库快照一致。
+
+## 16. Neovim 图片预览：JPEG 尾部数据与失败通知刷屏（2026-09-13）
+
+- **背景**：用户报告图床（`Eurekaimer/MyIMGs`，经 jsDelivr）的部分图片仍不渲染，并伴随大量
+  "下载失败"通知；其中 `摆烂日记.md` 的三张 jpg 全部不显示。
+- **真因一（上游插件缺陷）**：`image.nvim` 的 `lua/image/utils/magic.lua` 中
+  `has_jpeg_end_signature()` 只读文件最后两个字节并要求等于 JPEG 结束标记 `FF D9`。
+  QQ/微信等导出图会在正常结束标记之后再附加少量数据（本轮实测为 24 字节），
+  于是 `detect_format()` 返回 nil、`is_image()` 为假，`image/image.lua:275` 直接
+  `return nil`。实测图床 56 个 jpg 中有 **33 个**属于该形态——即约六成 jpg 被静默拒绝，
+  与图片内容无关；这些文件在 ImageMagick（`identify`/`convert` 均正常）、浏览器、Obsidian
+  中均可正常解码。旁证：签名表中只有 JPEG 有这种结尾校验，PNG/GIF/WebP/BMP/ICO 都只看文件头；
+  且 `detect_format()` 失败时不会回退到 `magick_cli` processor 里基于 `identify` 的路径。
+- **上游对应关系**：issue #131（2024-02-22，已关闭）只修了文件**头**（`FF D8 FF E0` 放宽为
+  `FF D8 FF`，PR #133 / commit `2cb0a10`），未涉及文件**尾**；PR #379（2026-08-07 提交，
+  至今 open、无维护者回复）针对的正是本问题，做法是**直接删除** EOI 校验。本配置未采用该做法
+  ——删除后截断的 JPEG 也会被当作有效图片、错误推迟到 ImageMagick，而 EOI 校验唯一的价值
+  正是挡住不完整文件。改用「保留校验但改为流内搜索」。
+- **修复一**：在 `lua/plugins/markdown.lua` 增加 `accept_jpeg_with_trailer()`，包装
+  `magic.detect_format`：先走插件原逻辑（PNG/GIF/WebP 等行为完全不变），仅在其失败时才检查
+  首三字节是否为 JPEG SOI（`FF D8 FF`），并从文件末尾按 64 KB 分块**倒序**搜索 `FF D9`
+  （普通文件仍是一次读取，大文件不会全读）。截断下载因不含 EOI 依旧返回 nil。
+  沿用本文件既有模式（配置层覆盖插件内部函数），插件更新不会冲掉修复。
+- **真因二（配置 + 本机代理）**：失败通知来自配置自己的下载器
+  （`markdown.lua` 的 `vim.notify(...)`）。`lua/image/utils/document.lua` 的渲染流程在**每次
+  render pass** 都会对可视区内每个远程图片重新调用 `from_url`，因此代理（`127.0.0.1:7897`）
+  的偶发 TLS 中断会让同一 URL 反复弹窗。实测同一条 URL 用配置内完全相同的 curl 参数连续请求
+  三次，会出现 `code=35 TLS connect error: ... unexpected eof while reading`；图片最终能渲染
+  是因为后续 pass 重试成功——但每次失败都弹一次。**注意这不是插件缺陷**，是配置的提示策略
+  与本机代理共同所致。
+- **修复二**：下载器的 curl 增加 `--retry 3 --retry-delay 1 --retry-max-time 60
+  --retry-all-errors`（`--retry-all-errors` 才覆盖连接重置/TLS 中断，默认只重试超时与 5xx）；
+  并加入 `download_failures_reported` 表，同一 URL 每次会话最多提示一次，成功后清除标记。
+- **实测验证**：
+  - headless 检测用例 7/7：带尾部 jpg ×3 → `jpeg`（修复前 `nil`）；正常 jpg → `jpeg`、
+    正常 png → `png`（行为未变）；截断 JPEG（前 30000 字节、无 EOI）→ `nil`；文本文件 → `nil`。
+  - 真实 Kitty + 真实 `~/.config/nvim` + 真实笔记：三张 jpg 全部进入 image.nvim state，
+    逐行滚动验证 `曾渲染=true` ×3；全程拦截 `vim.notify` 记录为空（0 条失败通知）。
+  - 用配置内相同 curl 参数对 6 个图床 URL 跑 2 轮共 12 次下载：失败 0 次。
+  - 用必然失败的 URL 并发请求 5 次：回调 5 次、`notify` 仅 1 次（修复前 5 次）。
+- **排查过程记录**：中途多次出现"三张图仍未渲染"的假象，实为测试桩自身问题，已排除：
+  (a) 笔记在 22:38 被编辑过，图片由第 121–125 行移到第 74–78 行，而探测脚本仍定位到旧行号，
+  视口落在图片下方；(b) `editor_only_render_when_focused = true` 会让无焦点窗口清掉已渲染
+  图片；(c) 手写的测试 `state` 缺少 `extmarks_namespace` 等字段，导致 `from_file` 失败。
+  真实前台窗口中三张图均正常渲染。
+- **文档**：nvim README「图片显示」小节、`docs/zh-CN/neovim.md` 与 `docs/en/neovim.md`
+  排障表各新增/补充两条（JPEG 尾部数据、通知刷屏）。
+- **待办**：上游 PR #379 可考虑跟进（建议改为保留 EOI 校验、在流内搜索，而非直接删除）；
+  另建议单独排查 Clash Verge 代理的 TLS 间歇性中断（curl 35/56）。
