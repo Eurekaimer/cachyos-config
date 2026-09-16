@@ -6,7 +6,7 @@ return {
     },
     ["awake_state"] = {
         ["percentage"] = 0,
-        ["timestamp"] = 3303885463,
+        ["timestamp"] = 9774377019,
     },
     ["charging"] = {
         ["percentage"] = 0,
@@ -14,7 +14,7 @@ return {
     },
     ["charging_state"] = {
         ["percentage"] = 0,
-        ["timestamp"] = 3303885659,
+        ["timestamp"] = 9774377439,
     },
     ["discharging"] = {
         ["percentage"] = 0,

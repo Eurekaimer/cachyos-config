@@ -1,0 +1,19 @@
+// ────────────── CS2 运行期间的窗口导航键 ──────────────
+//
+// 由 ~/.local/bin/niri-cs2-capslock-guard 配套使用：
+// 检测到 cs2 进程时，它把 input.kdl 的 xkb options 从 caps:super 换成
+// lv5:caps_switch —— CapsLock 变成 ISO_Level5_Shift，于是 niri 的 Mod(=Super)+…
+// 全局快捷键（Mod+S/W/E/R/Q/F/数字键/滚轮/空格…）在游戏期间全部失效，
+// 避免"按住 CapsLock 静步 + 按键"误触发桌面动作（Mod+S 弹 ECDICT 词典层抢焦点等）。
+//
+// 但切窗口是刚需（回消息），所以这里把 HJKL 挂到 ISO_Level5_Shift 上：
+// 按住 CapsLock + HJKL = 原来的聚焦操作。动作与 keybinds.kdl 里的 Mod+HJKL 一致。
+//
+// CS2 未运行时 CapsLock 是 Super，L5 修饰键根本不存在，这些绑定不会触发。
+
+binds {
+    ISO_Level5_Shift+H hotkey-overlay-title="聚焦左侧列（静步键 + H）" { focus-column-left; }
+    ISO_Level5_Shift+J hotkey-overlay-title="聚焦下方窗口（静步键 + J）" { focus-window-down; }
+    ISO_Level5_Shift+K hotkey-overlay-title="聚焦上方窗口（静步键 + K）" { focus-window-up; }
+    ISO_Level5_Shift+L hotkey-overlay-title="聚焦右侧列（静步键 + L）" { focus-column-right; }
+}

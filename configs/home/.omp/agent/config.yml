@@ -1,6 +1,6 @@
 modelRoles:
   smol: opencode-go/deepseek-v4-pro:max
-  default: commandcode/deepseek/deepseek-v4.1-flash
+  default: commandcode/deepseek/deepseek-v4-flash:max
 symbolPreset: ascii
 theme:
   dark: dark-terminal
