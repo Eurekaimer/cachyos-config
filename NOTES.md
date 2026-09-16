@@ -318,3 +318,64 @@ output "eDP-1" {
   排障表各新增/补充两条（JPEG 尾部数据、通知刷屏）。
 - **待办**：上游 PR #379 可考虑跟进（建议改为保留 EOI 校验、在流内搜索，而非直接删除）；
   另建议单独排查 Clash Verge 代理的 TLS 间歇性中断（curl 35/56）。
+
+## 17. Neovim 状态栏行数/字符数与文件树显示 .class（2026-09-16）
+
+- **需求**：用户给出示例 `vim.opt.statusline = "%f %= Line:%l/%L  Chars:%{wordcount().chars}"`，
+  要求状态栏下方显示总行数与字符数；随后要求文件树（`Space e`）能看到 `.class`。
+- **状态栏不能照抄示例，两个实测问题**：
+  1. **直接赋值会删掉 Neovim 默认段**。`vim.o.statusline` 在 nvim 0.12 的默认值含文件标志
+     `%h%w%m%r`、终端退出码、`vim.diagnostic.status()`、搜索计数与 ruler 段；本仓库 README
+     正是以「原生状态栏已提供诊断上下文」为不装 lualine 的理由。改为读默认值再**追加**。
+  2. **`%{wordcount().chars}` 每次重绘都全量扫描缓冲区**。实测（headless，`nvim_eval_statusline`
+     循环）：1k 行 0.13 ms、10k 行 1.6 ms、50k 行 8.0 ms、100k 行 16 ms、200k 行 33 ms；
+     模拟击键（插入 + `redrawstatus`）同样为 16 ms/键（100k 行）。光标移动、滚动都会触发，
+     属于持续可感卡顿。
+- **实现**：新增 `lua/config/statusline.lua`，`chars_segment()` 返回 `  Chars:1234`：
+  - 按 `nvim_buf_get_changedtick` 把结果缓存在 `vim.b[buf]`，文本未变的重绘直接命中缓存
+    （实测 200k 行 0.03 ms/重绘，与不含该段的基准 0.04 ms 持平）；任何文本变化、撤销、
+    重做、`:edit!` 重新载入都会让 tick 变化，缓存不可能过期。
+  - 超过 1.5 MiB（与 Snacks `bigfile` 阈值一致）时返回空串，只保留 O(1) 的 `Line:` 段，
+    避免大文件每次击键都付扫描成本。缓冲区大小用 `nvim_buf_get_offset(buf, line_count)`
+    取，实测 0.0006 ms。
+  - `Line:%l/%L` 由 Neovim 直接求值，本身不扫描缓冲区。
+- **状态栏段取哪个 buffer（易错点）**：状态栏求值时 Neovim 会把「当前 buffer」临时切到
+  被绘制窗口的 buffer。实测 `nvim_eval_statusline(stl, { winid = <wb 的窗口> })` 时
+  `wordcount()` 返回的是 wb（200 字符），而真实当前 buffer 是 wc；`v:statusline_winid`
+  在段内读到 `nil`（不能依赖）。因此 `vim.api.nvim_get_current_buf()` 就是正确的缓存键。
+- **实测验证**：
+  - 真实终端（`script` PTY + `screenstring` 抓屏，真实 `~/.config/nvim` 全量启动）：
+    `pty_note.md ... 23,1  15%  Line:23/120  Chars:1400`，与 `wordcount()` 独立核对一致
+    （1400 字符 / 120 行）；默认段（诊断、搜索计数、ruler）仍在。
+  - 分屏三窗口 wa(6)/wb(200)/wc(14)：依次聚焦，状态栏分别显示 `Chars:6/1 行`、`Chars:200/50 行`、
+    `Chars:14/7 行`，与各文件真实值一一对应。
+  - 过期测试 10 项全对：插入、光标移动、撤销、重做、多字节、`:edit!`、新缓冲区、清空缓冲区。
+  - 阈值边界：1.5 MiB（1,572,000 B）仍计数，2.5 MiB 显示为空（`Chars:` 段消失，`Line:` 保留）。
+- **文件树 `.class`（真因不是 nvim）**：`.class` 与 Maven `target/` 都在各项目 `.gitignore` 里
+  （`CS61B/.gitignore:12` → `*.class`，`:139` → `target/`），而 Snacks explorer 默认
+  `ignored=false`；更关键的是 explorer 的**搜索路径走 `fd`**，`fd` 默认遵循 `.gitignore`，
+  这些文件根本没进入列表（实测 `fd --type f` 在 `lab3` 下 0 个 `.class`，加 `--no-ignore` 得 9 个）。
+- **修复**：`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }`。
+  `Snacks.picker.explorer.Filter` 的语义是 `include` **优先级高于** hidden/ignored/exclude
+  （`explorer/tree.lua:210-217` 有显式注释），因此只放行编译产物，不会把整个 ignored 类别
+  显示出来。`target` 必须同时匹配目录本身：`tree.lua:238-250` 的 walk 不会进入被过滤器
+  拒绝的目录，只有 `*.class` 时 `target/classes/**` 下的文件仍不可见。
+- **A/B 实测**（真实仓库、真实 explorer items；注意 `Snacks.explorer()` 会合并已配置的
+  source，故基线必须传 `include = {}` 而不是 `include = nil`）：
+  - `CS61B/lab6/capers`（`.class` 与 `.java` 同级）：基线 6 项 / 0 个 `.class`；
+    修复后 10 项 / 4 个 `.class`。
+  - `CS61B/lab3`（Maven `target/classes/...`）：基线 4 项 / 0 个；`include={*.class}` 仍 0 个
+    （父目录 `target/` 被剪枝）；`include={*.class,target,target/**}` 展开后 15 项 / 6 个 `.class`。
+  - 真实终端抓屏确认：`target/classes/timingtest/{AList,SLList,TimeAList,TimeSLList,StopwatchDemo,SLList$IntNode}.class`
+    全部列出。
+  - `dsa-from-scratch-java` 同为 Maven 布局（24 个 `.class`），覆盖同一模式。
+- **同步**：实时 `~/.config/nvim` 与仓库快照现已逐字节一致（`diff -rq` 无输出）。
+  注意实时 README 原为 9/13 旧版、仓库为 9/13 22:56 新版，本次以仓库版为准回写了实时副本，
+  避免把已在仓库中的 JPEG 尾部数据小节覆盖掉。
+- **文档**：nvim README（配置结构 + 状态栏小节 + 文件树说明）、`docs/zh-CN/neovim.md`、
+  `docs/en/neovim.md` 三处同步更新（结构表新增 `statusline.lua`、文件树 `include` 说明、
+  排障表新增「文件树看不到 `.class`」一行）。
+- **未提交的无关漂移**：本轮 `capture.sh` 同时捕获到与 nvim 无关的机器状态变化
+  （fcitx5 profile、koreader 设置、niri config.kdl 与新增 `gaming-binds.kdl`、`.omp` 模型、
+  ASS config、systemd 单元清单、硬件状态文件）。按 §15 先例未纳入本次提交，留待用户确认。
+- **待办**：无。

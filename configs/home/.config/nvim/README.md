@@ -66,7 +66,8 @@ nvim
 ├── README.md                   # 本文档
 └── lua/
     ├── config/
-    │   ├── options.lua         # 编辑器选项、PATH、Neovide 参数、主题兜底
+    │   ├── options.lua         # 编辑器选项、PATH、Neovide 参数、状态栏、主题兜底
+    │   ├── statusline.lua      # 状态栏字符数片段（按 changedtick 缓存）
     │   ├── keymaps.lua         # 全局快捷键和 Tab/snippet 调度
     │   ├── autocmds.lua        # 自动命令、fcitx5、光标恢复
     │   └── lazy.lua            # lazy.nvim 引导与插件导入
@@ -190,6 +191,14 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | `<leader>ff` | 查找文件 |
 | `<leader>fb` | 查找缓冲区 |
 | `<leader>fr` | 最近文件 |
+
+文件树默认只显示未被忽略的文件（Snacks 走 `fd`，因此会遵循 `.gitignore`）。Java 的
+编译产物 `*.class` 和 Maven 输出目录 `target/` 都在 `.gitignore` 里，本配置通过
+`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }` 把它们
+单独放回文件树：`include` 在 Snacks 的 explorer 过滤器里优先级最高，只放行这些编译
+产物，而不是把整个 `ignored` 类别都显示出来。`target` 同时匹配目录本身是必需的——
+树不会进入被过滤器拒绝的目录，所以嵌套在 `target/classes/` 下的 `.class` 只靠
+`*.class` 匹配不到。
 
 ### 搜索、导航与 UI
 
@@ -528,7 +537,17 @@ callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自
 - `scrolloff=8`，长距离移动仍保留上下文；
 - 4 空格缩进，Tab 转为空格；
 - 显示 Tab、行尾空格和不换行空格；
-- 全局状态栏，水平/垂直分屏默认在下方/右侧。
+- 全局状态栏，水平/垂直分屏默认在下方/右侧；
+- 状态栏保留 Neovim 默认段（文件标志、诊断、搜索计数、ruler），末尾追加光标位置
+  `Line:当前行/总行数` 与全文 `Chars:字符数`。
+
+状态栏里的字符数走 `lua/config/statusline.lua`，不是直接写
+`%{wordcount().chars}`：`wordcount()` 要扫描整个缓冲区，而 `%{}` 片段在**每次重绘**都会
+重新求值——实测 100k 行文件每次击键 16 ms、200k 行 33 ms。该模块按 `changedtick`
+缓存结果，因此光标移动、滚动这类不改变文本的重绘不产生开销；缓存值在每次文本变化
+时失效，撤销、重做、`:edit!` 重新载入都会命中新值。缓冲区超过 1.5 MiB 时（与 Snacks
+`bigfile` 判定一致）跳过计数，只保留 O(1) 的 `Line:` 段，避免在大文件里每次击键都付
+扫描成本。
 
 ### 中文文本
 

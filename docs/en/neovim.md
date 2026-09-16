@@ -33,7 +33,8 @@ manager itself.
 | `lua/config/autocmds.lua` | General lifecycle hooks and fcitx5 state handling |
 | `lua/config/keymaps.lua` | Global mappings, native completion-menu controls, and callout blank-line collapsing |
 | `lua/config/lazy.lua` | Bootstraps lazy.nvim and imports plugin specifications |
-| `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, and theme fallback |
+| `lua/config/options.lua` | Editor options, toolchain paths, clipboard detection, statusline, and theme fallback |
+| `lua/config/statusline.lua` | Statusline character-count segment (memoized per `changedtick`, skipped for large buffers) |
 | `lua/plugins/theme.lua` | Kanagawa Wave colorscheme |
 | `lua/plugins/ui.lua` | Snacks, the Aerial outline, which-key, and cursor animation |
 | `lua/plugins/editing.lua` | Surround editing, autosave, snippet engine, and motion practice |
@@ -174,6 +175,16 @@ again closes the outline. Markdown opens fully expanded, and collapsing an
 outline node also folds the matching section body, subheadings included, without
 deleting text. Other filetypes still list their code symbols, but section
 folding is not taken over.
+
+The file tree hides ignored paths by default (Snacks shells out to `fd`, which
+honors `.gitignore`), so Java's `*.class` output and Maven's `target/` are
+absent. The config puts them back via
+`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }`:
+`include` outranks every other filter in Snacks' explorer, so this admits the
+compiled artifacts rather than revealing the whole `ignored` category. Matching
+`target` itself is required—the tree does not descend into a directory the
+filter rejects, so `.class` files nested under `target/classes/` stay hidden
+without it.
 
 These mappings only apply inside the outline window:
 
@@ -424,6 +435,7 @@ committed; the configuration and lockfile reproduce them.
 | --- | --- |
 | Completion does not appear | Run `:checkhealth vim.lsp`, then `:LspInfo`; verify a server is attached and use `Ctrl-Space`. |
 | File or text search is empty | Verify `fd` and `rg` are on `PATH`; run `:checkhealth snacks`. |
+| The file tree omits `*.class` or `target/` | Both are gitignored and the tree hides ignored paths by default. This config admits them through `opts.picker.sources.explorer.include`; if that option was edited, make sure it still contains `"*.class"` and `target` (the directory itself must match or the tree never descends into it). `Space ff` shells out to `fd`, which honors `.gitignore` as well. |
 | LSP installation fails for Bash/Python/TypeScript | Verify `npm --version`, then retry from `:Mason`. |
 | Parser compilation fails | Verify `tree-sitter --version` and a C compiler are available, then run `:TSUpdate`. |
 | Java does not respond, or reports `Java XY language features are not available` | Verify a JDK 21+ is on `PATH`, then run `:JdtRestart`; the index lives under `~/.cache/nvim/jdtls/<project>-<hash of the root path>` and can be deleted to rebuild it. |

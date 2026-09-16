@@ -27,7 +27,8 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/config/autocmds.lua` | 通用生命周期钩子和 fcitx5 状态管理 |
 | `lua/config/keymaps.lua` | 全局快捷键、原生补全菜单控制与 callout 空行折叠 |
 | `lua/config/lazy.lua` | 引导 lazy.nvim 并导入插件声明 |
-| `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测和主题兜底 |
+| `lua/config/options.lua` | 编辑器选项、工具链路径、剪贴板检测、状态栏和主题兜底 |
+| `lua/config/statusline.lua` | 状态栏字符数片段（按 `changedtick` 缓存，大文件跳过计数） |
 | `lua/plugins/theme.lua` | Kanagawa Wave 配色 |
 | `lua/plugins/ui.lua` | Snacks、Aerial 大纲、which-key 和光标动画 |
 | `lua/plugins/editing.lua` | 成对符号编辑、自动保存、snippets 引擎和移动练习 |
@@ -160,6 +161,13 @@ Snacks 是唯一的通用 UI 层。
 标题与代码大纲由 Aerial 负责。普通模式按 `Space a`（空格后按 `a`）在右侧打开大纲并进入，
 再次按下关闭。Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整个章节
 （包括子标题及内容），不会删除文字；其他语言仍可浏览代码符号，但不接管正文折叠。
+
+文件树默认隐藏被忽略的文件（Snacks 走 `fd`，会遵循 `.gitignore`），Java 的 `*.class`
+和 Maven 的 `target/` 因此不在列表里。配置用
+`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }` 把它们放回：
+`include` 在 Snacks 的 explorer 过滤器里优先级最高，所以只放行编译产物，而不是把整个
+`ignored` 类别都显示出来。`target` 必须同时匹配目录本身——树不会进入被过滤器拒绝的
+目录，嵌套在 `target/classes/` 下的 `.class` 否则仍然不可见。
 
 以下按键仅在大纲窗口中生效：
 
@@ -388,6 +396,7 @@ git push
 | --- | --- |
 | 不出现补全 | 执行 `:checkhealth vim.lsp` 和 `:LspInfo`，确认服务器已连接，再按 `Ctrl-Space`。 |
 | 文件或全文搜索为空 | 确认 `fd` 和 `rg` 位于 `PATH`，然后执行 `:checkhealth snacks`。 |
+| 文件树里看不到 `*.class` 或 `target/` | 二者被 `.gitignore` 忽略，而文件树默认不显示忽略项。本配置已用 `opts.picker.sources.explorer.include` 放行；若改动过该选项，确认其中含 `"*.class"` 与 `target`（目录本身必须匹配，否则不会进入）。`<leader>ff` 走 `fd`，同样遵循 `.gitignore`。 |
 | Bash/Python/TypeScript LSP 安装失败 | 检查 `npm --version`，然后在 `:Mason` 中重试。 |
 | 解析器编译失败 | 检查 `tree-sitter --version` 和 C 编译器，再执行 `:TSUpdate`。 |
 | Java 无响应或报 `Java XY language features are not available` | 确认 JDK 21+ 在 `PATH`，再执行 `:JdtRestart`；索引缓存在 `~/.cache/nvim/jdtls/`，可删除后重建。 |

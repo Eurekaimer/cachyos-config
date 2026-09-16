@@ -49,6 +49,13 @@ opt.swapfile = false
 opt.splitbelow = true
 opt.splitright = true
 opt.laststatus = 3
+-- Keep Neovim's default segments (file flags, diagnostics, search count, ruler)
+-- and append the cursor's position in the buffer plus its character count.
+-- Read the default before any plugin runs, so the append cannot be lost, and go
+-- through config/statusline.lua because counting the whole buffer per redraw is
+-- too expensive to inline as `%{wordcount().chars}`.
+opt.statusline = vim.o.statusline
+  .. "  Line:%l/%L%{v:lua.require('config.statusline').chars_segment()}"
 opt.updatetime = 200
 opt.timeoutlen = 300
 opt.completeopt = "menu,menuone,noselect"

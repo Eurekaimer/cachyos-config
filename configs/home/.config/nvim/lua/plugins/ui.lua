@@ -10,7 +10,16 @@ return {
       explorer = { enabled = true },
       input = { enabled = true },
       notifier = { enabled = true, timeout = 3000 },
-      picker = { enabled = true },
+      picker = {
+        enabled = true,
+        -- Java build output is gitignored (`*.class`), so the explorer hides it
+        -- with the rest of `ignored`. `include` outranks every other filter in
+        -- snacks' explorer, so listing the compiled artifacts shows exactly
+        -- them instead of revealing every ignored path. Maven also needs its
+        -- output directory: the tree never descends into a directory the filter
+        -- rejects, so `target` has to match the directory itself as well.
+        sources = { explorer = { include = { "*.class", "target", "target/**" } } },
+      },
       quickfile = { enabled = true },
       statuscolumn = { enabled = true },
       terminal = { enabled = true },
