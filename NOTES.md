@@ -379,3 +379,37 @@ output "eDP-1" {
   （fcitx5 profile、koreader 设置、niri config.kdl 与新增 `gaming-binds.kdl`、`.omp` 模型、
   ASS config、systemd 单元清单、硬件状态文件）。按 §15 先例未纳入本次提交，留待用户确认。
 - **待办**：无。
+
+## 18. Neovim 刷题插件 leetcode.nvim（2026-09-18）
+
+- **需求**：安装并配置 `kawre/leetcode.nvim`，对接 `leetcode.cn`（`cn.enabled`、翻译 UI 与
+  题目），默认语言 Java，`lang = "java"`，可用 `:Leet` / `list` / `daily` / `run` / `submit` /
+  `cookie update`；复用已有 picker 与 tree-sitter，不制造重复配置；不代填 Cookie。
+- **新增文件**：`lua/plugins/leetcode.lua`。`cmd = "Leet"` 懒加载，`opts` 只有 `lang` 与 `cn`
+  两项；`picker.provider` 刻意留空。
+- **picker 复用（无新依赖）**：插件的 `picker/init.lua` 按 `snacks-picker → fzf-lua →
+  telescope → mini-picker` 顺序探测，`Snacks.config.picker.enabled` 为真即命中。本配置
+  `ui.lua` 已常驻 Snacks，实测 `require("leetcode.picker").provider == "snacks"`，因此没有
+  安装第二个 picker。
+- **treesitter 复用**：`parser/init.lua` 只检查 `parser/html.so` 是否存在，存在即用 HTML
+  解析器格式化题目描述，否则退回 `Plain`。`syntax.lua` 的解析器列表补入 `html`
+  （实测安装前 `#nvim_get_runtime_file("parser/html.so") == 0`，`TSInstall! html` 后为 1）。
+- **新增依赖**：`plenary.nvim`、`nui.nvim`（此前均未安装）。前者提供 `Path` 与 `curl`
+  （插件的唯一 HTTP 通道），后者提供面板/控制台/输入框组件，二者都是硬依赖而非可选。
+- **验证（真实终端 PTY + 真实配置，非 headless 桩）**：
+  - `:Leet` 打开面板，页脚显示 `登录 / 使用Cookie登录 / 退出` 与 `leetcode.cn`，即
+    `cn.enabled` 与 `translator` 同时生效；`require("leetcode.config")` 读出
+    `domain=cn`、`is_cn=true`、`lang=java`。
+  - 补全列表含 `list,daily,run,submit,cookie,cache,tabs,lang,info,console,...` 全部子命令。
+  - `:Leet cookie update` 弹出 `输入 Cookie` 输入框（nui 组件 + 中文标题）；Esc 退出后
+    `~/.cache/nvim/leetcode/` 与 `~/.local/share/nvim/leetcode/` 仍为空，**未写入任何 Cookie**。
+  - `:Leet list` 在未登录时报 `User not logged-in`（`utils.auth_guard` 的预期行为），
+    说明命令链已接通到 API 层。
+- **Cookie 路径**：`cache/cookie.lua` 按 `config.is_cn` 选择文件名，启用 cn 后为
+  `~/.cache/nvim/leetcode/cookie_cn`（未启用则为 `cookie`）。该目录不在
+  `manifests/home-paths.txt` 中，不入快照；本仓库未新增任何凭据相关规则。
+- **文档**：nvim README（配置结构 + 插件表 + 新增「刷题」小节 + 管理命令 + 修改指南 + curl
+  用途）、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 三处同步更新；插件仓库计数 17 → 24。
+- **同步**：实时 `~/.config/nvim` 与仓库快照逐字节一致（`diff -rq` 无输出）；
+  `./scripts/audit.sh` 通过。
+- **待办**：无。用户自行执行 `:Leet` 并粘贴 Cookie。

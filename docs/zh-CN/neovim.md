@@ -16,7 +16,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 4. **可选工具延迟加载。** VimBeGood 只有执行命令时才加载。
 5. **锁定结果。** `lazy-lock.json` 记录插件版本，保证恢复可重复。
 
-最终锁文件只包含 **17 个插件仓库**，其中已经包括插件管理器本身。
+最终锁文件只包含 **24 个插件仓库**，其中已经包括插件管理器本身。
 
 ## 配置结构
 
@@ -35,6 +35,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/plugins/syntax.lua` | Treesitter 解析器与高亮 |
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/java.lua` | nvim-jdtls：Java 语言服务器与 JDT 扩展命令 |
+| `lua/plugins/leetcode.lua` | leetcode.nvim：leetcode.cn 刷题面板 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
 | `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式与 Obsidian callout 片段 |
 
@@ -53,6 +54,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [image.nvim](https://github.com/3rd/image.nvim) | 仅 Kitty + `markdown` | 在编辑器内显示 Markdown 内联图片和图片文件 | 图片无法由 Neovim 核心渲染；只在支持 Kitty 图形协议的终端启用，其他终端自动跳过。 |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | 启动时 | 提供 Kanagawa Wave 配色 | 长时间阅读与写作需要低对比度、护眼的配色；`options.lua` 仍保留内置配色兜底。 |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | 启动时 | 安装插件、解析依赖、延迟加载并维护锁文件 | 可重复安装插件需要一个足够小的管理器；它也避免了自己维护 clone/update 脚本。 |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | 仅执行 `:Leet` 时 | 刷题面板：浏览、运行、提交题目 | 国内站点需要能对接 `leetcode.cn` 且带官方提交接口的客户端，现有插件都不提供；只在 `:Leet` 时加载，并复用 Snacks picker，日常编辑零成本。 |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | 仅 `markdown` | 展开 Markdown 中的 TeX 公式片段 | 公式片段需要可维护的 snippet 引擎；只对 markdown 文件加载，不影响其他语言。 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 七种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则七个服务器要分别处理系统包、npm、Go、Java 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
@@ -60,7 +62,9 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 启动时 | 添加、删除、查找、高亮和替换引号/括号等包围符号 | Neovim 核心没有等价操作；它能直接消除大量“删除旧括号再输入新括号”的重复编辑。 |
 | [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` 文件类型 | 为 eclipse.jdt.ls 提供 JDT 扩展：整理 import、提取变量/常量/方法、编译与重启命令 | 裸 LSP 客户端只能做补全和跳转，`vim.lsp.enable("jdtls")` 拿不到这些 Java 专属操作；Java 是当前要写的主要语言，需要它们。 |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | 启动时 | 为常见语言服务器提供经过维护的默认配置 | LSP 客户端属于 Neovim，但服务器命令、文件类型和项目根目录规则仍需要可靠默认值。 |
+| [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim 依赖 | UI 组件原语（弹窗、布局、输入框） | leetcode.nvim 的面板、控制台和 Cookie 输入框都基于它实现，属于必需依赖而非可选。 |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 启动时 | 为 Neovim 原生 Treesitter 下载解析器和查询文件 | 高亮器属于 Neovim，但常用语言解析器和查询文件不会全部随核心提供；一个插件即可覆盖所有语言。 |
+| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | leetcode.nvim 依赖 | Lua 工具库（`Path`、`curl`） | leetcode.nvim 的缓存路径和全部 API 请求都经它实现，`curl` 封装是插件唯一的 HTTP 通道。 |
 | [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 启动加载 | 按嵌套深度给 `()` `[]` `{}` 逐层着色（Treesitter 驱动） | 深嵌套括号同色时无法分辨层级；七种色相按「相邻层对比最强」的顺序排列，颜色取自 Kanagawa palette，不引入第二套配色。 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 仅 `markdown` | 在编辑器内渲染标题、列表、表格和代码块 | 写作时不必开预览窗口；`Space mr` 可随时关闭渲染查看源码。 |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | 在终端中模拟 Neovide 的光标拖尾动画 | 同一份配置在终端与 Neovide 下手感一致；Neovide 内自动禁用，无额外成本。 |
@@ -342,16 +346,54 @@ Java 还启用了 on-type formatting：jdtls 声明 `;`、换行和 `}` 为触�
 `Space cf`（LSP 格式化）与 `Space cF`（clang-format）是两条独立路径：前者由语言
 服务器执行，后者始终走外部二进制。
 
+## 刷题（leetcode.nvim）
+
+`lua/plugins/leetcode.lua` 把 leetcode.nvim 指向国内站点，并只在执行 `:Leet` 时加载。
+
+| 配置 | 值 | 效果 |
+| --- | --- | --- |
+| `lang` | `java` | 新题目默认用 Java 模板打开。 |
+| `cn.enabled` | `true` | 使用 `leetcode.cn` 而不是 `leetcode.com`。 |
+| `cn.translator` | `true` | 插件自身界面文案显示为中文。 |
+| `cn.translate_problems` | `true` | 题目标题与描述使用中文。 |
+
+`picker.provider` 保持未设置，由插件自行解析第一个可用 provider；其顺序为
+snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因此不再安装
+第二个 picker。
+
+常用命令：
+
+| 命令 | 作用 |
+| --- | --- |
+| `:Leet` | 打开面板（未登录时即登录页） |
+| `:Leet list` | 选题目，可带 `status=`、`difficulty=` |
+| `:Leet daily` | 打开每日一题 |
+| `:Leet run` | 用当前测试用例运行本题 |
+| `:Leet submit` | 提交本题 |
+| `:Leet cookie update` | 打开 Cookie 输入框 |
+| `:Leet cache update` | 更新本地题库缓存 |
+
+其余子命令（`random`、`tabs`、`lang`、`info`、`console`、`desc`、`reset`、
+`inject`、`fold`、`open`、`yank`、`last_submit`、`restore`、`exit`）由同一命令注册。
+
+登录与请求头由插件负责；本配置不保存任何 Cookie。执行 `:Leet` 后把 Cookie 粘进输入框，
+它会被写到 `~/.cache/nvim/leetcode/cookie_cn`。`cn` 后缀很关键：未启用 `cn.enabled`
+时同一输入框写的是 `cookie`，两个站点的会话不通用。该缓存目录不入快照。
+
+需要 `curl` 在 `PATH` 中（已在 `packages/required-extra.txt`）；所有 API 请求走 plenary
+的 curl 封装。
+
 ## Treesitter
 
 解析器按名称排序：
 
-`bash`、`c`、`cpp`、`go`、`java`、`javascript`、`json`、`lua`、`markdown`、
+`bash`、`c`、`cpp`、`go`、`html`、`java`、`javascript`、`json`、`lua`、`markdown`、
 `markdown_inline`、`python`、`query`、`rust`、`toml`、`typescript`、
 `vim`、`vimdoc`、`yaml`。
 
-`java`、`c`、`cpp` 是本次为括号着色新加的解析器（rainbow-delimiters 没有解析器时
-不工作）。
+`java`、`c`、`cpp` 是为括号着色加的（rainbow-delimiters 没有解析器时不工作）；
+`html` 是为 leetcode.nvim 加的：存在 `parser/html.so` 时它用其格式化题目描述，
+否则退回纯文本。
 
 实际高亮由 Neovim 完成。nvim-treesitter 只负责安装解析器和查询文件，随后由
 `FileType` autocmd 在解析器存在时调用 `vim.treesitter.start()`。没有启用会与核心
@@ -402,6 +444,9 @@ git push
 | Java 无响应或报 `Java XY language features are not available` | 确认 JDK 21+ 在 `PATH`，再执行 `:JdtRestart`；索引缓存在 `~/.cache/nvim/jdtls/`，可删除后重建。 |
 | `Space cF` 报找不到 clang-format | `pacman -S clang`，并确认 `clang-format --version` 可执行。 |
 | 插件启动失败 | 打开 `:Lazy` 查看失败任务，然后重新执行同步。 |
+| `:Leet list` 报 `User not logged-in` | 登录前的正常提示。执行 `:Leet`，再执行 `:Leet cookie update`，粘贴请求头里的 `Cookie`（不是响应头 `set-cookie`）。 |
+| `:Leet` 报 "contains listed buffers" 拒绝启动 | 面板需要空会话。用 `nvim leetcode.nvim` 启动，或在 `lua/plugins/leetcode.lua` 里设 `plugins.non_standalone = true` 允许与已开缓冲区共存。 |
+| 反复提示 `Your cookie may have expired` | 多为 leetcode.cn 在比赛期间限流，而非 Cookie 失效。可先 `:Leet cookie update` 换新，仍不行就等一会儿、关掉 VPN 重试。 |
 | snippet 全部不展开（连 `mk` / `dm` 也失效） | 片段文件加载失败会让整个文件作废。执行 `:lua =require("luasnip").available()`，若为空则查看 `~/.local/state/nvim/luasnip.log`；`fmta` 的格式串中出现字面量 `>`（如 `> [!note]`）会报 `Found unescaped > outside placeholder`，改用 `text_node` 构造。 |
 | 打完 `aligned` 等片段没有自动展开 | 自动片段只在触发词完整时匹配，且多数受数学模式门控。确认光标在 `$ $` / `$$ $$` 内；`align`、`mat`、`par` 等有前缀冲突的触发词需按 `<Tab>`。 |
 | Markdown 中按 `Enter` 不自动续 `>` | 检查 `:setlocal formatoptions?`；Markdown ftplugin 会去掉 `r`，本配置在 `FileType markdown` 时加回，正常应包含 `r`（本机为 `tcqjlnr`）。 |

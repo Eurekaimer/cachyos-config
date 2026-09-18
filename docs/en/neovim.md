@@ -21,7 +21,7 @@ plugin.
 5. **Pin the result.** `lazy-lock.json` records plugin revisions for repeatable
    restores.
 
-The resulting lockfile contains **17 plugin repositories**, including the plugin
+The resulting lockfile contains **24 plugin repositories**, including the plugin
 manager itself.
 
 ## Configuration layout
@@ -41,6 +41,7 @@ manager itself.
 | `lua/plugins/syntax.lua` | Treesitter parsers and highlighting |
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/java.lua` | nvim-jdtls: the Java language server and JDT extension commands |
+| `lua/plugins/leetcode.lua` | leetcode.nvim: the leetcode.cn practice dashboard |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
 | `lua/snippets/markdown.lua` | Markdown-only TeX formula and Obsidian callout snippets |
 
@@ -59,6 +60,7 @@ boundary; the reason column is the acceptance test for keeping it.
 | [image.nvim](https://github.com/3rd/image.nvim) | Kitty + `markdown` only | Renders Markdown inline images and image files inside the editor | Core Neovim cannot draw images. It activates only in terminals that speak the Kitty graphics protocol and is skipped elsewhere. |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Startup | Provides the Kanagawa Wave colorscheme | Long reading and writing sessions need a low-contrast palette; `options.lua` still keeps a built-in fallback. |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | Startup | Plugin installation, dependency resolution, lazy-loading, lockfile management | A small manager is required to reproduce the plugin set. It also removes the need for custom clone/update scripts. |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | `:Leet` only | LeetCode practice dashboard: browse, run, and submit problems | Practising on the mainland endpoint needs a client that speaks `leetcode.cn` and the authenticated submit API; no other retained plugin does either. It loads only on `:Leet` and reuses the Snacks picker, so normal editing pays nothing. |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | `markdown` only | Expands TeX formula snippets in Markdown | Formula snippets need a maintainable snippet engine; it loads only for markdown files and costs nothing elsewhere. |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the seven-server install list declarative and avoids duplicating package-name mappings. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require seven separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
@@ -66,7 +68,9 @@ boundary; the reason column is the acceptance test for keeping it.
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | Startup | Adds, deletes, finds, highlights, and replaces surrounding pairs | Core Neovim has no equivalent operator for changing quotes/brackets around text. This removes many repeated delete-and-insert edits. |
 | [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | `java` filetype | JDT extensions for eclipse.jdt.ls: organize imports, extract variable/constant/method, and compile/restart commands | A bare LSP client only completes and navigates; `vim.lsp.enable("jdtls")` cannot reach these Java-specific operations, and Java is the primary language being written right now. |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | Startup | Supplies maintained defaults for common language servers | Neovim owns the LSP client, but server-specific commands, filetypes, and root markers still need reliable defaults. |
+| [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim dependency | UI component primitives (popups, layouts, input) | leetcode.nvim's dashboard, console, and cookie prompt are built on it, so it is required, not optional. |
 | [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | Startup | Downloads parser sources and queries for Neovim's native Treesitter runtime | Neovim provides the highlighter, but not all language parsers and queries. One plugin covers every configured language. |
+| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | leetcode.nvim dependency | Lua utility library (`Path`, `curl`) | leetcode.nvim's cache paths and every API request go through it; the `curl` wrapper is the only HTTP path the plugin has. |
 | [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | Startup | Colours `()` `[]` `{}` per nesting depth using Tree-sitter | Deeply nested brackets are indistinguishable in one colour; the seven hues are ordered for maximum adjacent-level contrast and come from the Kanagawa palette, so no second colourscheme is introduced. |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | `markdown` only | Renders headings, lists, tables, and code blocks inside the editor | Writing no longer needs a preview window; `Space mr` toggles rendering off to read the source. |
 | [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | `VeryLazy` | Simulates Neovide's cursor-trail animation in the terminal | The same configuration feels consistent in the terminal and in Neovide; it disables itself inside Neovide at no cost. |
@@ -378,16 +382,60 @@ Style resolution order:
 paths: the former runs inside the language server, the latter always invokes
 the external binary.
 
+## LeetCode practice
+
+`lua/plugins/leetcode.lua` configures leetcode.nvim against the mainland
+endpoint. It is command-lazy: nothing loads until `:Leet` runs.
+
+| Setting | Value | Effect |
+| --- | --- | --- |
+| `lang` | `java` | New questions open with the Java snippet. |
+| `cn.enabled` | `true` | Uses `leetcode.cn` instead of `leetcode.com`. |
+| `cn.translator` | `true` | Translates the plugin's own UI strings to Chinese. |
+| `cn.translate_problems` | `true` | Translates problem titles and descriptions. |
+
+`picker.provider` is left unset, so leetcode.nvim resolves the first available
+provider on its own; its order is snacks-picker, fzf-lua, telescope,
+mini-picker, and Snacks is already present. No second picker is installed.
+
+The dashboard, problem list, daily question, console, and result panel all come
+from that one plugin. Commands used day to day:
+
+| Command | Action |
+| --- | --- |
+| `:Leet` | Open the dashboard (also the sign-in page when no cookie is stored) |
+| `:Leet list` | Pick a problem; accepts `status=` and `difficulty=` |
+| `:Leet daily` | Open today's question |
+| `:Leet run` | Run the current question against the shown testcases |
+| `:Leet submit` | Submit the current question |
+| `:Leet cookie update` | Open the prompt for the session cookie |
+| `:Leet cache update` | Refresh the local problem list |
+
+Other subcommands (`random`, `tabs`, `lang`, `info`, `console`, `desc`, `reset`,
+`inject`, `fold`, `open`, `yank`, `last_submit`, `restore`, `exit`) are
+registered by the same command.
+
+Signing in and the request headers are the plugin's business. The config stores
+no cookie: run `:Leet` and paste it into the prompt, which writes it to
+`~/.cache/nvim/leetcode/cookie_cn`. The `cn` suffix matters — without
+`cn.enabled` the same prompt writes `cookie`, and the two endpoints do not share
+sessions. That cache directory is not in the snapshot.
+
+Requires `curl` on `PATH` (already in `packages/required-extra.txt`); every API
+call goes through plenary's curl wrapper.
+
 ## Treesitter
 
 Configured parsers are alphabetized:
 
-`bash`, `c`, `cpp`, `go`, `java`, `javascript`, `json`, `lua`, `markdown`,
+`bash`, `c`, `cpp`, `go`, `html`, `java`, `javascript`, `json`, `lua`, `markdown`,
 `markdown_inline`, `python`, `query`, `rust`, `toml`, `typescript`, `vim`,
 `vimdoc`, `yaml`.
 
 `java`, `c`, and `cpp` were added for bracket colouring: rainbow-delimiters does
-nothing without the matching parser.
+nothing without the matching parser. `html` was added for leetcode.nvim, which
+formats problem descriptions with it when `parser/html.so` is present and falls
+back to plain text otherwise.
 
 Neovim performs highlighting. nvim-treesitter only installs parsers and queries,
 then a `FileType` autocmd calls `vim.treesitter.start()` when a parser exists.
@@ -443,6 +491,9 @@ committed; the configuration and lockfile reproduce them.
 | `aligned` and friends do not auto-expand | An autosnippet only matches once the trigger is complete, and most are gated on math mode. Check the cursor is inside `$ $` / `$$ $$`; prefix-crowded triggers such as `align`, `mat` and `par` need <Tab>. |
 | `Enter` does not continue a `>` quote in Markdown | Check `:setlocal formatoptions?`. Markdown's ftplugin strips `r`; this config adds it back on `FileType markdown`, so the expected value contains `r` (`tcqjlnr` on this machine). |
 | Plugin startup fails | Open `:Lazy`, inspect the failed task, then run sync again. |
+| `:Leet list` reports `User not logged-in` | Expected before sign-in. Run `:Leet`, then `:Leet cookie update`, and paste the `Cookie` request header (not `set-cookie`). |
+| `:Leet` refuses to start with "contains listed buffers" | The dashboard needs an empty session. Either start it with `nvim leetcode.nvim`, or set `plugins.non_standalone = true` in `lua/plugins/leetcode.lua` to allow it alongside open buffers. |
+| `Your cookie may have expired` | Usually leetcode.cn rate-limiting under contest load rather than a bad cookie. `:Leet cookie update` refreshes it; otherwise wait and retry without a VPN. |
 | System clipboard is unavailable | Install `wl-clipboard`; the config enables `unnamedplus` only when a provider exists. |
 | A remote image failed once and never renders again | The upstream downloader caches the path before curl exits and never checks the exit code, so a bad cache entry is permanent. `download_image()` in `lua/plugins/markdown.lua` replaces it: on failure it deletes the temp file, clears the cache, and notifies, so a retry recovers. |
 | Some JPEGs never render while browsers and Obsidian show them fine | Upstream `magic.lua` requires `FF D9` to be the literal last two bytes, so a JPEG with data appended after the EOI marker (common for QQ/WeChat exports) is rejected as "not an image". This config wraps `magic.detect_format`: when the stock check fails it scans backwards in 64 KB chunks for `FF D9`, while truncated downloads are still rejected. |

@@ -19,6 +19,7 @@ return {
         "c",
         "cpp",
         "go",
+        "html",
         "java",
         "javascript",
         "json",

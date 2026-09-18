@@ -48,7 +48,7 @@ nvim
 |---|---|
 | Kitty `>= 0.28` | image.nvim 的 Kitty Graphics Protocol 后端 |
 | ImageMagick | 图片读取、缩放和裁剪；配置使用 `magick_cli` processor |
-| curl | 下载 Markdown 中的远程图片 |
+| curl | 下载 Markdown 中的远程图片；leetcode.nvim 的全部 API 请求 |
 | `fcitx5-remote` | 普通模式与插入模式间自动切换输入法 |
 | `wl-copy` 或 `xclip` | 系统剪贴板集成 |
 | LazyGit | `<leader>gg` Git 界面 |
@@ -78,6 +78,7 @@ nvim
     │   ├── syntax.lua          # Treesitter parsers
     │   ├── markdown.lua        # render-markdown、image.nvim
     │   ├── java.lua            # nvim-jdtls（eclipse.jdt.ls）
+    │   ├── leetcode.lua        # leetcode.nvim（leetcode.cn 刷题面板）
     │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
     └── snippets/
         └── markdown.lua        # Markdown 专用 TeX 公式与 callout 片段
@@ -116,6 +117,9 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP server 配置来源 | 按需 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 外部语言服务器管理 | LSP 依赖 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Mason 与 Neovim LSP 对接 | LSP 依赖 |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | leetcode.cn 刷题面板：浏览、运行、提交题目 | `:Leet` 时加载 |
+| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | leetcode.nvim 的路径与 curl 工具库 | leetcode.nvim 依赖 |
+| [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim 的弹窗/布局/输入框组件 | leetcode.nvim 依赖 |
 
 ## 主题与光标动画
 
@@ -581,6 +585,29 @@ Mason 确保以下服务器已安装并由 Neovim 0.12 原生接口启用：
 
 Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim runtime library。支持 completion 的 server 会自动启用 Neovim 原生补全。
 
+## 刷题（leetcode.nvim）
+
+`lua/plugins/leetcode.lua` 把 leetcode.nvim 指向国内站点，只在执行 `:Leet` 时加载。
+
+| 配置 | 值 | 效果 |
+|---|---|---|
+| `lang` | `java` | 新题目默认用 Java 模板打开 |
+| `cn.enabled` | `true` | 使用 `leetcode.cn` 而不是 `leetcode.com` |
+| `cn.translator` | `true` | 插件自身界面文案显示为中文 |
+| `cn.translate_problems` | `true` | 题目标题与描述使用中文 |
+
+`picker.provider` 保持未设置，由插件自行解析第一个可用 provider（顺序为
+snacks-picker、fzf-lua、telescope、mini-picker）；本配置已有 Snacks，因此不再安装第二个
+picker。
+
+`lua/plugins/syntax.lua` 额外安装了 `html` 解析器：存在 `parser/html.so` 时
+leetcode.nvim 用它格式化题目描述，否则退回纯文本。
+
+登录由 `:Leet cookie update` 完成：把浏览器请求头里的 `Cookie` 粘进输入框，插件写到
+`~/.cache/nvim/leetcode/cookie_cn`。本配置不保存任何 Cookie，该缓存目录也不入快照。
+
+`cn.enabled` 决定缓存文件名：关闭时同一输入框写的是 `cookie`，而两个站点的会话不通用。
+
 ## 管理命令
 
 | 命令 | 作用 |
@@ -593,6 +620,11 @@ Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim ru
 | `:ImageReport` | 输出 image.nvim 环境、后端与图片状态 |
 | `:SmearCursorToggle` | 切换终端光标动画 |
 | `:VimBeGood` | 启动 Vim 操作训练 |
+| `:Leet` | 打开 leetcode.cn 刷题面板 |
+| `:Leet list`、`:Leet daily` | 选题 / 每日一题 |
+| `:Leet run`、`:Leet submit` | 运行 / 提交当前题目 |
+| `:Leet cookie update` | 输入或更新 LeetCode Cookie |
+| `:Leet cache update` | 更新本地题库缓存 |
 | `:checkhealth` | 检查 Neovim 环境 |
 
 ## 修改指南
@@ -608,6 +640,7 @@ Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim ru
 | 增删数学 snippets | `lua/snippets/markdown.lua` |
 | 修改 parser 列表 | `lua/plugins/syntax.lua` |
 | 修改 LSP server | `lua/plugins/lsp.lua` |
+| 修改刷题语言或站点 | `lua/plugins/leetcode.lua` |
 
 纯 Lua 改动可重启 Neovim，或执行：
 
