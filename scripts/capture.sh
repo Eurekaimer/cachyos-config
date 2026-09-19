@@ -137,7 +137,7 @@ rm -f -- "$config_root/home/.config/koreader/settings/lookup_history.lua"
 # book they came from, exactly the recent-file class of runtime state.
 rm -f -- "$config_root/home/.config/koreader/settings/wikipedia_history.lua"
 find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
-    ! -name scrollstep.koplugin -exec rm -rf -- {} +
+    ! -name vimkeys.koplugin -exec rm -rf -- {} +
 rm -f -- "$config_root/home/.config/koreader/scripts"/*
 rm -f -- "$config_root/home/.config/koreader/styletweaks"/*
 rm -f -- "$config_root/home/.config/koreader/settings"/*.sqlite3

@@ -413,3 +413,80 @@ output "eDP-1" {
 - **同步**：实时 `~/.config/nvim` 与仓库快照逐字节一致（`diff -rq` 无输出）；
   `./scripts/audit.sh` 通过。
 - **待办**：无。用户自行执行 `:Leet` 并粘贴 Cookie。
+
+## 19. Second-machine (komarilover) reconciliation and bidirectional sync (2026-09-19)
+
+- **Scope**: the snapshot in this repository was captured from host `komari`
+  (kernel 7.2.4-cachyos, fstab UUIDs `3c68adfc-…`/`5ED2-98F6`). This round ran on
+  host `komarilover` (kernel 6.18.48-1-cachyos-lts, fstab UUIDs
+  `10edd8c2-…`/`0089-9373`), so every comparison below is cross-machine.
+- **Neovim was behind, not divergent**: live `~/.config/nvim` was byte-identical
+  to commit `615ffb1` (2026-09-12) — a strict ancestor of HEAD — and contained no
+  unique content. Repo → live was the only direction. Synced but repo-ahead.
+  - Missing on the machine: `lua/plugins/leetcode.lua` (with `plenary.nvim`,
+    `nui.nvim`), `lua/config/statusline.lua`, the `markdown.lua` image/downloader
+    and callout-completion fixes, `html` treesitter parser, the `vim.hl.on_yank`
+    rename, the merged n/v clang-format mapping, the sha256 Java workspace key,
+    and the `.class`/`target` explorer include.
+  - `Lazy! sync` bumped six plugins past the repository pins, so `Lazy! restore`
+    was run afterwards with the committed `lazy-lock.json` copied in first
+    (restoring from the already-overwritten live lock is a no-op).
+  - Verified: `require("leetcode.picker").provider == "snacks"`,
+    `config.statusline.chars_segment()` returns `  Chars:N`, jdtls + JDK 26 +
+    `html.so` present.
+- **Direction B (repo → live)**: `wechat.desktop` (the `XMODIFIERS=@im=fcitx`
+  candidate-panel fix), `starship.toml` (`$hostname` instead of a hardcoded
+  host), `niri/config.kdl` + `cfg/gaming-binds.kdl`, `.gitconfig` (`core.editor`),
+  `QtProject.conf` (history keys stripped), and removal of the inline Clash Verge
+  proxy blocks from `.zshrc`/`.bashrc`. Proxying now rests on Clash Verge's system
+  proxy (`gsettings org.gnome.system.proxy mode=manual`, `127.0.0.1:7897`) plus
+  `scripts/lib/proxy.sh` for repository scripts; verified `git ls-remote origin`
+  succeeds with every `*_proxy` variable unset.
+  - **Regression found and fixed**: copying the sanitized `configs/home/.gitconfig`
+    to `~/.gitconfig` removed `user.email` (capture strips it by design), which
+    broke committing. `git config --global user.email 2507983039@qq.com` restored
+    it; the snapshot keeps the email stripped.
+- **Direction A (live → repo)**, all decided by the user:
+  - `yazi.toml`: added the `chrome` opener — `text/html` and `*.{html,htm}` open in
+    a new Chrome window (`google-chrome-stable --new-window`). This is the
+    "default HTML handler" item. The prior `neovim-open` (`*.gitignore`) rule was
+    dropped from the live file and is not re-added by this merge.
+  - KOReader `2-pdf-scroll-guard.lua`: the committed version wrapped
+    `ReaderFooter.updateFooterChapterProgress`, which **does not exist** in the
+    installed koreader-bin 2026.07.1 (`grep` count 0) — the patch was dead code.
+    The machine's version wraps `setTocMarkers`, the surviving call site reaching
+    `document:getPosFromXPointer()` at `readerfooter.lua:2203`. Both `1-lxgw-fonts.lua`
+    and `2-pdf-scroll-guard.lua` are now byte-identical to the canonical
+    `Eurekaimer/koreader-keystream-config` repository.
+  - KOReader plugin rename: `plugins/scrollstep.koplugin` → `plugins/vimkeys.koplugin`
+    (module `VimKeys`, `InputContainer`, 35% scroll, TOC `Ctrl+J`/`Ctrl+K` paging).
+    The old name was stale; `install-koreader-keystream.sh` already referenced
+    `vimkeys.koplugin`, so the snapshot was internally inconsistent. `capture.sh`
+    was updated to keep `vimkeys.koplugin` and prune any other plugin, and both
+    koreader docs were updated (name, 30% → 35%, patch mechanism).
+- **Direction C (live → repo)**: `.omp/agent/config.yml` (`deepseek-v4.1-flash`,
+  `composer.shape=band`, `task.agentModelOverrides.scout`), `noctalia/settings.json`
+  (`nightLight.enabled=true`, wifi `grid`), `fcitx5/conf/notifications.conf`
+  (commented-out `HiddenNotifications`), `niri/cfg/misc.kdl` (`no_proxy` now
+  includes `api.github.com`, matching `scripts/lib/proxy.sh`), `dconf/user.ini`
+  (regenerated through the same filter as `capture.sh`), and `.config/micro/syntax`
+  (146 files, 664K) added to `manifests/home-paths.txt`.
+  - **Open concern — `micro/syntax`**: micro never writes syntax files itself
+    (`internal/config/rtfiles.go` only *reads* `ConfigDir/syntax/*.yaml`; it falls
+    back to assets embedded in the binary, which the installed 2.0.15 carries).
+    The 146 vendored files are third-party data that differ from every nearby
+    upstream tag and from the embedded set, so they *shadow* the newer built-in
+    syntax. Vendoring 664K of upstream data also runs against NOTES §6 (no
+    vendoring). Kept because the instruction was "live wins"; recommend dropping
+    it and deleting `~/.config/micro/syntax` unless local edits are wanted.
+- **Not synced (machine-specific, by design)**: `etc/fstab`/`etc/hostname`
+  (hardware layer), `mkinitcpio.conf`, `ufw/user*.rules`, `pacman.d/mirrorlist`,
+  the eDP-1 scale in niri `display.kdl`, `packages/*` (this host's explicit
+  packages, AUR set and enabled units differ substantially — e.g. the snapshot
+  lists alacritty/clash-verge-rev-bin/feishu-bin/firefox/google-chrome while this
+  host has bat/dosbox/eza plus `waydroid-container`, `niri-cs2-capslock-guard`,
+  `wd-venus`), and the `.zshrc` API key placeholder.
+- **Verification**: `./scripts/audit.sh` passes; `diff -r` reports live
+  `~/.config/nvim` and `~/.config/yazi/yazi.toml` identical to the snapshot;
+  patch syntax checked with `luajit -bl`.
+- **Todo**: decide the fate of the vendored `micro/syntax` (see concern above).

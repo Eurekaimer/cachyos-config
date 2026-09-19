@@ -28,6 +28,7 @@
 .config/fontconfig
 .config/micro/settings.json
 .config/micro/colorschemes
+.config/micro/syntax
 .config/nvim
 .config/yazi
 .config/Thunar/uca.xml

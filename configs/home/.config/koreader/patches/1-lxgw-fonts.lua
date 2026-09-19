@@ -1,4 +1,5 @@
--- Use the desktop's ttf-lxgw-wenkai package for KOReader UI and documents.
+-- Use the desktop's LXGW WenKai package for KOReader UI and documents.
+-- Adjust these filenames when your OS packages the font elsewhere.
 local font_dir = "/usr/share/fonts/TTF/"
 local regular = "LXGWWenKai-Regular.ttf"
 local medium = "LXGWWenKai-Medium.ttf"
@@ -53,8 +54,8 @@ local function configureUiFonts(Font)
     require("logger").info("LXGW font patch applied")
 end
 
--- Run before UI construction: defer loading ui/font until reader settings exist,
--- then replace its role map before any widgets request faces.
+-- KOReader runs 1-* user patches very early on each start. Defer ui/font so
+-- the role map is replaced before widgets request their first font face.
 local loaded_font = package.loaded["ui/font"]
 if loaded_font then
     configureSettings()

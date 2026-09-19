@@ -95,10 +95,16 @@ issue/PR 材料（见 `~/Projects/koreader-issue.md`）；上游合并该守卫�
 
 **配置层双保险**：快照还带有同语义的用户补丁
 `patches/2-pdf-scroll-guard.lua`（KOReader 官方 user patch 机制，启动时自动
-执行）：文档引擎缺少 `getPosFromXPointer`（即 PDF）时强制走基于页数的进度
-分支，其余文档不受影响。它不依赖改 `/usr/lib`，因此 `koreader-bin` 升级后
-依然生效；与 `patch-koreader-desktop.sh` 任一先命中即可。已用 KOReader 自带
-luajit 对 PDF/CRE × scroll/page 四种组合做了 mock 验证。
+执行）：它包裹 `ReaderFooter:setTocMarkers`——即 2026.07.1 中滚动模式下为
+目录刻度调用 `document:getPosFromXPointer()` 的位置（`readerfooter.lua:2203`）
+——对非 `ui.rolling` 文档（即 PDF）强制 `view_mode = "page"`。判断条件用
+`not self.ui.rolling` 而不是探测 `getPosFromXPointer`。`setTocMarkers` 不只
+在首次构建进度条时调用：菜单回调、`readertoc`、`pagebrowserwidget` 都会调
+它；而 2026.07.1 中根本没有 `updateFooterChapterProgress`（本补丁修复前所挂
+的方法），`setTocMarkers` 是同一崩溃残留的唯一路径。其余文档不受影响。它不依赖改 `/usr/lib`，
+因此 `koreader-bin` 升级后依然生效；与 `patch-koreader-desktop.sh` 任一先
+命中即可。已用 KOReader 自带 luajit 对 PDF/CRE × scroll/page 四种组合做了
+mock 验证。
 
 ## 快照边界
 
@@ -114,7 +120,7 @@ luajit 对 PDF/CRE × scroll/page 四种组合做了 mock 验证。
   与 `history.lua` 的文件名泄露理由一致。
 
 `capture.sh` 拷贝后会对上述全部做剪枝；`audit.sh` 会拒绝这些路径在快照中
-重新出现。`plugins/` 发布本快照的 `scrollstep.koplugin`（阅读器 30% 滚动、
+重新出现。`plugins/` 发布本快照的 `vimkeys.koplugin`（阅读器 35% 滚动、
 历史记录与目录翻页，以及历史记录/文件浏览器返回键）。`patches/` 发布
 `1-lxgw-fonts.lua`，将已安装的霞鹜文楷用于 KOReader 界面角色、可重排文档
 默认与回退字体、页眉、页脚和等宽文本；找不到字体文件时补丁直接退出，
@@ -146,8 +152,8 @@ PDF 不受此默认值影响：它们始终以翻页模式打开。该默认值�
 ## 快捷键速查
 
 下表是带键盘设备上 KOReader 的出厂默认绑定，另加本快照的覆盖（标注
-「本方案」）：`settings/hotkeys.lua` 的按键绑定，以及 `scrollstep.koplugin`：
-`Ctrl+J`/`Ctrl+K` 在阅读器滚动 30%，在历史记录与目录内翻页；`f` 从历史记录
+「本方案」）：`settings/hotkeys.lua` 的按键绑定，以及 `vimkeys.koplugin`：
+`Ctrl+J`/`Ctrl+K` 在阅读器滚动 35%，在历史记录与目录内翻页；`f` 从历史记录
 直接回文件浏览器。Vim/Sioyek 风格：`j`/`k` 小幅滚动、`h` 历史记录、`f`
 文件浏览器、`m` 上方主菜单、`p` 富信息状态栏开关、`q` 退出；章节跳转用
 `t`（目录）。
@@ -156,8 +162,8 @@ PDF 不受此默认值影响：它们始终以翻页模式打开。该默认值�
 | --- | --- |
 | `j`（本方案） | 向下滚动（小幅） |
 | `k`（本方案） | 向上滚动（小幅） |
-| `Ctrl+J`（本方案） | 向下滚动约 30% 屏幕（滚动模式）；翻页模式/PDF 下翻一页；历史记录或目录下一页 |
-| `Ctrl+K`（本方案） | 向上滚动约 30% 屏幕（滚动模式）；翻页模式/PDF 上翻一页；历史记录或目录上一页 |
+| `Ctrl+J`（本方案） | 向下滚动约 35% 屏幕（滚动模式）；翻页模式/PDF 下翻一页；历史记录或目录下一页 |
+| `Ctrl+K`（本方案） | 向上滚动约 35% 屏幕（滚动模式）；翻页模式/PDF 上翻一页；历史记录或目录上一页 |
 | `h`（本方案） | 历史记录——阅读器与文件管理器均可用 |
 | `f`（本方案） | 文件浏览器（从阅读器或已打开的历史记录关闭当前书并返回） |
 | `m`（本方案） | 打开阅读器上方主菜单 |
@@ -193,7 +199,7 @@ Esc 导航仍然可用。
 ### 桌面版无法绑定的键
 
 - `Shift+J` / `Shift+K` 不存在：快捷键插件只把 Shift 与光标/翻页/导航键
-  配对；本桌面版字母修饰键是 `Ctrl`，所以 `Ctrl+J` / `Ctrl+K` 承载 30% 滚动。
+  配对；本桌面版字母修饰键是 `Ctrl`，所以 `Ctrl+J` / `Ctrl+K` 承载 35% 滚动。
 - `Tab` 在 KOReader 里不可绑定；「上一个文档」已有 `Shift+Back` 覆盖。
 - `Space` 无需绑定：翻页模式（PDF）即下一页。
 

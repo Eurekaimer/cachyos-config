@@ -6,13 +6,21 @@
 # placeholders are %s1 (first file) / %s (spread), not the deprecated $@.
 [open]
 prepend_rules = [
-  { use = "neovim-open", url = "*.gitignore" },
+  { use = "chrome", mime = "text/html" },
+  { use = "chrome", url = "*.{html,htm}" },
   { use = "sioyek-new", mime = "application/pdf" },
   { use = "markdown-open", mime = "text/{markdown,x-markdown}" },
   { use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
 ]
 
 [opener]
+  # Enter on a lesson/reference .html opens it in Chrome. A bare `xdg-open`
+  # routes through google-chrome.desktop, which reuses an existing session and
+  # can look like a no-op; --new-window makes each Enter visibly do something.
+chrome = [
+  { run = 'google-chrome-stable --new-window %s1', desc = "Open in Chrome (new window)", orphan = true },
+]
+
   # Use the wrapper directly: apps spawned by niri (Super+Y) inherit a PATH
   # without ~/.local/bin and would find the unwrapped /usr/bin/sioyek, whose
   # native Wayland path fails to present its first frame under Qt 6.11 + niri.
@@ -23,8 +31,4 @@ sioyek-new = [
 # Use the Markdown launcher even when a .md file is detected as text/plain.
 markdown-open = [
   { run = 'gtk-launch neovim-markdown %s', desc = "Open Markdown in Neovim (new window)", orphan = true },
-]
-
-neovim-open = [
-  { run = 'kitty --title Neovim nvim -- %s', desc = "Open in Neovim (new window)", orphan = true },
 ]

@@ -102,10 +102,16 @@ default. The bug is documented for upstream in `~/Projects/koreader-issue.md`
 
 **Config-layer belt-and-suspenders**: the snapshot also ships the same-semantics
 user patch `patches/2-pdf-scroll-guard.lua` (KOReader's user-patch mechanism,
-auto-run at startup): when a document engine lacks `getPosFromXPointer`
-(any PDF), it forces the page-based progress branch; all other documents are
-unaffected. It does not touch `/usr/lib`, so it survives koreader-bin upgrades;
-either the shell script or this patch being present suffices. Verified with
+auto-run at startup): it wraps `ReaderFooter:setTocMarkers` — the call site that
+runs `document:getPosFromXPointer()` for TOC ticks in scroll mode
+(`readerfooter.lua:2203` in 2026.07.1) — and forces `view_mode = "page"` for
+documents that are not `ui.rolling`. `setTocMarkers` is invoked from menu
+callbacks and from `readertoc`/`pagebrowserwidget`, not only from the initial
+progress-bar build, and KOReader 2026.07.1 has no
+`updateFooterChapterProgress` at all (the method this patch guarded before the
+fix); `setTocMarkers` is the surviving path to the same crash. All other
+documents are unaffected. It does not touch `/usr/lib`, so it survives
+koreader-bin upgrades; either the shell script or this patch being present suffices. Verified with
 KOReader's own luajit against the four PDF/CRE x scroll/page combinations.
 
 ## Snapshot boundary
@@ -123,7 +129,7 @@ cloud storage, profiles, wallabag). Two runtime layers are never published:
 
 `capture.sh` prunes all of the above after copying; `audit.sh` rejects those
 paths if they reappear in the snapshot. `plugins/` publishes this snapshot’s
-`scrollstep.koplugin` (30% reader scrolling, History and TOC paging, and
+`vimkeys.koplugin` (35% reader scrolling, History and TOC paging, and
 History/File Browser return keys). `patches/` publishes `1-lxgw-fonts.lua`,
 which selects the installed LXGW WenKai family for KOReader UI roles,
 reflowable document defaults/fallbacks, headers, footers, and monospace text.
@@ -159,8 +165,8 @@ progress bar keeps working.
 
 The bindings below are KOReader’s factory defaults for a device with a
 keyboard, plus this snapshot’s overrides (marked “this snapshot”): the
-hotkeys in `settings/hotkeys.lua`, plus `scrollstep.koplugin`: `Ctrl+J` /
-`Ctrl+K` scroll 30% in the reader and page the History/TOC lists; `f` returns
+hotkeys in `settings/hotkeys.lua`, plus `vimkeys.koplugin`: `Ctrl+J` /
+`Ctrl+K` scroll 35% in the reader and page the History/TOC lists; `f` returns
 from History to the File Browser. Vim/Sioyek-style: `j`/`k` small-scroll, `h`
 History, `f` File Browser, `m` top menu, `p` rich status bar toggle, `q` quit;
 chapters via `t` (TOC).
@@ -169,8 +175,8 @@ chapters via `t` (TOC).
 | --- | --- |
 | `j` (this snapshot) | Scroll down (small step) |
 | `k` (this snapshot) | Scroll up (small step) |
-| `Ctrl+J` (this snapshot) | Scroll down 30% of the screen (scroll mode); page turn in page mode / PDFs; next History or TOC page |
-| `Ctrl+K` (this snapshot) | Scroll up 30% of the screen (scroll mode); page turn in page mode / PDFs; previous History or TOC page |
+| `Ctrl+J` (this snapshot) | Scroll down 35% of the screen (scroll mode); page turn in page mode / PDFs; next History or TOC page |
+| `Ctrl+K` (this snapshot) | Scroll up 35% of the screen (scroll mode); page turn in page mode / PDFs; previous History or TOC page |
 | `h` (this snapshot) | History — recent files, in both the reader and File Manager |
 | `f` (this snapshot) | File Browser (closes the book from the reader or its open History view) |
 | `m` (this snapshot) | Open the top reader menu |
@@ -208,7 +214,7 @@ unavailable values are omitted.
 
 - `Shift+J` / `Shift+K` do not exist: the hotkey plugin only pairs Shift with
   the cursor / page / navigation keys; on this desktop the letter modifier is
-  `Ctrl`, so `Ctrl+J` / `Ctrl+K` carry the 30% scroll.
+  `Ctrl`, so `Ctrl+J` / `Ctrl+K` carry the 35% scroll.
 - `Tab` is not bindable in KOReader; `Shift+Back` already covers “previous
   document”.
 - `Space` needs no binding: it is next-page in page mode (PDFs).

@@ -1,15 +1,15 @@
 --[[--
-Adds Vim/Sioyek-style navigation to the reader and File Manager.
+Adds Vim/Sioyek-style keyboard navigation to KOReader desktop.
 
 Reader Ctrl+J/K pans 30% of the screen in scroll mode and turns one page in
 page mode/PDFs. History keeps per-book letter shortcuts except reserved `f`,
 adds Ctrl+J/K list paging, and uses `f` to return to the File Browser. The
 File Manager reserves `h` for opening History while keeping its other per-item
-letter shortcuts. The top reader menu supports j/k focus movement, h to go
-back, and l to select. Reader r opens the native custom-title editor for the
-current document.
+letter shortcuts. TOC also supports Ctrl+J/K list paging. The top reader menu
+supports j/k focus movement, h to go back, and l to select. Reader r opens the
+native custom-title editor for the current document.
 
-@module koplugin.ScrollStep
+@module koplugin.VimKeys
 --]]--
 
 local Device = require("device")
@@ -19,28 +19,28 @@ local Event = require("ui/event")
 local InputDialog = require("ui/widget/inputdialog")
 local InfoMessage = require("ui/widget/infomessage")
 local logger = require("logger")
-local WidgetContainer = require("ui/widget/container/widgetcontainer")
+local InputContainer = require("ui/widget/container/inputcontainer")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
-local STEP_FRACTION = 0.3
+local STEP_FRACTION = 0.35
 
-local ScrollStep = WidgetContainer:extend{
-    name = "scrollstep",
+local VimKeys = InputContainer:extend{
+    name = "vimkeys",
     is_doc_only = false,
 }
 
-function ScrollStep:onDispatcherRegisterActions()
+function VimKeys:onDispatcherRegisterActions()
     Dispatcher:registerAction("scroll_step_down", {
         category = "none",
         event = "ScrollStepDown",
-        title = _("Scroll down 30% of the screen"),
+        title = _("Scroll down 35% of the screen"),
         reader = true,
     })
     Dispatcher:registerAction("scroll_step_up", {
         category = "none",
         event = "ScrollStepUp",
-        title = _("Scroll up 30% of the screen"),
+        title = _("Scroll up 35% of the screen"),
         reader = true,
     })
     Dispatcher:registerAction("edit_book_title", {
@@ -61,7 +61,7 @@ local function withoutShortcut(shortcuts, reserved)
     return filtered
 end
 
-function ScrollStep:configureHistoryMenu(menu)
+function VimKeys:configureHistoryMenu(menu)
     if not menu then return end
 
     -- Keep History's per-book shortcuts, but reserve F for returning to the
@@ -69,26 +69,26 @@ function ScrollStep:configureHistoryMenu(menu)
     menu.item_shortcuts = withoutShortcut(menu.item_shortcuts, "F")
     menu.is_enable_shortcut = true
     menu.key_events.SelectByShortCut = { { menu.item_shortcuts } }
-    menu.key_events.ScrollStepHistoryNextPage = { { "Ctrl", "J" } }
-    menu.key_events.ScrollStepHistoryPrevPage = { { "Ctrl", "K" } }
-    menu.key_events.ScrollStepHistoryFileManager = {
+    menu.key_events.VimKeysHistoryNextPage = { { "Ctrl", "J" } }
+    menu.key_events.VimKeysHistoryPrevPage = { { "Ctrl", "K" } }
+    menu.key_events.VimKeysHistoryFileManager = {
         { "F" },
         { "Ctrl", "F" },
     }
 
-    menu.onScrollStepHistoryNextPage = function(history_menu)
-        logger.dbg("ScrollStep: paging History forward")
+    menu.onVimKeysHistoryNextPage = function(history_menu)
+        logger.dbg("VimKeys: paging History forward")
         history_menu:onNextPage()
         return true
     end
-    menu.onScrollStepHistoryPrevPage = function(history_menu)
-        logger.dbg("ScrollStep: paging History backward")
+    menu.onVimKeysHistoryPrevPage = function(history_menu)
+        logger.dbg("VimKeys: paging History backward")
         history_menu:onPrevPage()
         return true
     end
     local ui = self.ui
-    menu.onScrollStepHistoryFileManager = function(history_menu)
-        logger.dbg("ScrollStep: leaving History for File Browser")
+    menu.onVimKeysHistoryFileManager = function(history_menu)
+        logger.dbg("VimKeys: leaving History for File Browser")
         history_menu:onCloseAllMenus()
         if ui.document then
             ui:onHome()
@@ -98,71 +98,71 @@ function ScrollStep:configureHistoryMenu(menu)
     menu:updateItems()
 end
 
-function ScrollStep:configureFileManagerMenu(menu)
+function VimKeys:configureFileManagerMenu(menu)
     if not menu then return end
 
     -- Reserve H for History, retaining all other per-file letter shortcuts.
     menu.item_shortcuts = withoutShortcut(menu.item_shortcuts, "H")
     menu.key_events.SelectByShortCut = { { menu.item_shortcuts } }
-    menu.key_events.ScrollStepShowHistory = { { "H" } }
+    menu.key_events.VimKeysShowHistory = { { "H" } }
     local history = self.ui.history
-    menu.onScrollStepShowHistory = function()
-        logger.dbg("ScrollStep: opening History from File Manager")
+    menu.onVimKeysShowHistory = function()
+        logger.dbg("VimKeys: opening History from File Manager")
         history:onShowHist()
         return true
     end
     menu:updateItems()
 end
 
-function ScrollStep:configureTocMenu(menu)
+function VimKeys:configureTocMenu(menu)
     if not menu then return end
 
-    menu.key_events.ScrollStepTocNextPage = { { "Ctrl", "J" } }
-    menu.key_events.ScrollStepTocPrevPage = { { "Ctrl", "K" } }
-    menu.onScrollStepTocNextPage = function(toc_menu)
-        logger.dbg("ScrollStep: paging Table of Contents forward")
+    menu.key_events.VimKeysTocNextPage = { { "Ctrl", "J" } }
+    menu.key_events.VimKeysTocPrevPage = { { "Ctrl", "K" } }
+    menu.onVimKeysTocNextPage = function(toc_menu)
+        logger.dbg("VimKeys: paging Table of Contents forward")
         toc_menu:onNextPage()
         return true
     end
-    menu.onScrollStepTocPrevPage = function(toc_menu)
-        logger.dbg("ScrollStep: paging Table of Contents backward")
+    menu.onVimKeysTocPrevPage = function(toc_menu)
+        logger.dbg("VimKeys: paging Table of Contents backward")
         toc_menu:onPrevPage()
         return true
     end
 end
 
-function ScrollStep:configureReaderMenu(menu)
-    if not menu or not menu.onFocusMove or menu._scrollstep_vim_navigation then return end
+function VimKeys:configureReaderMenu(menu)
+    if not menu or not menu.onFocusMove or menu._vimkeys_navigation then return end
 
-    menu._scrollstep_vim_navigation = true
-    menu.key_events.ScrollStepMenuDown = { { "J" } }
-    menu.key_events.ScrollStepMenuUp = { { "K" } }
-    menu.key_events.ScrollStepMenuBack = { { "H" } }
-    menu.key_events.ScrollStepMenuSelect = { { "L" } }
-    menu.onScrollStepMenuDown = function(reader_menu)
+    menu._vimkeys_navigation = true
+    menu.key_events.VimKeysMenuDown = { { "J" } }
+    menu.key_events.VimKeysMenuUp = { { "K" } }
+    menu.key_events.VimKeysMenuBack = { { "H" } }
+    menu.key_events.VimKeysMenuSelect = { { "L" } }
+    menu.onVimKeysMenuDown = function(reader_menu)
         reader_menu:onFocusMove({ 0, 1 })
         return true
     end
-    menu.onScrollStepMenuUp = function(reader_menu)
+    menu.onVimKeysMenuUp = function(reader_menu)
         reader_menu:onFocusMove({ 0, -1 })
         return true
     end
-    menu.onScrollStepMenuBack = function(reader_menu)
+    menu.onVimKeysMenuBack = function(reader_menu)
         reader_menu:onBack()
         return true
     end
-    menu.onScrollStepMenuSelect = function(reader_menu)
+    menu.onVimKeysMenuSelect = function(reader_menu)
         reader_menu:onPress()
         return true
     end
 end
 
-function ScrollStep:installTocBindings()
+function VimKeys:installTocBindings()
     local toc = self.ui and self.ui.toc
-    if not toc or toc._scrollstep_original_onShowToc then return end
+    if not toc or toc._vimkeys_original_onShowToc then return end
 
     local original_onShowToc = toc.onShowToc
-    toc._scrollstep_original_onShowToc = original_onShowToc
+    toc._vimkeys_original_onShowToc = original_onShowToc
     toc.onShowToc = function(toc_module, ...)
         local result = original_onShowToc(toc_module, ...)
         self:configureTocMenu(toc_module.toc_menu)
@@ -171,12 +171,12 @@ function ScrollStep:installTocBindings()
     self:configureTocMenu(toc.toc_menu)
 end
 
-function ScrollStep:installReaderMenuBindings()
+function VimKeys:installReaderMenuBindings()
     local reader_menu = self.ui and self.ui.menu
-    if not reader_menu or reader_menu._scrollstep_original_onShowMenu then return end
+    if not reader_menu or reader_menu._vimkeys_original_onShowMenu then return end
 
     local original_onShowMenu = reader_menu.onShowMenu
-    reader_menu._scrollstep_original_onShowMenu = original_onShowMenu
+    reader_menu._vimkeys_original_onShowMenu = original_onShowMenu
     reader_menu.onShowMenu = function(menu_module, ...)
         local result = original_onShowMenu(menu_module, ...)
         self:configureReaderMenu(menu_module.menu_container and menu_module.menu_container[1])
@@ -184,12 +184,12 @@ function ScrollStep:installReaderMenuBindings()
     end
 end
 
-function ScrollStep:installHistoryBindings()
+function VimKeys:installHistoryBindings()
     local history = self.ui and self.ui.history
-    if not history or history._scrollstep_original_onShowHist then return end
+    if not history or history._vimkeys_original_onShowHist then return end
 
     local original_onShowHist = history.onShowHist
-    history._scrollstep_original_onShowHist = original_onShowHist
+    history._vimkeys_original_onShowHist = original_onShowHist
     history.onShowHist = function(history_module, ...)
         local result = original_onShowHist(history_module, ...)
         self:configureHistoryMenu(history_module.booklist_menu)
@@ -200,9 +200,12 @@ function ScrollStep:installHistoryBindings()
     self:configureHistoryMenu(history.booklist_menu)
 end
 
-function ScrollStep:init()
+function VimKeys:init()
     self:installHistoryBindings()
     if self.ui.document then
+        self.key_events = {
+            VimKeysSpaceScrollDown = { { " " } },
+        }
         self:installTocBindings()
         self:installReaderMenuBindings()
         self:onDispatcherRegisterActions()
@@ -241,7 +244,7 @@ local function saveCustomTitle(ui, title)
     }))
 end
 
-function ScrollStep:onEditBookTitle()
+function VimKeys:onEditBookTitle()
     local ui = self.ui
     if not ui or not ui.document or not ui.doc_settings or not ui.doc_props then return end
 
@@ -255,7 +258,7 @@ function ScrollStep:onEditBookTitle()
         if not title or title == "" then return true end
         local ok, err = pcall(saveCustomTitle, ui, title)
         if not ok then
-            logger.err("ScrollStep: failed to save custom book title:", err)
+            logger.err("VimKeys: failed to save custom book title:", err)
             UIManager:show(InfoMessage:new{
                 text = _("Failed to save custom book title."),
             })
@@ -370,7 +373,7 @@ function ScrollStep:onEditBookTitle()
     return true
 end
 
-function ScrollStep:scrollStep(direction)
+function VimKeys:scrollStep(direction)
     local ui = self.ui
     if not ui then return end
     if ui.rolling then
@@ -384,15 +387,18 @@ function ScrollStep:scrollStep(direction)
     end
 end
 
--- Dispatcher path (bare reader): used by the hotkeys bindings.
-function ScrollStep:onScrollStepDown()
+function VimKeys:onScrollStepDown()
     self:scrollStep(1)
     return true
 end
+function VimKeys:onVimKeysSpaceScrollDown()
+    return self:onScrollStepDown()
+end
 
-function ScrollStep:onScrollStepUp()
+
+function VimKeys:onScrollStepUp()
     self:scrollStep(-1)
     return true
 end
 
-return ScrollStep
+return VimKeys

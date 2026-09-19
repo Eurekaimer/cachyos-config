@@ -28,8 +28,8 @@
     HTTPS_PROXY "http://127.0.0.1:7897"
     ALL_PROXY "socks5h://127.0.0.1:7897"
 
-    no_proxy "localhost,127.0.0.1,::1,.local"
-    NO_PROXY "localhost,127.0.0.1,::1,.local"
+    no_proxy "localhost,127.0.0.1,::1,.local,api.github.com"
+    NO_PROXY "localhost,127.0.0.1,::1,.local,api.github.com"
     }
     
     cursor {

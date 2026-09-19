@@ -36,6 +36,27 @@ Markdown MIME 类型和 `*.{md,markdown,mdown,mkd}` 路径使用
 路径规则覆盖被识别为 `text/plain` 的 Markdown；不经 `xdg-open`，避免落到
 普通文本默认程序 Kate。其他文本文件的默认程序保持不变。
 
+## HTML 用 Chrome 打开
+
+`text/html` 与 `*.{html,htm}` 走专用的 `chrome` opener：
+
+```toml
+[open]
+prepend_rules = [
+  { use = "chrome", mime = "text/html" },
+  { use = "chrome", url = "*.{html,htm}" },
+]
+
+[opener]
+chrome = [
+  { run = 'google-chrome-stable --new-window %s1', desc = "Open in Chrome (new window)", orphan = true },
+]
+```
+
+对课件/参考资料的 `.html` 按回车即开一个新 Chrome 窗口。裸 `xdg-open` 会走
+`google-chrome.desktop`，它复用已有会话，看起来像没反应；`--new-window` 让每次
+回车都有可见结果。MIME 规则同时覆盖被识别为 `text/plain` 的 HTML。
+
 ## 更新后 Sioyek 缺少共享库
 
 2026-09-07，`libmupdf` 从 1.28.0 升到 1.28.3 后，原有 AUR

@@ -52,6 +52,28 @@ Restart Yazi after changing its configuration. The path rule also covers
 Markdown detected as `text/plain`; bypassing `xdg-open` avoids opening it in
 Kate. Other plain-text associations are unchanged.
 
+## HTML opens in Chrome
+
+`text/html` and `*.{html,htm}` use a dedicated `chrome` opener:
+
+```toml
+[open]
+prepend_rules = [
+  { use = "chrome", mime = "text/html" },
+  { use = "chrome", url = "*.{html,htm}" },
+]
+
+[opener]
+chrome = [
+  { run = 'google-chrome-stable --new-window %s1', desc = "Open in Chrome (new window)", orphan = true },
+]
+```
+
+Enter on a lesson or reference `.html` opens a new Chrome window. A bare
+`xdg-open` routes through `google-chrome.desktop`, which reuses an existing
+session and can look like a no-op; `--new-window` makes each Enter visibly do
+something. The MIME rule also covers HTML detected as `text/plain`.
+
 ## Missing Sioyek libraries after an upgrade
 
 On 2026-09-07, upgrading `libmupdf` from 1.28.0 to 1.28.3 left the locally
