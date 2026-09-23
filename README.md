@@ -88,6 +88,7 @@ for the current user at restore time.
 ### Core workflows
 
 + [Capture and snapshot maintenance](docs/en/capture.md) · [中文](docs/zh-CN/capture.md)
++ [Timewarrior configuration and totals sync](docs/en/capture.md#timewarrior-timew-including-totals)
 + [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
 
 ### Components

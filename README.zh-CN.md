@@ -82,6 +82,7 @@ sudo reboot
 ### 核心流程
 
 + [采集与快照维护](docs/zh-CN/capture.md) · [English](docs/en/capture.md)
++ [Timewarrior 配置与 totals 扩展同步](docs/zh-CN/capture.md#timewarriortimew含-totals-扩展)
 + [恢复流程](docs/zh-CN/recovery.md) · [English](docs/en/recovery.md)
 
 ### 组件

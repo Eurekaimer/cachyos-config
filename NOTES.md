@@ -3,6 +3,18 @@
 本次在新机器上执行恢复时遇到的问题、手动补救措施、以及对脚本一键化（one-shot）的差距清单。
 目标：后续把下列事项修进仓库脚本，使 `scripts/restore-all.sh` 真正做到一键可复现。
 
+## 2026-09-23：Timewarrior 配置与 totals 扩展同步
+
+- 新增 home manifest 条目：`.config/timewarrior/timewarrior.cfg`、
+  `.config/timewarrior/extensions/totals.py`，已从当前机器采集；保留扩展可执行权限与许可证。
+- 新增 `scripts/sync-timewarrior.sh --capture|--restore [--dry-run]`，复用现有恢复备份逻辑；
+  全量采集与恢复仍通过原 home manifest 工作。`required-extra.txt` 补齐 `timew`、`python`。
+- 只同步配置与扩展，不提交计时数据；审计新增 Timewarrior 运行数据路径检查。
+  中英文采集文档及 README 索引已更新。
+- 验证：隔离 HOME 中完成 dry-run、恢复与旧配置备份检查，确认数据及其他扩展未改动；
+  实际运行 `timew track` 后，`timew totals` 正确输出测试标签的 `1:30:00`。
+  `scripts/audit.sh` 通过，临时验证目录已自动清理；未改动本机计时记录，未执行 Git 提交或推送。
+
 ## 1. 脚本无法一步到位的点（需要改仓库）
 
 ### 1.1 `packages/pacman-explicit.txt` 缺少 noctalia 相关包

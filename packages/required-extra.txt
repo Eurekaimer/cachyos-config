@@ -4,4 +4,6 @@ curl
 jq
 fd
 npm
+python
+timew
 tree-sitter-cli

@@ -31,6 +31,9 @@ if find "$REPO_ROOT/configs" -path '*/.omp/*' ! -type d \
 fi
 
 for runtime_path in \
+    configs/home/.timewarrior \
+    configs/home/.local/share/timewarrior \
+    configs/home/.config/timewarrior/data \
     configs/home/.config/mpv/cache \
     configs/home/.config/mpv/memo-history.log \
     configs/home/.config/koreader/cache \

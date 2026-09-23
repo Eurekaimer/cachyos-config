@@ -30,3 +30,43 @@ Before the snapshot is considered publishable, capture strips credentials and ru
 Expected missing paths are reported as warnings. Readable system files are copied directly; protected files are copied through `sudo`, and unreadable ones without `sudo` access are reported as warnings and skipped. After capture, inspect `configs/`, `packages/`, and `state/`, then require a clean audit before publishing. The capture never reads or writes disk UUIDs, `/etc/machine-id`, `/etc/fstab`, or `/etc/hostname`; the last two are handled by the separate hardware layer only.
 
 Do not edit generated package lists or state files by hand. Add a new managed path to the appropriate manifest, capture again, and verify the result.
+
+## Timewarrior (timew, including totals)
+
+The home manifest manages `~/.config/timewarrior/timewarrior.cfg` and
+`~/.config/timewarrior/extensions/totals.py`, preserving the extension's executable
+permission and upstream license. The configuration enables summary IDs and
+annotations; `totals` reports time by tag. Regular `capture.sh`, `restore-user.sh`,
+and `restore-all.sh` include these files. `packages/required-extra.txt` declares
+the `timew` and `python` dependencies.
+
+To sync only Timewarrior, run from the repository root as the desktop user:
+
+```bash
+./scripts/sync-timewarrior.sh --capture           # local configuration → repository
+./scripts/audit.sh
+# Review changes, then git add / commit / push yourself.
+
+# After pulling the repository on another machine:
+sudo pacman -S --needed timew python
+./scripts/sync-timewarrior.sh --restore --dry-run # preview
+./scripts/sync-timewarrior.sh --restore           # repository → home, with backup
+timew extensions
+timew totals :week
+timew totals :month
+```
+
+Both targeted and full restoration default to backing up existing files under
+`~/.local/state/cachyos-config/backups/<timestamp>/home/`.
+The targeted script does not install packages, commit/push Git changes, or refresh
+unrelated configuration or package lists. It uses the standard
+`~/.config/timewarrior` layout; custom XDG paths or legacy `TIMEWARRIORDB` layouts
+require migration first and are not automatically converted.
+
+Timing records, tags, annotations, undo history, and locks are private runtime
+data. `~/.local/share/timewarrior/`, legacy `~/.timewarrior/`, and `data/` under the
+configuration directory are not captured; the audit rejects those paths.
+Restoration replaces only the two managed files, leaving timing data and other
+extensions untouched. Back up timing data separately through a private channel.
+For intervals with multiple tags, `totals` counts the interval once per tag, so
+the grand total can exceed elapsed time.

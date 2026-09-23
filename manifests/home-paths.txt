@@ -31,6 +31,8 @@
 .config/micro/syntax
 .config/nvim
 .config/yazi
+.config/timewarrior/timewarrior.cfg
+.config/timewarrior/extensions/totals.py
 .config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .local/share/applications/neovim-markdown.desktop
