@@ -4,6 +4,11 @@
 
 This is a public recovery snapshot, not a secrets backup. The capture excludes passwords, SSH/GPG keys, cloud credentials, browser profiles, cookies, Clash profiles and subscriptions, NetworkManager connections, logs, caches, and `.omp` runtime state.
 
+The sole Clash exception is the credential-free global `profiles/Script.js`
+under `.local/share/io.github.clash-verge-rev.clash-verge-rev/`. Only this exact
+file is allowlisted for capture and restore; subscriptions, nodes, generated
+YAML, application settings and runtime state remain excluded.
+
 Before publishing any refresh:
 
 ```bash

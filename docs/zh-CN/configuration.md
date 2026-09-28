@@ -113,6 +113,18 @@
 | `packages/system-services.txt` | 已启用系统服务 |
 | `packages/user-services.txt` | 已启用用户服务 |
 
+### Clash Verge 国内直连
+
+托管文件
+`~/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js`
+是全局扩展脚本：B 站网页、视频、图片和 API 域名及 `GEOSITE,cn` 优先直连，
+缺少中国 IP 直连规则时补充兜底，保留订阅其余规则和海外节点选择。
+订阅更新不会覆盖该脚本，切换订阅也会应用。
+
+采集和恢复只管理这个文件，不覆盖整个 Clash 目录。恢复前退出 Clash Verge，
+恢复后重新打开应用以生成生效配置。须使用「规则模式」，「全局模式」会绕过这些规则。
+订阅和凭据需要单独恢复。
+
 ## 明确不进入公开仓库
 
 SSH/GPG 密钥、浏览器目录、Clash profiles、NetworkManager connections、

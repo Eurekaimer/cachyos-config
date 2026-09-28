@@ -4,6 +4,10 @@
 
 本仓库是公开的恢复快照，不是密钥备份。采集明确排除密码、SSH/GPG 私钥、云凭据、浏览器资料、Cookie、Clash 配置与订阅、NetworkManager 连接、日志、缓存和 `.omp` 运行状态。
 
+Clash 唯一例外是 `.local/share/io.github.clash-verge-rev.clash-verge-rev/`
+下无凭据的全局 `profiles/Script.js`。采集和恢复清单只允许这个精确文件；
+订阅、节点、生成的 YAML、应用设置和运行状态仍不入库。
+
 每次发布前必须执行：
 
 ```bash

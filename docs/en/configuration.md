@@ -117,6 +117,20 @@ The first column is the actual manifest path and is sorted alphabetically.
 | `packages/system-services.txt` | Enabled system services |
 | `packages/user-services.txt` | Enabled user services |
 
+### Clash Verge domestic routing
+
+The managed file
+`~/.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js`
+is the global extension script. It routes Bilibili web/video/image/API domains
+and `GEOSITE,cn` directly, adds a China-IP fallback if absent, and preserves
+the subscription's remaining rules and overseas node selection.
+It survives subscription refreshes and applies across profiles.
+
+Capture and restore manage only this file, not the surrounding Clash directory.
+Exit Clash Verge before restoring it, then reopen the application to regenerate
+the effective configuration. Use Rule mode; Global mode bypasses these rules.
+Subscriptions and credentials must be restored separately.
+
 ## Excluded from the public repository
 
 SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections,

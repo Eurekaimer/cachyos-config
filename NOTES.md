@@ -502,3 +502,19 @@ output "eDP-1" {
   `~/.config/nvim` and `~/.config/yazi/yazi.toml` identical to the snapshot;
   patch syntax checked with `luajit -bl`.
 - **Todo**: decide the fate of the vendored `micro/syntax` (see concern above).
+
+## 20. Clash Verge domestic direct routing (2026-09-28)
+
+- Synced the credential-free global `profiles/Script.js` into the home snapshot
+  and exact-file capture/restore manifest. Bilibili domains and `GEOSITE,cn`
+  route directly; a missing China-IP fallback is inserted before the catch-all.
+  Subscription rules and overseas node selection are otherwise preserved.
+- Kept subscriptions, node credentials, generated YAML and runtime state out of
+  the repository. The audit permits only the exact global script path.
+- Restore with Clash Verge closed, then reopen it in Rule mode. Restore private
+  subscriptions separately; subscription updates do not replace this script.
+- Verification: snapshot matches the live script byte-for-byte; routing smoke
+  checks and `restore-user.sh --dry-run --skip-dconf` pass; `audit.sh` passes and
+  rejects a temporary non-allowlisted Clash profile probe, removed afterwards.
+- Live routing was verified before sync: Bilibili, its image CDN, Baidu and JD
+  used DIRECT and returned HTTPS 200; Google retained the selected proxy route.
