@@ -17,7 +17,7 @@ Helper scripts are captured in `configs/home/.local/bin/`; the curated Chinese s
 
 `Super+S` opens the global input for the vendored
 [Sioyek ECDICT plugin](sioyek-ecdict.md). The binding becomes functional after
-running `scripts/install-sioyek-ecdict.sh`; selected-text lookup inside Sioyek
+running `scripts/module.sh install sioyek-ecdict`; selected-text lookup inside Sioyek
 uses the unmodified `s` key.
 
 Validate and reload after a change:

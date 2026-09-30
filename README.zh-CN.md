@@ -23,12 +23,15 @@
 ```mermaid
 flowchart TD
     H[当前 CachyOS 工作站] --> C[scripts/capture.sh]
-    C --> U[configs/home + dconf]
+    C --> AP[configs/apps 按应用拆分]
+    AP --> G[configs/home 生成树]
+    G --> DC[configs/dconf]
     C --> S[configs/system]
-    C --> P[packages + services]
+    C --> P[packages 采集产物]
     C --> R[state + hardware references]
-    M[manifests: 路径白名单] --> C
-    U --> A[scripts/audit.sh]
+    PR[packages/profiles full 与 minimal] --> X
+    M[manifests 路径白名单] --> G
+    G --> A[scripts/audit.sh]
     S --> A
     P --> A
     R --> A

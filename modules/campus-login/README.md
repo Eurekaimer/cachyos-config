@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-./scripts/install-campus-login.sh
+./scripts/module.sh install campus-login
 ```
 
 需要已安装 `google-chrome-stable`、`google-chrome` 或 `chromium`（缺浏览器时
@@ -26,5 +26,5 @@ campus-login
 ## 卸载
 
 ```bash
-modules/campus-login/uninstall.sh
+./scripts/module.sh uninstall campus-login
 ```

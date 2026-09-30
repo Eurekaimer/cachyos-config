@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+usage() {
+    printf 'Usage: %s left|right\n' "${0##*/}" >&2
+    exit 2
+}
+
+[[ $# -eq 1 ]] || usage
+case "$1" in
+    left|right) direction=$1 ;;
+    *) usage ;;
+esac
+
+command -v niri >/dev/null 2>&1 || { printf 'niri is required\n' >&2; exit 1; }
+command -v jq >/dev/null 2>&1 || { printf 'jq is required\n' >&2; exit 1; }
+
+before=$(niri msg -j windows)
+focused_id=$(jq -r '.[] | select(.is_focused) | .id' <<<"$before")
+[[ -n "$focused_id" ]] || { printf 'No focused window\n' >&2; exit 1; }
+before_workspace_id=$(jq -r --argjson id "$focused_id" '.[] | select(.id == $id) | .workspace_id' <<<"$before")
+before_column_index=$(jq -r --argjson id "$focused_id" '.[] | select(.id == $id) | .layout.pos_in_scrolling_layout[0]' <<<"$before")
+mapfile -t before_column_ids < <(jq -r --argjson ws "$before_workspace_id" --argjson col "$before_column_index" \
+    '.[] | select(.workspace_id == $ws and .is_floating == false and .layout.pos_in_scrolling_layout[0] == $col) | .id' <<<"$before")
+
+niri msg action "consume-or-expel-window-${direction}"
+sleep 0.08
+
+after=$(niri msg -j windows)
+workspace_id=$(jq -r --argjson id "$focused_id" '.[] | select(.id == $id) | .workspace_id' <<<"$after")
+column_index=$(jq -r --argjson id "$focused_id" '.[] | select(.id == $id) | .layout.pos_in_scrolling_layout[0]' <<<"$after")
+mapfile -t column_ids < <(jq -r --argjson ws "$workspace_id" --argjson col "$column_index" \
+    '.[] | select(.workspace_id == $ws and .is_floating == false and .layout.pos_in_scrolling_layout[0] == $col) | .id' <<<"$after")
+
+# Reset both the old and new columns. Niri's automatic height distributor uses
+# the real work area after layer-shell exclusive zones (the top bar), configured
+# gaps, and window constraints; this is more correct than guessing percentages.
+all_ids=("${before_column_ids[@]}" "${column_ids[@]}")
+for _ in 1 2; do
+    for id in "${all_ids[@]}"; do
+        niri msg action reset-window-height --id "$id"
+    done
+    sleep 0.16
+done
+niri msg action focus-window --id "$focused_id"

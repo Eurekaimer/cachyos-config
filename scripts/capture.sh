@@ -22,11 +22,17 @@ Usage: scripts/capture.sh [--help]
 
 Rebuilds the managed snapshot from the CURRENT machine into this repository:
 
-  configs/home/    allowlisted paths under $HOME (manifests/home-paths.txt)
+  configs/apps/    per-application configuration under $HOME (source of truth)
+  configs/home/    generated $HOME install tree (rebuilt from configs/apps/)
   configs/system/  portable /etc snapshots (+ hardware/reference layers)
   configs/dconf/   desktop settings database export
   packages/        explicit pacman/AUR packages, toolchains, enabled services
   state/           machine metadata and hardware references
+
+The $HOME layer is delegated to scripts/sync-configs.sh --to-snapshot, which
+copies every path declared in configs/apps/<app>/paths, scrubs runtime state
+and credentials, rebuilds configs/home/, and regenerates
+manifests/home-paths.txt.
 
 Run as the desktop user. Readable /etc files are copied directly; protected
 ones are copied through sudo. Missing paths are reported and skipped; paths
@@ -64,6 +70,8 @@ copy_one() {
     fi
 }
 
+# Copy an allowlisted /etc tree. $HOME is handled by sync-configs.sh because it
+# is derived from the application layer rather than captured directly.
 capture_group() {
     local source_root=$1 destination_root=$2 manifest=$3
     local relative
@@ -83,108 +91,44 @@ capture_group() {
 log "Refreshing managed snapshots"
 backup_root=$(mktemp -d)
 capture_complete=0
+# The /etc and dconf layers are moved aside first, so a failure halfway leaves
+# the previous published snapshot intact. configs/apps, configs/home and
+# manifests/home-paths.txt are owned by sync-configs.sh, which keeps its own
+# backup and rollback.
+snapshot_dirs=(system dconf)
 restore_previous() {
     local dir
     if (( capture_complete )); then
         rm -rf -- "$backup_root"
-    else
-        for dir in home system dconf; do
-            [[ -e "$backup_root/$dir" || -L "$backup_root/$dir" ]] || continue
-            rm -rf -- "${config_root:?}/$dir"
-            mv -- "$backup_root/$dir" "$config_root/$dir"
-        done
-        rm -rf -- "$backup_root"
-        die "Capture failed; previous snapshot restored"
+        return 0
     fi
+    for dir in "${snapshot_dirs[@]}"; do
+        [[ -e "$backup_root/$dir" || -L "$backup_root/$dir" ]] || continue
+        rm -rf -- "${config_root:?}/$dir"
+        mv -- "$backup_root/$dir" "$config_root/$dir"
+    done
+    rm -rf -- "$backup_root"
+    die "Capture failed; previous snapshot restored"
 }
 trap restore_previous EXIT
 
-for dir in home system dconf; do
+for dir in "${snapshot_dirs[@]}"; do
     [[ -e "$config_root/$dir" || -L "$config_root/$dir" ]] || continue
     mv -- "$config_root/$dir" "$backup_root/$dir"
 done
 mkdir -p -- "$config_root/home" "$config_root/system/portable" \
     "$config_root/system/hardware" "$config_root/system/reference" \
-    "$config_root/dconf" "$packages_root" "$state_root/hardware" "$manifest_root"
+    "$config_root/dconf" "$packages_root/inventory" "$packages_root/services" \
+    "$packages_root/toolchains" "$state_root/hardware" "$manifest_root"
 
-capture_group "$captured_home" "$config_root/home" "$manifest_root/home-paths.txt"
+# The application layer lives in configs/apps/; configs/home/ and
+# manifests/home-paths.txt are regenerated from it, with runtime state and
+# credentials scrubbed (scripts/lib/sanitize.sh).
+"$SCRIPT_DIR/sync-configs.sh" --to-snapshot
+
 capture_group / "$config_root/system/portable" "$manifest_root/system-portable-paths.txt"
 capture_group / "$config_root/system/hardware" "$manifest_root/system-hardware-paths.txt"
 capture_group / "$config_root/system/reference" "$manifest_root/system-reference-paths.txt"
-
-# Runtime history and caches are not configuration and may expose filenames.
-rm -rf -- "$config_root/home/.config/mpv/cache"
-rm -f -- "$config_root/home/.config/mpv/memo-history.log"
-
-# OBS profiles contain reusable scene and encoder settings, but service.json
-# stores live-stream keys. Keep credentials out of the portable snapshot.
-obs_profiles="$config_root/home/.config/obs-studio/basic/profiles"
-if [[ -d "$obs_profiles" ]]; then
-    find "$obs_profiles" -type f \
-        \( -name 'service.json' -o -name 'service.json.bak' \) -delete
-fi
-
-# KOReader runtime state is not configuration and may expose filenames.
-rm -rf -- "$config_root/home/.config/koreader/cache"
-rm -rf -- "$config_root/home/.config/koreader/data"
-rm -rf -- "$config_root/home/.config/koreader/clipboard"
-rm -rf -- "$config_root/home/.config/koreader/help"
-rm -rf -- "$config_root/home/.config/koreader/ota"
-rm -rf -- "$config_root/home/.config/koreader/screenshots"
-rm -f -- "$config_root/home/.config/koreader/history.lua"
-rm -f -- "$config_root/home/.config/koreader/settings/lookup_history.lua"
-# The Wikipedia lookup plugin keeps its own history: looked-up words plus the
-# book they came from, exactly the recent-file class of runtime state.
-rm -f -- "$config_root/home/.config/koreader/settings/wikipedia_history.lua"
-find "$config_root/home/.config/koreader/plugins" -mindepth 1 -maxdepth 1 \
-    ! -name vimkeys.koplugin -exec rm -rf -- {} +
-rm -f -- "$config_root/home/.config/koreader/scripts"/*
-rm -f -- "$config_root/home/.config/koreader/styletweaks"/*
-rm -f -- "$config_root/home/.config/koreader/settings"/*.sqlite3
-find "$config_root/home/.config/koreader" -type f \
-    \( -name '*.old' -o -name '*.bak-*' \) -delete
-
-# Reader settings carry the last-opened book and last directory, which are
-# recent-file runtime state just like history.lua.
-if [[ -f "$config_root/home/.config/koreader/settings.reader.lua" ]]; then
-    sed -i -e '/\["lastfile"\]/d' -e '/\["lastdir"\]/d' \
-        "$config_root/home/.config/koreader/settings.reader.lua"
-fi
-
-# Shell rc files export credentials for CLI tools (agent API keys, tokens).
-# Blank the values while keeping the variable names, so a restore reproduces the
-# structure and the user re-adds the secret from the password manager.
-for rc_file in .zshrc .bashrc .bash_profile; do
-    rc_path="$config_root/home/$rc_file"
-    [[ -f "$rc_path" ]] || continue
-    sed -i -E \
-        '/^[[:space:]]*(export[[:space:]]+)?[A-Za-z0-9_]*(KEY|TOKEN|SECRET|PASSWORD|PASSWD)[A-Za-z0-9_]*=/I s/=.*$/='"''"'/' \
-        "$rc_path"
-done
-
-# Drop application-generated metadata and recent-path history from the
-# portable snapshot. These values are runtime state and may expose filenames.
-rm -rf -- "$config_root/home/Pictures/Wallpapers/.comments"
-if [[ -f "$config_root/home/.config/QtProject.conf" ]]; then
-    sed -i -E '/^(history|lastVisited|qtVersion)=/d' \
-        "$config_root/home/.config/QtProject.conf"
-fi
-
-# ani-rss snapshot must not publish downloader/API credentials or the
-# instance UUID (public repo); blank them like QtProject above.
-if [[ -f "$config_root/home/Projects/ASS/config/config.v2.json" ]]; then
-    sed -i -E \
-        -e 's/("downloadToolPassword":)[[:space:]]*"[^"]*"/\1 ""/' \
-        -e 's/("apiKey":)[[:space:]]*"[^"]*"/\1 ""/' \
-        -e 's/("uuid":)[[:space:]]*"[^"]*"/\1 ""/' \
-        -e 's/("password":)[[:space:]]*"[^"]*"/\1 ""/' \
-        "$config_root/home/Projects/ASS/config/config.v2.json"
-fi
-
-# Keep the public snapshot useful without publishing the account email.
-if [[ -f "$config_root/home/.gitconfig" ]]; then
-    git config --file "$config_root/home/.gitconfig" --unset-all user.email || true
-fi
 
 if command -v dconf >/dev/null 2>&1; then
     dconf dump / | python3 -c '
@@ -207,19 +151,17 @@ else
 fi
 
 log "Capturing package and service state"
-pacman -Qqen | LC_ALL=C sort -u >"$packages_root/pacman-explicit.txt"
-pacman -Qqm | LC_ALL=C sort -u >"$packages_root/aur-explicit.txt"
-sed -i -e '/^llama-cpp$/d' -e '/^ollama$/d' \
-    "$packages_root/pacman-explicit.txt"
+pacman -Qqen | LC_ALL=C sort -u >"$packages_root/inventory/pacman-explicit.txt"
+pacman -Qqm | LC_ALL=C sort -u >"$packages_root/inventory/aur-explicit.txt"
 
 if command -v rustup >/dev/null 2>&1; then
-    rustup toolchain list | sed -E 's/[[:space:]]+\([^)]*\)//g' | LC_ALL=C sort -u >"$packages_root/rustup-toolchains.txt"
+    rustup toolchain list | sed -E 's/[[:space:]]+\([^)]*\)//g' | LC_ALL=C sort -u >"$packages_root/toolchains/rustup.txt"
 else
-    : >"$packages_root/rustup-toolchains.txt"
+    : >"$packages_root/toolchains/rustup.txt"
 fi
 
 if [[ -f "$captured_home/.bun/install/global/package.json" ]]; then
-    python3 - "$captured_home/.bun/install/global/package.json" "$packages_root/bun-global.txt" <<'PY'
+    python3 - "$captured_home/.bun/install/global/package.json" "$packages_root/toolchains/bun.txt" <<'PY'
 import json
 import sys
 
@@ -236,7 +178,7 @@ PY
     if command -v omp >/dev/null 2>&1; then
         omp_version=$(omp --version)
         omp_version=${omp_version#omp/}
-        python3 - "$packages_root/bun-global.txt" "$omp_version" <<'PY'
+        python3 - "$packages_root/toolchains/bun.txt" "$omp_version" <<'PY'
 import sys
 
 path, version = sys.argv[1:]
@@ -250,11 +192,11 @@ with open(path, "w", encoding="utf-8") as handle:
 PY
     fi
 else
-    : >"$packages_root/bun-global.txt"
+    : >"$packages_root/toolchains/bun.txt"
 fi
 
-systemctl list-unit-files --state=enabled --no-legend | awk '$1 !~ /@\./ {print $1}' | LC_ALL=C sort -u >"$packages_root/system-services.txt"
-systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}' | LC_ALL=C sort -u >"$packages_root/user-services.txt"
+systemctl list-unit-files --state=enabled --no-legend | awk '$1 !~ /@\./ {print $1}' | LC_ALL=C sort -u >"$packages_root/services/system.txt"
+systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}' | LC_ALL=C sort -u >"$packages_root/services/user.txt"
 
 printf '%s\n' "$captured_home" >"$state_root/captured-home.txt"
 printf '%s\n' "${USER:?}" >"$state_root/captured-user.txt"

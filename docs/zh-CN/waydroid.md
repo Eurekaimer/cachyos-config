@@ -19,9 +19,9 @@ flowchart LR
 
 | 内容 | 位置 | 恢复行为 |
 | --- | --- | --- |
-| 软件包 | `waydroid-nvidia-bin` | 在 `packages/aur-explicit.txt` 中，`install-packages.sh` 安装 |
-| 系统服务 | `waydroid-container.service` | 在 `packages/system-services.txt` 中，`restore-services.sh` 恢复启用 |
-| 用户服务 | `wd-venus.service` | 在 `packages/user-services.txt` 中，同上 |
+| 软件包 | `waydroid-nvidia-bin` | 在 `packages/inventory/aur-explicit.txt` 中，`install-packages.sh` 安装 |
+| 系统服务 | `waydroid-container.service` | 在 `packages/services/system.txt` 中，`restore-services.sh` 恢复启用 |
+| 用户服务 | `wd-venus.service` | 在 `packages/services/user.txt` 中，同上 |
 | UFW 规则 | `waydroid0` 的 DHCP/DNS 与转发规则 | 随 `configs/system/portable/etc/ufw/` 恢复 |
 | 容器数据 | `/var/lib/waydroid/`（rootfs、镜像、`waydroid.cfg`、`waydroid.prop`、`nv/`，约 2.5 GB） | 不在白名单，属机器本地数据；恢复后需要重新初始化 |
 

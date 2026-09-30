@@ -25,8 +25,8 @@ live outside the `$HOME` allowlists, and every rebuild depends on the local
 toolchain. Install it with its own script:
 
 ```bash
-./scripts/install-bili-live-hime.sh
-./scripts/install-bili-live-hime.sh --dry-run   # preview only
+./scripts/module.sh install bili-live-hime
+./scripts/module.sh install bili-live-hime --dry-run   # preview only
 ```
 
 The installer only fills gaps: it clones the upstream project with
@@ -47,13 +47,13 @@ newer than the artifact it only suggests `--rebuild`; it never rebuilds on its
 own. Requirements: Node.js 20+, a Rust toolchain, and `webkit2gtk-4.1`,
 `libsoup3`, `gtk3`, `librsvg`.
 
-Remove the launcher with `modules/bili-live-hime/uninstall.sh`; the project
+Remove the launcher with `./scripts/module.sh uninstall bili-live-hime`; the project
 directory and build output stay in place.
 
 ## OBS Studio
 
 `obs-studio` (currently 32.2.2) is an explicit package in
-`packages/pacman-explicit.txt`, and its configuration is part of the managed
+`packages/profiles/full.txt`, and its configuration is part of the managed
 snapshot:
 
 | Snapshot content | Purpose |

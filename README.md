@@ -27,17 +27,20 @@ then use this repository to restore the workstation configuration.
 ```mermaid
 flowchart TD
     H[Current CachyOS workstation] --> C[scripts/capture.sh]
-    C --> U[configs/home + dconf]
+    C --> AP[configs/apps per application]
+    AP --> G[configs/home generated tree]
+    G --> DC[configs/dconf]
     C --> S[configs/system]
-    C --> P[packages + services]
+    C --> P[packages inventory + services + toolchains]
     C --> R[state + hardware references]
-    M[manifests: path allowlists] --> C
-    U --> A[scripts/audit.sh]
+    PR[packages/profiles full and minimal] --> X
+    M[manifests allowlists] --> G
+    G --> A[scripts/audit.sh]
     S --> A
     P --> A
     R --> A
     A --> X[scripts/restore-all.sh]
-    X --> I[Packages]
+    X --> I[Packages from the selected profile]
     X --> Y[System configuration]
     X --> Z[User configuration]
     X --> V[Services]

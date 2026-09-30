@@ -107,7 +107,7 @@ Install and verify instructions:
 + If the device registers but the user still reports failure, that is not a
   successful recovery: switch to runtime input diagnostics (udev/libinput/
   compositor layer) instead of adding a rebind loop.
-+ Rollback: `modules/touchpad-boot-recovery/uninstall.sh` (disables the unit
++ Rollback: `./scripts/module.sh uninstall touchpad-boot-recovery` (disables the unit
   and removes both files; it does not unbind the touchpad). If install.sh
   backed up pre-existing files, restore the backup instead of deleting.
 + Config/current-session verification is not a real next-boot verification:

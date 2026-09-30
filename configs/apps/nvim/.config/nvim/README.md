@@ -1,0 +1,661 @@
+# Neovim 配置说明
+
+这是一套以 **Neovim 0.12 原生能力**为核心的 Lua 配置，重点覆盖：
+
+- Kanagawa Wave 彩色主题；
+- Snacks 文件导航、查找、通知和启动页；
+- Neovim 原生 LSP 与补全；
+- 成对括号自动补全与逐层配色的括号高亮；
+- Java（eclipse.jdt.ls）与 clang-format 格式化；
+- Markdown 编辑器内渲染、Kitty 图片显示；
+- Markdown 中的 TeX 数学公式与 Obsidian callout snippets；
+- 终端与 Neovide 各自适配的光标动画；
+- fcitx5 中文输入法状态自动切换。
+
+`<leader>` 和 `<localleader>` 均为空格键。
+
+## 快速开始
+
+```bash
+nvim
+```
+
+首次启动时 `lazy.nvim` 会安装插件，Mason 会安装已配置的语言服务器，Treesitter 会安装语法解析器。常用入口：
+
+| 操作 | 按键或命令 |
+|---|---|
+| 智能查找 | `<leader><space>` |
+| 文件树 | `<leader>e` |
+| 查找文件 | `<leader>ff` |
+| 全文搜索 | `<leader>fg` |
+| 搜索全部快捷键 | `<leader>sk` |
+| Markdown 渲染开关 | `<leader>mr` |
+| Markdown 图片开关 | `<leader>mi` |
+| 插件管理 | `:Lazy` |
+
+## 环境要求
+
+### 必需
+
+- Neovim `>= 0.12`；
+- Git；
+- 支持真彩色的终端；
+- Nerd Font（当前 Kitty 使用 `FantasqueSansM Nerd Font Mono`）。
+
+### 按功能可选
+
+| 依赖 | 用途 |
+|---|---|
+| Kitty `>= 0.28` | image.nvim 的 Kitty Graphics Protocol 后端 |
+| ImageMagick | 图片读取、缩放和裁剪；配置使用 `magick_cli` processor |
+| curl | 下载 Markdown 中的远程图片；leetcode.nvim 的全部 API 请求 |
+| `fcitx5-remote` | 普通模式与插入模式间自动切换输入法 |
+| `wl-copy` 或 `xclip` | 系统剪贴板集成 |
+| LazyGit | `<leader>gg` Git 界面 |
+| `clang-format`（`clang` 包） | `<leader>cF` 格式化 C 系与 Java 文件 |
+| JDK 21+ | 运行 eclipse.jdt.ls（当前 `jdk-openjdk` 26 可用，`jdk21-openjdk` 亦在清单中） |
+
+当前机器已验证：Neovim 0.12.5、Kitty 0.48.2、ImageMagick 7、clang-format 22.1.8、OpenJDK 26.0.2 均可用。
+
+## 配置结构
+
+```text
+~/.config/nvim/
+├── init.lua                    # 入口：leader、核心配置加载顺序
+├── lazy-lock.json              # 插件版本锁定
+├── README.md                   # 本文档
+└── lua/
+    ├── config/
+    │   ├── options.lua         # 编辑器选项、PATH、Neovide 参数、状态栏、主题兜底
+    │   ├── statusline.lua      # 状态栏字符数片段（按 changedtick 缓存）
+    │   ├── keymaps.lua         # 全局快捷键和 Tab/snippet 调度
+    │   ├── autocmds.lua        # 自动命令、fcitx5、光标恢复
+    │   └── lazy.lua            # lazy.nvim 引导与插件导入
+    ├── plugins/
+    │   ├── theme.lua           # Kanagawa Wave 与括号逐层配色
+    │   ├── ui.lua              # Snacks、which-key、smear-cursor
+    │   ├── editing.lua         # mini.surround、auto-save、LuaSnip、vim-be-good
+    │   ├── syntax.lua          # Treesitter parsers
+    │   ├── markdown.lua        # render-markdown、image.nvim
+    │   ├── java.lua            # nvim-jdtls（eclipse.jdt.ls）
+    │   ├── leetcode.lua        # leetcode.nvim（leetcode.cn 刷题面板）
+    │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
+    └── snippets/
+        └── markdown.lua        # Markdown 专用 TeX 公式与 callout 片段
+```
+
+加载顺序固定为：
+
+```text
+options → keymaps → autocmds → lazy.nvim → plugin specs
+```
+
+核心配置与插件配置分离；插件按职责拆分，Markdown snippets 独立存放，不与 `.tex` 工程配置混合。
+
+## 插件一览
+
+| 插件 | 职责 | 加载方式 |
+|---|---|---|
+| [lazy.nvim](https://github.com/folke/lazy.nvim) | 插件安装、懒加载、更新与锁定 | 启动引导 |
+| [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Kanagawa Wave 主题 | 启动优先加载 |
+| [snacks.nvim](https://github.com/folke/snacks.nvim) | dashboard、explorer、picker、通知、zen、bufdelete、LazyGit | 启动加载 |
+| [which-key.nvim](https://github.com/folke/which-key.nvim) | 中文快捷键分组提示 | `VeryLazy` |
+| [aerial.nvim](https://github.com/stevearc/aerial.nvim) | 多级标题/代码大纲、跳转、Markdown 正文折叠 | `<leader>a` 或 Aerial 命令 |
+| [smear-cursor.nvim](https://github.com/sphamba/smear-cursor.nvim) | 在终端中模拟 Neovide 光标拖尾 | `VeryLazy`；Neovide 内禁用 |
+| [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter) | 语法树、高亮及 Markdown 结构解析 | 启动加载 |
+| [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
+| [mini.pairs](https://github.com/nvim-mini/mini.pairs) | 括号/引号自动成对、`<BS>` 整对删除、`<CR>` 展开成块 | 常驻 |
+| [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
+| [vim-clang-format](https://github.com/rhysd/vim-clang-format) | 调用系统 `clang-format` 格式化 C/C++/Java 等语言 | C 系与 Java 文件类型 |
+| [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式与 Obsidian callout snippets | 仅 `markdown` |
+| [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
+| [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 按嵌套层级给 `()` `[]` `{}` 逐层着色 | 启动加载 |
+| [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
+| [image.nvim](https://github.com/3rd/image.nvim) | Markdown 内联图片及图片文件显示 | 仅 Kitty + `markdown` |
+| [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Vim 操作训练 | `:VimBeGood` 时加载 |
+| [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | Java 的 eclipse.jdt.ls 客户端扩展（整理 import、提取变量/常量/方法、编译命令） | 仅 `java` |
+| [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP server 配置来源 | 按需 |
+| [mason.nvim](https://github.com/mason-org/mason.nvim) | 外部语言服务器管理 | LSP 依赖 |
+| [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Mason 与 Neovim LSP 对接 | LSP 依赖 |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | leetcode.cn 刷题面板：浏览、运行、提交题目 | `:Leet` 时加载 |
+| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | leetcode.nvim 的路径与 curl 工具库 | leetcode.nvim 依赖 |
+| [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim 的弹窗/布局/输入框组件 | leetcode.nvim 依赖 |
+
+## 主题与光标动画
+
+### Kanagawa Wave
+
+主题配置位于 `lua/plugins/theme.lua`：
+
+- 默认变体：`kanagawa-wave`；
+- 普通文本：`#dcd7ba`；
+- 背景：`#1f1f28`；
+- gutter 背景透明；
+- 浮窗、补全菜单、分隔线和当前行使用统一的 Kanagawa UI 色；
+- 插件加载失败时保留内置 `habamax`，避免无主题可用。
+
+### 终端与 Neovide
+
+两套动画不会同时运行：
+
+- Kitty 等终端：启用 `smear-cursor.nvim`，使用偏快速、低弹性的拖尾；
+- Neovide：禁用 smear-cursor，保留 Neovide 原生 ripple 光标和原生动画参数。
+
+命令：
+
+```vim
+:SmearCursorToggle
+```
+
+## 完整快捷键
+
+### 通用编辑
+
+| 按键 | 模式 | 作用 |
+|---|---|---|
+| `jk` | 插入 | 返回普通模式 |
+| `<C-s>` | 普通/插入/可视 | 保存并返回普通模式 |
+| `<leader>s` | 普通 | 保存文件 |
+| `<Esc>` | 普通 | 清除搜索高亮 |
+| `L` | 普通/可视/操作符 | 跳到当前行末尾；覆盖 Vim 默认 `L` |
+
+### 补全与 snippets
+
+`<Tab>` 按以下优先级处理：
+
+```text
+补全菜单 → LuaSnip 展开/下一跳点 → Neovim 原生 snippet → 普通 Tab
+```
+
+| 按键 | 模式 | 作用 |
+|---|---|---|
+| `<Tab>` | 插入/选择 | 下一补全项、展开 snippet 或跳到下一占位符 |
+| `<S-Tab>` | 插入/选择 | 上一补全项或返回上一占位符 |
+| `<CR>` | 插入 | 补全菜单存在时确认，否则展开成对括号（成块）或正常换行 |
+| `<C-Space>` | 插入 | 手动触发 LSP 补全 |
+| `<A-s>` | 插入 | 显示函数签名帮助（服务器支持时） |
+
+### 窗口
+
+| 按键 | 作用 |
+|---|---|
+| `<C-h>` / `<C-j>` / `<C-k>` / `<C-l>` | 转到左/下/上/右窗口 |
+| `<leader>wv` | 垂直分屏 |
+| `<leader>ws` | 水平分屏 |
+| `<leader>wd` | 关闭当前窗口 |
+| `<leader>w=` | 等分窗口 |
+
+### 缓冲区与文件
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>bn` / `<leader>bp` | 下一个/上一个缓冲区 |
+| `<leader>bd` | 删除当前缓冲区但保留窗口布局 |
+| `<leader>e` | 文件树 |
+| `<leader>ff` | 查找文件 |
+| `<leader>fb` | 查找缓冲区 |
+| `<leader>fr` | 最近文件 |
+
+文件树默认只显示未被忽略的文件（Snacks 走 `fd`，因此会遵循 `.gitignore`）。Java 的
+编译产物 `*.class` 和 Maven 输出目录 `target/` 都在 `.gitignore` 里，本配置通过
+`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }` 把它们
+单独放回文件树：`include` 在 Snacks 的 explorer 过滤器里优先级最高，只放行这些编译
+产物，而不是把整个 `ignored` 类别都显示出来。`target` 同时匹配目录本身是必需的——
+树不会进入被过滤器拒绝的目录，所以嵌套在 `target/classes/` 下的 `.class` 只靠
+`*.class` 匹配不到。
+
+### 搜索、导航与 UI
+
+| 按键 | 作用 |
+|---|---|
+| `<leader><space>` | Snacks 智能查找 |
+| `<leader>fg` | 全文搜索 |
+| `<leader>fh` | 查找帮助 |
+| `<leader>sd` | 全部诊断 |
+| `<leader>sk` | 搜索快捷键 |
+| `<leader>ss` | 当前文档符号 |
+| `<leader>gg` | LazyGit |
+| `<leader>z` | 专注模式 |
+| `<leader>n` | 通知历史 |
+
+### 标题与代码大纲（Aerial）
+
+普通模式按 `<leader>a`（空格后按 `a`）打开右侧大纲并进入；再次按下关闭。
+Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整个章节（包括子标题及内容），不会删除文字。
+其他语言仍可浏览代码符号，但不接管正文折叠。
+
+以下按键仅在大纲窗口中生效：
+
+| 按键 | 作用 |
+|---|---|
+| `j` / `k` | 向下/向上选择可见标题，包含不同层级 |
+| `<Enter>` | 跳到所选标题并回到正文 |
+| `p` | 正文滚动到所选标题，焦点留在大纲 |
+| `h` / `l` | 收起/展开当前节点 |
+| `zC` / `zO` | 递归收起/展开当前节点及全部子节点 |
+| `za` / `zA` | 切换当前节点/递归切换 |
+| `zM` / `zR` | 收起/展开整个大纲 |
+| `q` | 关闭大纲 |
+| `?` | 查看大纲快捷键 |
+
+保留全局 `Ctrl-h/j/k/l` 窗口切换、`Ctrl-s` 保存和 `L` 行尾映射；
+大纲是只读窗口，保存正文前先用 `Ctrl-h` 返回正文。
+未采用上游示例的 `{` / `}` 标题跳转映射，避免覆盖原有段落移动。
+
+### Markdown
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>mr` | 切换文本渲染 |
+| `<leader>mi` | 切换图片显示；仅 Kitty 中可用 |
+
+### LSP
+
+这些键仅在 LSP 已附加的缓冲区生效。
+
+| 按键 | 作用 |
+|---|---|
+| `gd` | 定义 |
+| `gD` | 声明 |
+| `gr` | 引用 |
+| `gI` | 实现 |
+| `gy` | 类型定义 |
+| `K` | 悬停文档 |
+| `<leader>ca` | 代码操作 |
+| `<leader>cr` | 重命名符号 |
+| `<leader>cf` | 异步格式化 |
+| `<leader>cd` | 当前诊断浮窗 |
+| `[d` / `]d` | 上一个/下一个诊断 |
+
+### Java
+
+Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls（Mason 只负责安装 `jdtls` 启动器，
+`lsp.lua` 不启用它，避免出现两个客户端）。项目根目录按 `gradlew`、`mvnw`、
+`settings.gradle{,.kts}`、`pom.xml`、`build.gradle{,.kts}`、`.git` 依次向上查找，
+索引缓存在 `~/.cache/nvim/jdtls/<项目名>-<root 路径哈希>`（同名项目不会共用索引）。
+
+除上表的通用 LSP 键位外，`.java` 缓冲区额外提供：
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>co` | 整理 import |
+| `<leader>cv` | 提取变量（可视模式提取选中表达式） |
+| `<leader>cc` | 提取常量（同上） |
+| `<leader>cm` | 提取方法（仅可视模式） |
+
+`eclipse.jdt.ls` 自身也提供 `textDocument/formatting`，所以 `<leader>cf`
+在 Java 里同样可用；命令 `:JdtCompile`、`:JdtRestart`、`:JdtBytecode`、
+`:JdtUpdateConfig` 也可用。需要 Java 21+ 运行时。
+
+Java 还启用了 on-type formatting：jdtls 声明了 `;`、换行和 `}` 作为触发字符，
+`vim.lsp.on_type_formatting` 在这些字符输入后请服务器调整缩进（`lsp.lua` 中按能力
+探测启用，其他服务器未声明该能力时自动跳过）。
+
+### 签名帮助
+
+`<A-s>` 在插入模式下显示当前调用的签名。Neovim 默认把 `CTRL-S` 映射到签名帮助，
+而本配置把 `CTRL-S` 用作保存，因此改用 `Alt+s`。
+
+### 格式化（clang-format）
+
+`vim-clang-format` 调用系统的 `clang-format` 二进制（`clang` 包提供），
+适用于 `c`、`cpp`、`objc`、`java`、`javascript`、`typescript`、`proto`、
+`cuda`、`vala`。在这些文件类型中按 `<leader>cF` 格式化整个文件（可视模式格式化选区）。
+
+样式解析顺序：
+
+1. 从当前文件目录向上查找 `.clang-format` 或 `_clang-format`，找到就用 `-style=file`；
+2. 找不到则回退到 `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`。
+
+`<leader>cf`（LSP 格式化）与 `<leader>cF`（clang-format）是两条独立路径：
+前者由语言服务器执行，后者始终走外部二进制。
+
+### 可视模式
+
+| 按键 | 作用 |
+|---|---|
+| `J` / `K` | 选区整体下移/上移并保持选中 |
+| `<` / `>` | 减少/增加缩进并保持选中 |
+
+### mini.surround
+
+| 按键 | 作用 | 示例 |
+|---|---|---|
+| `sa` + 动作 + 字符 | 添加环绕 | `saiw"` 给单词加双引号 |
+| `sd` + 字符 | 删除环绕 | `sd"` 删除双引号 |
+| `sr` + 旧字符 + 新字符 | 替换环绕 | `sr"'` 将双引号改为单引号 |
+| `sf` / `sF` | 向右/左查找环绕 |  |
+| `sh` | 高亮环绕 |  |
+| `sn` | 调整搜索行数 |  |
+
+## Markdown 写作
+
+### 文本渲染
+
+打开 `.md` 文件时 `render-markdown.nvim` 自动启用。它使用 Treesitter 与 extmarks 美化标题、列表、任务框、引用、代码块和表格；源码没有被修改。
+
+```vim
+:RenderMarkdown toggle
+:RenderMarkdown enable
+:RenderMarkdown disable
+```
+
+### 图片显示
+
+image.nvim 使用 Kitty Graphics Protocol：
+
+- Markdown 中本地图片和远程图片均可显示；
+- 图片最大宽度为窗口的 80%，最大高度为窗口的 40%；
+- 进入插入模式时暂时隐藏图片，退出插入模式后恢复；
+- 浮窗覆盖图片时自动清理，编辑器失焦时隐藏；
+- 直接打开 PNG、JPEG、GIF、WebP、AVIF 文件也会尝试显示。
+
+示例：
+
+```markdown
+![本地图片](./images/example.png)
+![远程图片](https://example.com/example.png)
+```
+
+诊断命令：
+
+```vim
+:ImageReport
+```
+
+远程图片由配置内的下载器替换 `image.nvim` 的默认实现：默认实现在 curl 的 stdout 关闭时就
+写入缓存、从不检查退出码，并从异步回调里直接抛错，所以一次被截断的下载会让该 URL 永久
+渲染失败。替换后按退出码判定成功，失败会删除临时文件、清理缓存并给出可读错误，重试仍可
+成功；并发请求各用独立临时文件，不再互相覆盖。
+
+同一个下载器还负责两件事：
+
+- **瞬断重试与去重提示**：Markdown 集成在每次渲染 pass 都会对可视区内的远程图片重新请求，
+  所以代理偶发 TLS 中断（curl 退出码 35/56）时，同一 URL 会反复触发失败通知，哪怕后续
+  重试已成功、图片也已渲染。现在 curl 带 `--retry 3 --retry-delay 1 --retry-max-time 60
+  --retry-all-errors` 自行重试瞬断，并且同一 URL 每次会话最多只提示一次失败。
+- **带尾部数据的 JPEG**：`image.nvim` 的 `magic.lua` 只读文件最后两个字节判断 JPEG 结束标记
+  （要求 `FF D9` 恰好位于 EOF），因此「JPEG 正常结束（`FF D9`）之后还附着少量数据」的图片
+  ——QQ/微信等导出图的常见形态——会被判为"不是图片"而完全不渲染，尽管 ImageMagick、
+  浏览器、Obsidian 都能正常解码。配置包装了 `magic.detect_format`：先走插件原逻辑
+  （PNG/GIF/WebP 等行为不变），仅在其失败时才从文件末尾按 64 KB 分块倒序搜索 `FF D9`。
+  截断下载因不含结束标记仍会被正确拒绝。上游同一问题的 PR（3rd/image.nvim#379）选择直接
+  删除该校验，本配置的做法保留了截断防护。
+
+限制：当前后端只在 Kitty 或兼容 Kitty Graphics Protocol 的终端内启用。Neovide 不实现该协议，所以 Neovide 中仍显示 Markdown 图片语法文本。
+
+光标拖尾（smear-cursor）会留下隐藏浮窗，`window_overlap_clear_ft_ignore` 已把
+`smear-cursor` 列为忽略项，否则这些浮窗会被当作遮挡窗口而跳过整张图片的渲染。
+
+安全说明：配置允许下载远程图片；打开不可信 Markdown 时可能向远程服务器发起请求。如不需要远程图片，将 `download_remote_images` 改为 `false`。
+
+### Markdown snippets
+
+这里只支持 **Markdown 中的 TeX 数学语法与 Obsidian callout 输入**，没有配置 `.tex` 工程、
+VimTeX、texlab 或自动编译。片段定义集中在 `lua/snippets/markdown.lua`，触发词与选项移植自
+Obsidian 的 LaTeX Suite 配置（`Math/.obsidian/plugins/obsidian-latex-suite/data.json`）：
+原配置的 `m`（仅数学模式）对应 `in_math()` 门控，`A`（自动展开）对应该片段是否边打边展开。
+
+数学片段共 152 条**自动展开**（打完触发词立即生效）与 7 条 Tab 片段；`mk` / `dm` / `aln`
+以及 20 条 callout 模板同样按 `<Tab>` 展开。常用触发词见下。
+
+#### 自动展开
+
+输入触发词后立即展开，不需要按 Tab。`wordTrig=true`，只匹配独立单词，不会替换较长单词中的字符。
+
+| 触发词 | 结果 | 光标位置 |
+|---|---|---|
+| `aligned` | `aligned` 环境 | 环境内第一行 |
+| `sum` | `\sum_{i=1}^{n}` | 下标 |
+| `int` | `\int_{a}^{b}` | 下限 |
+| `lim` | `\lim_{x \to 0}` | 变量 |
+| `cases` | `cases` 分段函数 | 第一行 |
+| `avg` | `\langle … \rangle` | 内容 |
+| `@a` `@b` `@g` … | 对应希腊字母 | 字母之后 |
+
+#### 手动展开
+
+输入触发词后按 `<Tab>`：
+
+| 触发词 | 模板 |
+|---|---|
+| `mk` | 行内 `$…$` |
+| `dm` | 块级 `$$` 数学环境 |
+| `aln` | Markdown 块级公式内的 `aligned` 多行等式 |
+| `align` | `align` 环境 |
+| `mat` | 2×2 `bmatrix` |
+| `scrf` | σ-代数 |
+| `lr` | `\left( … \right)` |
+| `par` | 偏导数 |
+| `limt` | 极限 |
+| `tayl` | Taylor 展开 |
+| `callouts-<类型>` | 20 种 Obsidian callout |
+
+展开后用 `<Tab>` 前进，`<S-Tab>` 后退。片段定义集中在 `lua/snippets/markdown.lua`。
+
+#### 数学模式门控
+
+绝大多数片段只在 `$…$` 或 `$$…$$` 内部触发：`in_math()` 扫描光标之前的所有行，按未转义的
+`$$` 配对判断是否处于块级公式（可跨行），再在本行内按单个 `$` 的奇偶判断行内公式。
+`mk` / `dm` 不受门控（它们正是用来创建数学环境的），在正文中打 `@a` 会保留字面量。
+
+#### 自动展开与前缀冲突
+
+自动片段在触发词打完后立即展开，因此**短的触发器不能是长的前缀**，否则长词还没打完就被
+截断。`aligned` / `matrix` / `mathcal` / `ddot` / `<->` 自动展开，它们的前缀 `align` /
+`mat` / `dot` / `->` 保留为 Tab 片段或靠 `priority` 让长触发器优先。纯字母触发器要求词
+边界，`beta` 不会被 `eta` 吃掉。
+
+#### 常用触发词
+
+| 类别 | 触发词 |
+|---|---|
+| 数学环境 | `mk` `dm` `aln`（Tab）；`beg` `aligned` `pmat` `bmat` `cases` `matrix` |
+| 希腊字母 | `@a` `@b` `@g` `@G` `@d` `@D` `@e` `@z` `@t` `@T` `@i` `@k` `@l` `@L` `@s` `@S` `@u` `@U` `@o` `@O` `@m` `@n` `@p` `@r` `@f` `@c` `@x` `@y`、`:e`、`:t` |
+| 分数与幂 | `//` `bino` `sr` `cb` `rd` `ee` `invs` `conj` |
+| 关系符号 | `**` `xx` `+-` `-+` `...` `->` `<->` `!>` `=>` `=<` `===` `!=` `>=` `<=` `>>` `<<` `sub=` `sup=` |
+| 集合与字母表 | `inn` `notin` `emp` `sete` `RR` `CC` `QQ` `ZZ` `NN` `EE` `KK` `PP` `LL` `HH` `AA` |
+| 分析 | `sum` `prod` `bigcup` `bigcap` `int` `dint` `oinf` `infi` `lim` `limt` `suplim` `inflim` `par` `ddt` `tayl` |
+| 概率统计 | `measpace` `probspace` `scrf` `IID` `meato` `holder` |
+| 括号 | `avg` `norm` `Norm` `ceil` `floor` `mod` `lr(` `lr[` `lr{` `lr|` |
+
+展开后用 `<Tab>` 前进到下一个占位符，`<S-Tab>` 后退。
+
+#### Obsidian callouts
+
+`callouts-<类型>` 覆盖 20 种 callout，展开后光标停在正文行，该行已带 `> `：
+
+```markdown
+> [!todo] 第一章
+> - [ ] 作业1
+```
+
+在正文行内按 `Enter` 自动续 `> `。当出现**空 `>` 行**（即只有引用符号、后面没有内容）时，
+再按一次 `Enter` 会把整段连续空 `>` 行折叠为**一个空行**，光标落到下一行，callout 到此结束：
+
+```markdown
+> [!note] 标题
+> 正文
+
+下一段从这里开始
+```
+
+支持的 20 种类型：`note` `tip` `important` `warning` `question` `todo` `info` `success`
+`danger` `failure` `bug` `example` `quote` `abstract` `summary` `tldr` `hint` `caution`
+`attention` `cite`。
+
+callout 的续行与折叠依赖 `'formatoptions'` 的 `r` 标志。Markdown 自带的 ftplugin 会执行
+`formatoptions-=r`（实测为 `tcqjln`），`lua/config/autocmds.lua` 在 `FileType markdown` 时加回
+`r`（最终 `tcqjlnr`）。折叠逻辑在 `lua/config/keymaps.lua`：`<CR>` 检测光标行是否为空白引用行，
+是则调用 `collapse_quote_run()`；普通正文行仍走 mini.pairs 的成对展开。
+
+`render-markdown.nvim` 的内置补全源同时提供 callout 类型：在引用行输入 `> [!` 会弹出
+类型列表，`<Tab>` / `<S-Tab>` 选择、`<Enter>` 接受。补齐 `[` `!` 的编辑范围需要显式指定，
+`lua/plugins/markdown.lua` 里的 `markdown_completions()` 负责给出该范围，并复用 mini.pairs
+已插入的 `]`，因此结果为 `> [!NOTE]` 而不是嵌套或重复的方括号。
+
+## 撰写辅助
+
+### 成对括号（mini.pairs）
+
+| 输入 | 结果 |
+|---|---|
+| `(` `[` `{` | 同时插入配对的另一半，光标停在中间 |
+| `"` `'` `` ` `` | 插入成对引号 |
+| 已自动补全的闭括号处再输入闭括号 | 跳过而不重复插入 |
+| `<BS>` 在空对中间 | 一次删除整对 |
+| `<CR>` 在空对中间 | 展开为缩进块，光标停在块内 |
+
+反斜杠后不触发（`\(` 保持原样）；单引号前是字母时也不触发，避免 `don't` 被拆开。
+需要原样输入单个符号时用 `<C-v>` 前缀。
+
+### 括号层级配色（rainbow-delimiters.nvim）
+
+基于 Treesitter，按嵌套深度循环使用七种颜色，相邻两层的色相刻意拉开：
+
+```text
+第 1 层 RainbowDelimiterRed     第 5 层 RainbowDelimiterGreen
+第 2 层 RainbowDelimiterYellow  第 6 层 RainbowDelimiterViolet
+第 3 层 RainbowDelimiterBlue    第 7 层 RainbowDelimiterCyan
+第 4 层 RainbowDelimiterOrange
+```
+
+颜色取自 Kanagawa palette（`waveRed`、`carpYellow`、`crystalBlue`、`roninYellow`、
+`springGreen`、`oniViolet`、`waveAqua2`），定义在 `lua/plugins/theme.lua` 的
+`overrides` 中，随主题切换一起生效。需要对应语言的 Treesitter 解析器；
+`java`、`c`、`cpp` 已在 `syntax.lua` 的安装列表里。
+
+需要临时关闭时：
+
+```vim
+:lua require("rainbow-delimiters").disable(0)   -- 当前缓冲区
+:lua require("rainbow-delimiters").enable(0)
+```
+
+## 编辑器行为
+
+### 显示与缩进
+
+- 绝对行号 + 相对行号；
+- 当前行高亮，符号列始终显示；
+- `scrolloff=8`，长距离移动仍保留上下文；
+- 4 空格缩进，Tab 转为空格；
+- 显示 Tab、行尾空格和不换行空格；
+- 全局状态栏，水平/垂直分屏默认在下方/右侧；
+- 状态栏保留 Neovim 默认段（文件标志、诊断、搜索计数、ruler），末尾追加光标位置
+  `Line:当前行/总行数` 与全文 `Chars:字符数`。
+
+状态栏里的字符数走 `lua/config/statusline.lua`，不是直接写
+`%{wordcount().chars}`：`wordcount()` 要扫描整个缓冲区，而 `%{}` 片段在**每次重绘**都会
+重新求值——实测 100k 行文件每次击键 16 ms、200k 行 33 ms。该模块按 `changedtick`
+缓存结果，因此光标移动、滚动这类不改变文本的重绘不产生开销；缓存值在每次文本变化
+时失效，撤销、重做、`:edit!` 重新载入都会命中新值。缓冲区超过 1.5 MiB 时（与 Snacks
+`bigfile` 判定一致）跳过计数，只保留 O(1) 的 `Line:` 段，避免在大文件里每次击键都付
+扫描成本。
+
+### 中文文本
+
+- 使用软换行，不改变物理行；
+- 在中文标点 `，。！？；：、` 处优先换行（由 Neovim 的 Unicode 折行处理，`'breakat'` 只接受 ASCII，未改）；
+- 续行以 `↳` 标记；
+- 如果存在 `fcitx5-remote`：退出插入模式切回英文，重新进入插入模式时恢复之前的中文状态。
+
+### 搜索、撤销与文件同步
+
+- 全小写搜索忽略大小写；出现大写字符时自动区分大小写；
+- 持久化撤销，关闭 swapfile；
+- 退出插入模式或文本变化后自动写盘（`auto-save.nvim`）：断电或窗口被强杀时最多丢失一次防抖窗口内的改动；
+- 重新打开文件恢复上次光标位置；
+- yank 后高亮 150 ms；
+- 回到编辑器或离开终端后自动检测磁盘上的文件变化；
+- 检测到 `wl-copy` 或 `xclip` 时启用系统剪贴板。
+
+## LSP
+
+Mason 确保以下服务器已安装并由 Neovim 0.12 原生接口启用：
+
+| Server | 语言 |
+|---|---|
+| `bashls` | Bash |
+| `gopls` | Go |
+| `lua_ls` | Lua |
+| `pyright` | Python |
+| `rust_analyzer` | Rust |
+| `ts_ls` | JavaScript / TypeScript |
+
+Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim runtime library。支持 completion 的 server 会自动启用 Neovim 原生补全。
+
+## 刷题（leetcode.nvim）
+
+`lua/plugins/leetcode.lua` 把 leetcode.nvim 指向国内站点，只在执行 `:Leet` 时加载。
+
+| 配置 | 值 | 效果 |
+|---|---|---|
+| `lang` | `java` | 新题目默认用 Java 模板打开 |
+| `cn.enabled` | `true` | 使用 `leetcode.cn` 而不是 `leetcode.com` |
+| `cn.translator` | `true` | 插件自身界面文案显示为中文 |
+| `cn.translate_problems` | `true` | 题目标题与描述使用中文 |
+
+`picker.provider` 保持未设置，由插件自行解析第一个可用 provider（顺序为
+snacks-picker、fzf-lua、telescope、mini-picker）；本配置已有 Snacks，因此不再安装第二个
+picker。
+
+`lua/plugins/syntax.lua` 额外安装了 `html` 解析器：存在 `parser/html.so` 时
+leetcode.nvim 用它格式化题目描述，否则退回纯文本。
+
+登录由 `:Leet cookie update` 完成：把浏览器请求头里的 `Cookie` 粘进输入框，插件写到
+`~/.cache/nvim/leetcode/cookie_cn`。本配置不保存任何 Cookie，该缓存目录也不入快照。
+
+`cn.enabled` 决定缓存文件名：关闭时同一输入框写的是 `cookie`，而两个站点的会话不通用。
+
+## 管理命令
+
+| 命令 | 作用 |
+|---|---|
+| `:Lazy` | 插件状态与管理界面 |
+| `:Lazy sync` | 安装缺失插件、更新并清理 |
+| `:Mason` | 外部语言服务器管理 |
+| `:TSUpdate` | 更新 Treesitter parser |
+| `:RenderMarkdown toggle` | 切换 Markdown 文本渲染 |
+| `:ImageReport` | 输出 image.nvim 环境、后端与图片状态 |
+| `:SmearCursorToggle` | 切换终端光标动画 |
+| `:VimBeGood` | 启动 Vim 操作训练 |
+| `:Leet` | 打开 leetcode.cn 刷题面板 |
+| `:Leet list`、`:Leet daily` | 选题 / 每日一题 |
+| `:Leet run`、`:Leet submit` | 运行 / 提交当前题目 |
+| `:Leet cookie update` | 输入或更新 LeetCode Cookie |
+| `:Leet cache update` | 更新本地题库缓存 |
+| `:checkhealth` | 检查 Neovim 环境 |
+
+## 修改指南
+
+| 需求 | 文件 |
+|---|---|
+| 修改基础选项 | `lua/config/options.lua` |
+| 修改通用快捷键 | `lua/config/keymaps.lua` |
+| 修改自动命令或输入法行为 | `lua/config/autocmds.lua` |
+| 修改主题 | `lua/plugins/theme.lua` |
+| 修改 UI、查找或光标动画 | `lua/plugins/ui.lua` |
+| 修改 Markdown 渲染或图片 | `lua/plugins/markdown.lua` |
+| 增删数学 snippets | `lua/snippets/markdown.lua` |
+| 修改 parser 列表 | `lua/plugins/syntax.lua` |
+| 修改 LSP server | `lua/plugins/lsp.lua` |
+| 修改刷题语言或站点 | `lua/plugins/leetcode.lua` |
+
+纯 Lua 改动可重启 Neovim，或执行：
+
+```vim
+:source $MYVIMRC
+```
+
+插件 spec 改动后执行 `:Lazy sync`。插件版本由 `lazy-lock.json` 锁定。
+
+## 备份与恢复
+
+本配置同时同步到：
+
+```text
+~/Documents/GitHub/cachyos-config/configs/home/.config/nvim/
+```
+
+该路径已列入 `cachyos-config/manifests/home-paths.txt`，会随 CachyOS 用户配置快照一起恢复。修改实时配置后，应同步整个 nvim 目录，包括 `README.md`、`lazy-lock.json`、`lua/plugins/` 和 `lua/snippets/`。

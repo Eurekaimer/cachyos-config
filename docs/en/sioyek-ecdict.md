@@ -13,13 +13,13 @@ yay -S sioyek-git
 
 git clone https://github.com/Eurekaimer/cachyos-config.git
 cd cachyos-config
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 The wrapper installs missing repository packages (`uv`, `python-gobject`, and `gtk4-layer-shell`) with `pacman`, then runs the vendored module installer. Preview without changing the machine with:
 
 ```bash
-./scripts/install-sioyek-ecdict.sh --dry-run
+./scripts/module.sh install sioyek-ecdict --dry-run
 ```
 
 Keep the cloned repository in place after installation. The systemd user unit points to the virtual environment under `modules/sioyek-ecdict/.venv/`.
@@ -75,7 +75,7 @@ API, or API key is used.
 The installation is idempotent. After pulling repository changes, rerun:
 
 ```bash
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 Inspect or query it directly:
@@ -88,7 +88,7 @@ modules/sioyek-ecdict/.venv/bin/sioyek-ecdict lookup Map
 Remove the service and owned Sioyek bindings while retaining the downloaded database:
 
 ```bash
-./modules/sioyek-ecdict/uninstall.sh
+./scripts/module.sh uninstall sioyek-ecdict
 ```
 
 ## Troubleshooting

@@ -33,7 +33,7 @@ yay -S sioyek-git
 ```bash
 git clone https://github.com/Eurekaimer/cachyos-config.git
 cd cachyos-config
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 包装脚本会通过 `pacman` 补齐 `uv`、`python-gobject` 和
@@ -146,7 +146,7 @@ systemctl --user status sioyek-ecdict.service
 ## 卸载
 
 ```bash
-./modules/sioyek-ecdict/uninstall.sh
+./scripts/module.sh uninstall sioyek-ecdict
 ```
 
 脚本会删除用户服务和本项目写入的 Sioyek 键位，恢复 Sioyek 默认的外部搜索前缀，同时保留项目目录和本地词典数据库。

@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-./scripts/install-docker-anirss.sh
+./scripts/module.sh install docker-anirss
 ```
 
 安装后：
@@ -26,5 +26,5 @@ compose 文件默认 `$HOME/Projects/ASS/docker-compose.yml`，可用环境变�
 ## 卸载
 
 ```bash
-modules/docker-anirss/uninstall.sh
+./scripts/module.sh uninstall docker-anirss
 ```

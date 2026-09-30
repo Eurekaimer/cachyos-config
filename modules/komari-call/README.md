@@ -8,7 +8,7 @@
 ## 安装
 
 ```bash
-./scripts/install-komari-call.sh
+./scripts/module.sh install komari-call
 ```
 
 安装后 `komari-call` 同时出现在 `~/.cargo/bin/`（cargo 安装位置）和
@@ -17,5 +17,5 @@
 ## 卸载
 
 ```bash
-modules/komari-call/uninstall.sh
+./scripts/module.sh uninstall komari-call
 ```

@@ -1,6 +1,6 @@
 # touchpad-boot-recovery: touchpad boot self-recovery (Lenovo 82XF)
 
-[简体中文](README.md)
+[简体中文](README.zh-CN.md)
 
 The I2C touchpad on the Lenovo 82XF (IdeaPad Slim 5 16IRL8, i5-13500H, BIOS
 LACN22WW; `MSFT0002:00 06CB:CEFE`, Microsoft ACPI HID) fails to register on
@@ -29,7 +29,7 @@ or closely related signatures exist (reference list in
 ## Install
 
 ```bash
-./scripts/install-touchpad-boot-recovery.sh
+./scripts/module.sh install touchpad-boot-recovery
 ```
 
 Runs as the desktop user and elevates via `sudo`. Pre-existing files with the
@@ -53,7 +53,7 @@ registration lines, then move and click the pad.
 ## Remove
 
 ```bash
-modules/touchpad-boot-recovery/uninstall.sh
+./scripts/module.sh uninstall touchpad-boot-recovery
 ```
 
 Disables the unit and removes both files. It does not unbind the touchpad, so

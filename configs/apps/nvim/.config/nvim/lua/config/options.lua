@@ -1,0 +1,73 @@
+-- Core editor behavior shared by every filetype.
+local opt = vim.opt
+
+-- Expose user-installed toolchain binaries when system packages are unavailable.
+for _, directory in ipairs({ "~/.cargo/bin", "~/.cache/.bun/bin" }) do
+  local expanded = vim.fn.expand(directory)
+  if vim.uv.fs_stat(expanded) then
+    vim.env.PATH = expanded .. ":" .. vim.env.PATH
+  end
+end
+
+-- Keep long cursor jumps easy to track in Neovide.
+if vim.g.neovide then
+  vim.g.neovide_cursor_animation_length = 0.15
+  vim.g.neovide_cursor_short_animation_length = 0.04
+  vim.g.neovide_cursor_trail_size = 1.0
+  vim.g.neovide_cursor_vfx_mode = "ripple"
+end
+
+opt.termguicolors = true
+opt.number = true
+opt.relativenumber = true
+opt.cursorline = true
+opt.signcolumn = "yes"
+opt.scrolloff = 8
+-- Soft wrap: display-only; physical lines (and line numbers) never change.
+opt.wrap = true
+opt.linebreak = true
+opt.breakindent = true
+opt.showbreak = "↳ "
+opt.smoothscroll = true
+-- 'breakat' only supports ASCII; leave Unicode wrapping to Neovim.
+
+opt.tabstop = 4
+opt.shiftwidth = 4
+opt.softtabstop = 4
+opt.expandtab = true
+opt.smartindent = true
+
+opt.ignorecase = true
+opt.smartcase = true
+opt.incsearch = true
+opt.hlsearch = true
+
+opt.mouse = "a"
+opt.confirm = true
+opt.undofile = true
+opt.swapfile = false
+opt.splitbelow = true
+opt.splitright = true
+opt.laststatus = 3
+-- Keep Neovim's default segments (file flags, diagnostics, search count, ruler)
+-- and append the cursor's position in the buffer plus its character count.
+-- Read the default before any plugin runs, so the append cannot be lost, and go
+-- through config/statusline.lua because counting the whole buffer per redraw is
+-- too expensive to inline as `%{wordcount().chars}`.
+opt.statusline = vim.o.statusline
+  .. "  Line:%l/%L%{v:lua.require('config.statusline').chars_segment()}"
+opt.updatetime = 200
+opt.timeoutlen = 300
+opt.completeopt = "menu,menuone,noselect"
+opt.pumheight = 10
+
+opt.list = true
+opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+
+-- Use the desktop clipboard only when a supported provider is available.
+if vim.fn.executable("wl-copy") == 1 or vim.fn.executable("xclip") == 1 then
+  opt.clipboard = "unnamedplus"
+end
+
+-- Keep a built-in theme active until the configured colorscheme loads.
+vim.cmd.colorscheme("habamax")

@@ -54,11 +54,11 @@ enable_user_unit() {
 log "Restoring system service enablement"
 while IFS= read -r unit; do
     enable_system_unit "$unit"
-done < <(read_list "$REPO_ROOT/packages/system-services.txt")
+done < <(read_list "$REPO_ROOT/packages/services/system.txt")
 
 log "Restoring user service enablement"
 while IFS= read -r unit; do
     enable_user_unit "$unit"
-done < <(read_list "$REPO_ROOT/packages/user-services.txt")
+done < <(read_list "$REPO_ROOT/packages/services/user.txt")
 
 log "Service enablement restored"

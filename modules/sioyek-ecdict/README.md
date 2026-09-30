@@ -33,7 +33,7 @@ Then clone the workstation repository and run its one-command installer:
 ```bash
 git clone https://github.com/Eurekaimer/cachyos-config.git
 cd cachyos-config
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 The wrapper installs missing Arch dependencies (`uv`, `python-gobject`, and
@@ -150,7 +150,7 @@ The installer defines `_ecdict` in `prefs_user.config` as a `gdbus` call whose `
 ## Uninstall
 
 ```bash
-./modules/sioyek-ecdict/uninstall.sh
+./scripts/module.sh uninstall sioyek-ecdict
 ```
 
 The script removes the user service and owned Sioyek bindings, restores Sioyek's default external-search prefix, and preserves the project directory and local dictionary database.

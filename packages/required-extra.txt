@@ -1,9 +1,12 @@
 # Required by managed configuration or recovery scripts.
-7zip
-curl
-jq
-fd
-npm
-python
-timew
-tree-sitter-cli
+# Every entry names its consumer; drop an entry only when its consumer is gone.
+#
+# Installed by scripts/install-packages.sh together with the selected profile.
+7zip            # KOReader dictionary packs (docs/en/koreader.md)
+curl            # KOReader dictionary packs, Neovim leetcode plugin
+jq              # configs/apps/niri/.local/bin/niri-stack-column
+fd              # Neovim Snacks picker file search (docs/en/neovim.md)
+npm             # modules/bili-live-hime (Tauri build)
+python          # scripts/sync-timewarrior.sh
+timew           # scripts/sync-timewarrior.sh
+tree-sitter-cli # nvim-treesitter v1 parser builds (docs/en/neovim.md)

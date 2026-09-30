@@ -33,7 +33,7 @@ The vendored Sioyek dictionary is an explicit post-restore step because it
 downloads ECDICT data. Once the AUR package layer has installed Sioyek, run:
 
 ```bash
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 Restart Sioyek, select an English word, and press `s`. See the

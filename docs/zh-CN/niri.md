@@ -16,7 +16,7 @@ Niri 是本工作站的 Wayland 合成器和窗口管理器，快照位于 `conf
 锁屏快捷键为 `Super+Shift+L`（Niri 配置中的 `Mod+Shift+L`），调用 Noctalia IPC `lockScreen lock`；Niri 只负责快捷键分发，实际会话锁由 Noctalia 提供。
 
 `Super+S` 打开仓库内置的 [Sioyek ECDICT 插件](sioyek-ecdict.md)全局输入框。
-运行 `scripts/install-sioyek-ecdict.sh` 后此键位生效；Sioyek 内部的选词查询
+运行 `scripts/module.sh install sioyek-ecdict` 后此键位生效；Sioyek 内部的选词查询
 使用不带修饰键的 `s`。
 
 修改后执行：

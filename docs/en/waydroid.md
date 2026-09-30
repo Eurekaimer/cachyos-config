@@ -20,9 +20,9 @@ flowchart LR
 
 | Item | Location | Restore behavior |
 | --- | --- | --- |
-| Package | `waydroid-nvidia-bin` | Listed in `packages/aur-explicit.txt`; `install-packages.sh` installs it |
-| System service | `waydroid-container.service` | Listed in `packages/system-services.txt`; `restore-services.sh` re-enables it |
-| User service | `wd-venus.service` | Listed in `packages/user-services.txt`; same restore path |
+| Package | `waydroid-nvidia-bin` | Listed in `packages/inventory/aur-explicit.txt`; `install-packages.sh` installs it |
+| System service | `waydroid-container.service` | Listed in `packages/services/system.txt`; `restore-services.sh` re-enables it |
+| User service | `wd-venus.service` | Listed in `packages/services/user.txt`; same restore path |
 | UFW rules | DHCP/DNS and forwarding rules for `waydroid0` | Restored with `configs/system/portable/etc/ufw/` |
 | Container data | `/var/lib/waydroid/` (rootfs, images, `waydroid.cfg`, `waydroid.prop`, `nv/`; ~2.5 GB) | Not allowlisted — machine-local; re-initialize after a restore |
 

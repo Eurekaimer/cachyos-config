@@ -1,27 +1,34 @@
 #!/usr/bin/env bash
 # Live progress for a cachyos-config restore: package install progress + speed.
 #
-# Counts installed packages from both manifests (pacman-explicit + aur-explicit)
-# and shows download speed sampled from /proc/net/dev. Live single-line bar in a
-# terminal; --once prints one snapshot line (handy for scripts or the agent).
-# Usage: scripts/install-progress.sh [--once] [repo-dir]
+# Counts installed packages from the selected profile and shows download speed
+# sampled from /proc/net/dev. Live single-line bar in a terminal; --once prints
+# one snapshot line (handy for scripts or the agent).
+# Usage: scripts/install-progress.sh [--once] [--profile NAME] [repo-dir]
 set -uo pipefail
 
 SCRIPT_DIR=$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/profile.sh
+source "$SCRIPT_DIR/lib/profile.sh"
 
 ONCE=0
-[[ ${1:-} == --once ]] && { ONCE=1; shift; }
+profile_arg=""
+while (($#)); do
+    case "$1" in
+        --once) ONCE=1; shift ;;
+        --profile) shift; (($#)) || { echo "--profile requires a name" >&2; exit 1; }; profile_arg=$1; shift ;;
+        *) break ;;
+    esac
+done
 REPO="${1:-$REPO_ROOT}"
-AUR="$REPO/packages/aur-explicit.txt"
-PAC="$REPO/packages/pacman-explicit.txt"
-[[ -r "$AUR" && -r "$PAC" ]] || { echo "manifests not found in $REPO" >&2; exit 1; }
+PROFILE=$(resolve_profile "$REPO" "$profile_arg")
+MANIFEST="$REPO/packages/profiles/$PROFILE.txt"
+[[ -r "$MANIFEST" ]] || { echo "profile not found: $MANIFEST" >&2; exit 1; }
 
-# union of both manifests, skipping comments/blanks, preserving order
-mapfile -t ALL < <(
-  { grep -vE '^\s*#|^\s*$' "$AUR"; grep -vE '^\s*#|^\s*$' "$PAC"; } | awk '!seen[$0]++'
-)
+# Profile entries, skipping comments/group headers/blanks, preserving order
+mapfile -t ALL < <(grep -vE '^\s*#|^\s*$' "$MANIFEST" | awk '!seen[$0]++')
 TOTAL=${#ALL[@]}
 
 # Write straight to the terminal when available (avoids pipe buffering);

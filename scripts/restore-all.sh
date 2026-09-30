@@ -15,6 +15,7 @@ start_now=0
 migrate_zh=0
 restart_fcitx5=0
 wallpaper=""
+profile_arg=""
 while (($#)); do
     case "$1" in
         --dry-run) dry_run=1 ;;
@@ -28,6 +29,11 @@ while (($#)); do
             shift
             (($#)) || die "--wallpaper requires a file path"
             wallpaper=$1
+            ;;
+        --profile)
+            shift
+            (($#)) || die "--profile requires a name (full or minimal)"
+            profile_arg=$1
             ;;
         -h|--help)
             cat <<'EOF'
@@ -55,6 +61,7 @@ after explicit review on the same disks/host.
 Options:
   --dry-run          Print every replacement/install command without changing files
   --with-hardware    Also replace /etc/fstab and /etc/hostname (same hardware only)
+  --profile NAME     Package profile to install (see scripts/profile.sh)
   --skip-aur         Do not install captured AUR packages
   --no-backup        Replace configuration without saving previous files
   --now              Start enabled services immediately instead of after reboot/login
@@ -78,6 +85,7 @@ common_args=()
 
 install_args=("${common_args[@]}")
 (( skip_aur )) && install_args+=(--skip-aur)
+[[ -n "$profile_arg" ]] && install_args+=(--profile "$profile_arg")
 
 system_args=("${common_args[@]}")
 user_args=("${common_args[@]}")

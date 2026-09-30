@@ -17,7 +17,7 @@ Fcitx5 中日输入法配置位于 `configs/home/.config/fcitx5/`。GTK 3/4、Qt
 
 恢复依赖如下：
 
-+ `packages/pacman-explicit.txt` 包含官方仓库包 `fcitx5-mozc`。
++ `packages/profiles/full.txt` 包含官方仓库包 `fcitx5-mozc`。
 + `manifests/home-paths.txt` 纳管切组脚本；`restore-user.sh` 会将其恢复到 `~/.local/bin/` 并保留执行权限。
 + `configs/home/.config/niri/cfg/keybinds.kdl` 保留原有 `Super+R`，并新增 `Super+Shift+R`。
 

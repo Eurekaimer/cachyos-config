@@ -8,8 +8,48 @@
 
 ## 用户层
 
-`configs/home/` 镜像 `$HOME` 下的白名单路径；`configs/dconf/user.ini` 是可移植
-文本导出，不是 dconf 二进制数据库。
+配置只在 `configs/apps/<应用>/` 下编写一次，目录结构镜像该应用拥有的、相对
+`$HOME` 的路径。`configs/home/` 是**生成物**：由
+`scripts/sync-configs.sh --to-snapshot` 从这些目录重建；
+`scripts/restore-user.sh` 只读生成的安装树，因此 `configs/home/` 永不手改。
+`manifests/home-paths.txt` 同时由 `configs/apps/*/paths` 生成。
+`configs/dconf/user.ini` 是可移植文本导出，不是 dconf 二进制数据库。
+
+| 应用 | 目录 | 拥有的路径 |
+| --- | --- | --- |
+| AniRSS | `configs/apps/ani-rss/` | `Projects/ASS/config/{ani,config}.v2.json` |
+| CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
+| Clash Verge | `configs/apps/clash-verge/` | 自启动项、全局 `Script.js` |
+| Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`、`fcitx5-toggle-japanese` |
+| Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
+| Git | `configs/apps/git/` | `.gitconfig` |
+| Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
+| GTK | `configs/apps/gtk/` | `.config/gtk-3.0/` |
+| Kitty | `configs/apps/kitty/` | `.config/kitty/` |
+| KOReader | `configs/apps/koreader/` | `.config/koreader/` |
+| Micro | `configs/apps/micro/` | 设置与配色（不含 `syntax/`） |
+| MIME 默认 | `configs/apps/mimeapps/` | `.config/mimeapps.list` |
+| MPV | `configs/apps/mpv/` | `.config/mpv/` |
+| Niri | `configs/apps/niri/` | `.config/niri/`、niri 辅助脚本、热键文本 |
+| Noctalia | `configs/apps/noctalia/` | `.config/noctalia/` |
+| Neovim | `configs/apps/nvim/` | `.config/nvim/`、Markdown 桌面项 |
+| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/`（不含 `service.json`） |
+| OMP | `configs/apps/omp/` | `.omp/agent/config.yml` |
+| Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
+| Shell | `configs/apps/shell/` | `.zshrc`、`.bashrc`、`.bash_profile`、`.bash_logout` |
+| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
+| Starship | `configs/apps/starship/` | `.config/starship.toml` |
+| Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
+| Timewarrior | `configs/apps/timewarrior/` | `.config/timewarrior/` 配置与扩展 |
+| Wallpapers | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |
+| WeChat | `configs/apps/wechat/` | `wechat.desktop` |
+| XDG 用户目录 | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
+| Yazi | `configs/apps/yazi/` | `.config/yazi/` |
+
+每个应用目录下的 `paths` 文件声明它拥有的、相对 `$HOME` 的路径；采集与恢复都以
+该清单为准。各应用的改动要点见 `docs/agents/MEMORY.md`，数据流见
+`docs/agents/ARCHITECTURE.md`。
 
 | 功能 | 当前实际位置 | 仓库位置 |
 | --- | --- | --- |
@@ -18,7 +58,7 @@
 | Bash | `~/.bashrc`、`~/.bash_profile`、`~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
 | Dconf | `~/.config/dconf/user` 二进制数据库 | `configs/dconf/user.ini` 文本导出 |
-| Docker helper | `~/.local/bin/docker-ass` | 不入快照；用 `scripts/install-docker-anirss.sh` 单独安装 |
+| Docker helper | `~/.local/bin/docker-ass` | 不入快照；用 `scripts/module.sh install docker-anirss` 单独安装 |
 | Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
@@ -37,7 +77,6 @@
 | OBS Studio | `~/.config/obs-studio/`（`global.ini`、`user.ini`、`basic/scenes/`、`basic/profiles/`、`plugin_manager/modules.json`） | `configs/home/.config/obs-studio/`；`service.json`（推流密钥）发布前删除，日志与 profiler 数据不入快照 |
 | OMP（Oh My Pi 前端偏好） | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml`（仅前端偏好，运行态不入） |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`；最近路径元数据会被移除 |
-| Shelly | `~/.config/shelly/config.json` | `configs/home/.config/shelly/` |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers（壁纸） | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
@@ -101,17 +140,23 @@
 
 ## 软件与服务
 
-第一列是实际清单路径，并按路径字母序排列。
+`packages/` 分为"安装输入"与"采集产物"两类。第一列是实际路径，按路径字母序排列。
 
-| 清单 | 内容 |
-| --- | --- |
-| `packages/aur-explicit.txt` | 当前显式 AUR 或外部软件 |
-| `packages/bun-global.txt` | Bun 全局工具，包括 Oh My Pi Agent |
-| `packages/pacman-explicit.txt` | 当前显式安装且来自已配置仓库的软件 |
-| `packages/required-extra.txt` | 托管配置或恢复脚本自身依赖的软件 |
-| `packages/rustup-toolchains.txt` | Rust 工具链 |
-| `packages/system-services.txt` | 已启用系统服务 |
-| `packages/user-services.txt` | 已启用用户服务 |
+| 清单 | 角色 | 内容 |
+| --- | --- | --- |
+| `packages/profiles/full.txt` | **安装输入** | 当前工作站档：NVIDIA 独显、游戏、容器、通讯、重型 IDE |
+| `packages/profiles/minimal.txt` | **安装输入** | ThinkPad T480 级档：Intel 核显、无游戏/容器、中英精简 TeX |
+| `packages/inventory/pacman-explicit.txt` | 采集产物 | 当前显式安装且来自已配置仓库的软件 |
+| `packages/inventory/aur-explicit.txt` | 采集产物 | 当前显式 AUR 或外部软件 |
+| `packages/services/system.txt` | 采集产物 | 已启用系统服务 |
+| `packages/services/user.txt` | 采集产物 | 已启用用户服务 |
+| `packages/toolchains/rustup.txt` | 采集产物 | Rust 工具链 |
+| `packages/toolchains/bun.txt` | 采集产物 | Bun 全局工具，包括 Oh My Pi Agent |
+| `packages/required-extra.txt` | **安装输入** | 托管配置或恢复脚本自身依赖的软件 |
+
+只有 `profiles/` 与 `required-extra.txt` 是安装输入；`inventory/`、`services/`、
+`toolchains/` 记录采集机器当时的实际状态。用 `scripts/profile.sh use NAME`
+选择档位，用 `scripts/profile.sh diff full minimal` 查看两档差异。
 
 ### Clash Verge 国内直连
 

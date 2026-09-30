@@ -33,7 +33,7 @@
         "preferredPlayer": "",
         "spectrumFrameRate": 30,
         "spectrumMirrored": true,
-        "visualizerType": "wave",
+        "visualizerType": "mirrored",
         "volumeFeedback": false,
         "volumeFeedbackSoundFile": "",
         "volumeOverdrive": false,
@@ -505,12 +505,12 @@
         "bluetoothRssiPollingEnabled": false,
         "disableDiscoverability": false,
         "networkPanelView": "wifi",
-        "wifiDetailsViewMode": "grid"
+        "wifiDetailsViewMode": "list"
     },
     "nightLight": {
         "autoSchedule": true,
         "dayTemp": "6500",
-        "enabled": true,
+        "enabled": false,
         "forced": false,
         "manualSunrise": "06:30",
         "manualSunset": "18:30",

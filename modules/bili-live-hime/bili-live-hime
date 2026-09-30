@@ -37,7 +37,7 @@ done
 
 [[ -d "$project_dir" ]] || {
     printf '错误：找不到项目目录 %s\n' "$project_dir" >&2
-    printf '请先运行 scripts/install-bili-live-hime.sh，或用 BILI_LIVE_HIME_DIR 指定位置。\n' >&2
+    printf '请先运行 scripts/module.sh install bili-live-hime，或用 BILI_LIVE_HIME_DIR 指定位置。\n' >&2
     exit 1
 }
 

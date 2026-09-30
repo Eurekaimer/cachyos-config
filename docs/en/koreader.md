@@ -29,15 +29,15 @@ marker, but Arch's extra repository ships that exact binary, so on this
 machine the probe matches, KOReader loads the Kobo device module, and the
 desktop launch aborts.
 
-This repository ships the repair as `scripts/patch-koreader-desktop.sh` — the
+This repository ships the repair as the `koreader` module — the
 manual fix lives in `/usr/lib`, which is package-owned, so a `koreader-bin`
 upgrade silently restores the broken probe and the crash comes back. Rerun the
-script after every upgrade:
+module after every upgrade:
 
 ```bash
-./scripts/patch-koreader-desktop.sh          # apply; prompts for sudo
-./scripts/patch-koreader-desktop.sh --dry-run  # preview without changing files
-./scripts/patch-koreader-desktop.sh --restore  # restore upstream originals
+./scripts/module.sh install koreader            # apply; prompts for sudo
+./scripts/module.sh install koreader --dry-run  # preview without changing files
+./scripts/module.sh uninstall koreader          # restore upstream originals
 ```
 
 `--restore` prefers the dated backup taken at patch time; without one it
@@ -52,11 +52,11 @@ source for the key bindings, Vim Keys plugin, font patch, and KOReader ECDICT
 installer. One-shot clone-and-restore into `~/.config/koreader/`:
 
 ```bash
-./scripts/install-koreader-keystream.sh            # clone + restore; temp checkout, nothing left on disk
-./scripts/install-koreader-keystream.sh --force    # overwrite existing hotkeys/defaults examples
-./scripts/install-koreader-keystream.sh --dry-run  # preview only
-./scripts/install-koreader-keystream.sh --skip-dictionary     # config only
-./scripts/install-koreader-keystream.sh --refresh-dictionary  # rebuild ECDICT
+./scripts/module.sh install koreader            # clone + restore; temp checkout, nothing left on disk
+./scripts/module.sh install koreader --force    # overwrite existing hotkeys/defaults examples
+./scripts/module.sh install koreader --dry-run  # preview only
+./scripts/module.sh install koreader --skip-dictionary     # config only
+./scripts/module.sh install koreader --refresh-dictionary  # rebuild ECDICT
 ```
 
 Per the upstream README, existing `hotkeys.lua` / `defaults.custom.lua` are
@@ -92,7 +92,7 @@ branch and calls `document:getPosFromXPointer()` — an API only the CRE engine
 (EPUB/FB2/TXT) implements — so every PDF crashes on open with
 `readerfooter.lua:2203: attempt to call method 'getPosFromXPointer' (a nil value)`.
 
-`scripts/patch-koreader-desktop.sh` repairs this too: it adds a one-line
+The `koreader` module repairs this too: it adds a one-line
 capability guard to
 `/usr/lib/koreader/frontend/apps/reader/modules/readerfooter.lua` (idempotent,
 dated backup `readerfooter.lua.bak-YYYYMMDD`), so non-CRE documents keep

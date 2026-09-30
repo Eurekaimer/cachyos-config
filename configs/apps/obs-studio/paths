@@ -1,0 +1,5 @@
+.config/obs-studio/global.ini
+.config/obs-studio/user.ini
+.config/obs-studio/basic/scenes
+.config/obs-studio/basic/profiles
+.config/obs-studio/plugin_manager/modules.json

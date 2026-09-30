@@ -89,7 +89,7 @@ IRQ 27 同时挂 `idma64.0` 与 `i2c_designware.0`。同一内核版本既有成
   停止，下一步是独立的内核/固件诊断，而不是 `irqpoll` 全局参数或无限重试。
 + 注册成功但用户仍报告失灵时，不能称为恢复成功：转为运行时输入诊断
   （udev/libinput/合成器层），不添加循环重绑。
-+ 回滚：`modules/touchpad-boot-recovery/uninstall.sh`（停用服务并删除两个文件，
++ 回滚：`./scripts/module.sh uninstall touchpad-boot-recovery`（停用服务并删除两个文件，
   不解绑触摸板）。若安装前备份过旧文件，恢复备份而非直接删除。
 + 配置/当前会话验证不等于真实下一次启动验证：需要用户自主重启后确认
   `journalctl -b _COMM=touchpad-boot-recovery` 与实际操作，不自动 reboot。

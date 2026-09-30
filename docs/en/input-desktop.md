@@ -17,7 +17,7 @@ Two Fcitx5 input-method groups keep `Super+R` as a two-state toggle instead of c
 
 Restore dependencies:
 
-+ `packages/pacman-explicit.txt` includes the official `fcitx5-mozc` package.
++ `packages/profiles/full.txt` includes the official `fcitx5-mozc` package.
 + `manifests/home-paths.txt` captures the group-toggle script; `restore-user.sh` restores it under `~/.local/bin/` with its executable mode.
 + `configs/home/.config/niri/cfg/keybinds.kdl` retains the existing `Super+R` binding and adds `Super+Shift+R`.
 

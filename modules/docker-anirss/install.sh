@@ -2,7 +2,7 @@
 set -euo pipefail
 
 module_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-bin_dir="${CAMPUS_BIN_DIR:-$HOME/.local/bin}"
+bin_dir="${DOCKER_ASS_BIN_DIR:-$HOME/.local/bin}"
 install_path="$bin_dir/docker-ass"
 backup_dir="${CACHYOS_MODULE_BACKUPS:-$HOME/.local/state/cachyos-config/module-backups}"
 

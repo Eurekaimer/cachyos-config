@@ -1,0 +1,523 @@
+# JOURNAL —— cachyos-config 恢复执行记录（2026-08-25）
+
+> 本文件只追加历史：每次恢复/重构遇到的问题、手动补救与偏差。
+> 稳定知识（不变量、各应用配置要点、陷阱）写入 `docs/agents/MEMORY.md`。
+
+本次在新机器上执行恢复时遇到的问题、手动补救措施、以及对脚本一键化（one-shot）的差距清单。
+目标：后续把下列事项修进仓库脚本，使 `scripts/restore-all.sh` 真正做到一键可复现。
+
+## 2026-09-23：Timewarrior 配置与 totals 扩展同步
+
+- 新增 home manifest 条目：`.config/timewarrior/timewarrior.cfg`、
+  `.config/timewarrior/extensions/totals.py`，已从当前机器采集；保留扩展可执行权限与许可证。
+- 新增 `scripts/sync-timewarrior.sh --capture|--restore [--dry-run]`，复用现有恢复备份逻辑；
+  全量采集与恢复仍通过原 home manifest 工作。`required-extra.txt` 补齐 `timew`、`python`。
+- 只同步配置与扩展，不提交计时数据；审计新增 Timewarrior 运行数据路径检查。
+  中英文采集文档及 README 索引已更新。
+- 验证：隔离 HOME 中完成 dry-run、恢复与旧配置备份检查，确认数据及其他扩展未改动；
+  实际运行 `timew track` 后，`timew totals` 正确输出测试标签的 `1:30:00`。
+  `scripts/audit.sh` 通过，临时验证目录已自动清理；未改动本机计时记录，未执行 Git 提交或推送。
+
+## 1. 脚本无法一步到位的点（需要改仓库）
+
+### 1.1 `packages/pacman-explicit.txt` 缺少 noctalia 相关包
+清单里有 `cachyos-niri-noctalia`，但没有：
+- `noctalia-qs`
+- `noctalia-shell`
+而 `configs/home/.config/niri/cfg/keybinds.kdl` 的启动器（Mod+Space）、锁屏、会话菜单全部依赖 `qs -c noctalia-shell ...`。
+**后果**：纯跑脚本装完包后启动器仍然点不动。本次已手动 `pacman -S noctalia-qs noctalia-shell` 补装。
+**建议**：把这两行加进 `packages/pacman-explicit.txt`。
+**✅ 已修复（2026-08-25 重构轮）**：两行已加入 `packages/pacman-explicit.txt`（noctalia-qs、noctalia-shell），AGENT.md 的"快速路径缺口"段落已删除。
+
+### 1.2 子模块克隆依赖 github.com 且无兜底
+- 新克隆必须先执行 `git submodule update --init --recursive`，否则 Stage 4（`sync-sddm-theme.sh:55` 的 Sugar Candy 存在性检查）直接 die。`restore-all.sh` 自己不初始化子模块。
+- 本次执行时 github.com 两次连接失败（SSL EOF / 连接超时 132s）。已通过机器上另一份旧克隆（原中文路径 `~/文档/GitHub/cachyos-config`）把 `modules/sddm/sugar-candy` 整目录离线拷贝进活跃仓库解决。
+**建议**：a) `restore-all.sh` 开头自动 `git submodule update --init --recursive`；b) 文档里写明 GitHub 不可达时的镜像/代理方案，或把 Sugar Candy 直接 vendor 进仓库。
+**✅ 已修复（2026-08-25 重构轮）**：restore-all.sh Stage 0 自动 `git submodule update --init --recursive`（失败即 die 并指向 AGENT.md §1 离线兜底）；GitHub Desktop 拉取失败也已通过正式初始化子模块解决。
+
+### 1.3 快照缺失 `.config/gtk-4.0`（已修复）
+
+`manifests/home-paths.txt` 的 `.config/gtk-4.0` 行已删除（快照本就没有该目录，restore-user 不再报 warning）。原内容：
+
+### 1.3 快照缺失 `.config/gtk-4.0`
+`manifests/home-paths.txt:21` 列了 `.config/gtk-4.0`，但快照树里没有该目录，restore-user 阶段每次都会 `warning: Snapshot missing, skipped`。
+**建议**：要么补录该目录进快照，要么从清单删除。
+
+### 1.4 家目录中文名 → 英文名的迁移完全没有覆盖
+本机原有 `桌面/下载/模板/公共/文档/音乐/图片/视频/项目` 九个中文目录。本次手动完成：
+- `桌面→Desktop、下载→Downloads、模板→Templates、公共→Public、音乐→Music、图片→Pictures、视频→Videos、项目→Projects`（直接改名，无冲突）
+- `~/文档/GitHub/cachyos-config` 整体挪到 `~/Documents/Github/cachyos-config-full`（旧的全量克隆，含子模块内容，留作备份），随后删掉空壳 `文档/`
+- `~/.config/user-dirs.dirs` 已改为英文映射（与快照 `configs/home/.config/user-dirs.dirs` 内容一致，Stage 3 恢复它不会回退）
+**建议**：写一个 `scripts/migrate-home-dirs-zh.sh`（检测中文名→改名→更新 user-dirs.dirs→xdg-user-dirs 更新），挂进 restore-all 作为可选 stage。
+**✅ 已修复（2026-08-25 重构轮）**：`scripts/migrate-home-dirs-zh.sh` 已实现（检测 9 个中文目录→改名英文→xdg-user-dirs-update；目标已存在则跳过；幂等），restore-all 以 `--migrate-zh-dirs` 在 Stage 0 调用（必须在 Stage 3 覆盖 user-dirs.dirs 之前）。
+
+### 1.5 hyprlock 完全不在仓库里
+全仓库 glob 无任何 `hyprlock` 配置/脚本/清单条目。当前锁屏走的是 noctalia 自带锁屏（settings.json 已启用 `lockOnSuspend` 等）。
+如果确实还想用 hyprlock：需要新增 `configs/home/.config/hypr/hyprlock.conf` + 清单条目 + 安装包；否则维持现状即可，无需动作。
+
+### 1.6 壁纸链路确认（无需改动）
+`manifests/home-paths.txt:34` 已包含 `Pictures/Wallpapers`，快照里有 6 张图；noctalia 默认壁纸目录就是 `~/Pictures/Wallpapers`，且现有 `settings.json` 的 `wallpaper.directory` 也指向该路径。Stage 3 恢复后即生效。本次为即时见效手动复制过一次并用 IPC 设了 `luckystar.png`。
+
+## 2. 执行环境坑（与仓库无关，但影响一键体验）
+
+### 2.1 非交互 sudo 在本会话工具链下不可用
+- `printf '密码' | sudo -S -v` 立即失败（0.13s 报“sudo: 需要密码”），并非密码错误——管道 stdin 未送达。
+- `SUDO_ASKPASS=<script> sudo -A <cmd>` 可用，但 `sudo -A -v`（仅缓存凭据）同样秒败；paru 内部又调裸 `sudo`，吃不到 askpass。
+- **实际采用**：临时写入 `/etc/sudoers.d/99-cachyos-restore-temp`（`eurekaimer ALL=(ALL) NOPASSWD: ALL`，440 权限）解锁整个流水线；流水线结束后已删除。
+**建议**：在 README 注明全自动部署需先配置免密 sudo 或用 `--no-sudo` 分阶段人工输入。
+
+### 2.2 quickshell 外壳需要手动拉起（首次）
+登录自启（niri spawn-at-startup / systemd 用户单元）只对下次登录生效；本次会话内是杀掉旧 C++ `noctalia`（PID 991）后 `setsid qs -d -c noctalia-shell` 手动拉起，IPC `launcher toggle` 验证 exit 0。重启一次后即完全正常。
+
+## 3. 输入法与字体状态
+- fcitx5 套件 + Ziranma 双拼 profile 已同步；候选框样式来自 `.config/fcitx5/conf/classicui.conf`（LXGW WenKai 18 号、横排、按屏 DPI），依赖 AUR 字体包 `ttf-lxgw-wenkai`、`ttf-lxgw-wenkai-mono-nerd`（本次经 paru 安装）。
+- noctalia `ui.fontDefault/fontFixed` 也引用 LXGW 两款字体，字体未装时会静默回退。
+- 2026-09-11：为 `wechat-bin 4.1.13.9-1` 添加用户级 `.local/share/applications/wechat.desktop`，并纳入 `manifests/home-paths.txt`。仅微信启动时设置 `QT_IM_MODULE=text-input-unstable-v3`、`XMODIFIERS=@im=fcitx`，不修改 niri 全局输入法环境。来源：[上游讨论 #1](https://github.com/Kraftland/arch-wechat-packaging/discussions/1)。帖子报告此方案可用于 Wayland 主界面；表情搜索仍是已知限制，不能据此宣称已修复。
+- 启动器通过 `desktop-file-validate`，刷新 desktop 数据库后 Gio 按 `wechat.desktop` 解析到用户级覆盖及新参数。用户已确认输入法恢复可用。直接执行 `/usr/bin/wechat` 不经过此 desktop 覆盖；后续修改启动参数仍需完全退出微信后通过应用启动器重开。修改前备份位于 `~/.local/state/cachyos-config/backups/20260911-163440-wechat/`；此前不存在用户级微信启动器。
+
+## 4. Caps 键行为说明（备忘）
+`cfg/input.kdl` 用 xkb 选项 `caps:super,shift:both_capslock` 把 Caps 映射成 Super，所以 `Super+Space` 与 `Caps+Space` 完全等价；之前唤不出启动器不是键位问题，是外壳没运行（见 2.2）。
+
+## 5. 本次执行日志摘要
+- `audit.sh` 通过；dry-run 仅 1.3 与 Stage 4 两处问题（均已处理）。
+- 字体安装：paru 构建 ttf-lxgw-wenkai{,-mono-nerd} 1.522-1。
+- 壁纸：IPC `wallpaper set` 生效（before=noctalia.png 占位 → after=luckystar.png）。
+- niri validate 通过；quickshell 实例常驻（PID 50606 起）。
+
+## 6. 字体包本地化（已移除）
+
+`vendor/fonts/` 方案（存 ~119MB 官方 tarball）从未被任何脚本消费，2026-08-25 重构轮删除。
+代理（§0/lib/proxy.sh）实测 ~5MB/s 拉 GitHub release，不再需要离线包。
+`ttf-lxgw-wenkai{,-mono-nerd}` 直拉安装，字体已生效（fc-match → 霞鹜文楷）。
+
+## 7. 显示缩放
+快照 cfg/display.kdl 只有注释掉的 DP-1 示例块；本机面板是 eDP-1（1920x1200），脚本恢复后默认 scale=1。
+本次手动在 display.kdl 追加：
+```
+output "eDP-1" {
+    scale 1.1
+}
+```
+（先试 1.25 偏大，用户回调到 1.1。）机器相关配置，是否入快照由你定。
+## 8. AUR 阶段踩坑（本轮三次失败后全部定位）
+
+1. **多提供者选择卡死（无 TTY 环境）**：paru 在多个 AUR 包提供同一虚拟包（如 `baidunetdisk`、`go-musicfox`）时，非交互运行会在"选择提供者"处卡住等待输入。
+   修复：`/etc/paru.conf` 注释掉 `Provides`（第 14 行），paru 不再做提供者选择；清单改写真名（见 §9）。
+2. **`peazip-qt-bin` 在 AUR 不存在**：报"无法找到所有需要的软件包: peazip-qt-bin"——已从 `packages/aur-explicit.txt` 剔除（peazip 本体也无需安装）。
+3. **`github-desktop-bin` 与其他包文件冲突**：报"冲突的软件包将需要手动确认"——已从清单剔除，保留已装好的同名包（github-desktop-bin 未装过则按需单独处理）。
+4. **速度**：GitHub 直连 ~226KB/s，经 clash-verge（127.0.0.1:7897）~645KB/s；virtio-win 的 753MB ISO 从 fedorapeople.org 下载多次 SSL EOF 中断，
+   最终用 `curl -L --retry 30 --retry-all-errors -C -` 断点续传拉完（sha256 校验通过）再交给 makepkg（源文件已存在则跳过下载）。
+   建议：`install-packages.sh` 顶部已加代理自动检测（ss/nc 探测 7897 → export 六个代理变量），一键恢复自带加速。
+
+## 9. 本次执行明细（2026-08-25 收尾轮）
+
+- **代理落地**：`~/.zshrc`、`~/.bashrc`、`scripts/install-packages.sh` 顶部、仓库 `configs/home/.zshrc` 顶部均有检测块（ss/nc → export http/https/all proxy，`socks5h://` + `no_proxy=localhost,127.0.0.1,::1,.local`，与 niri `cfg/misc.kdl` 的 `environment{}` 注入取值一致）；`git config --global http.proxy/https.proxy` 已设。
+- **AUR 清单最终 18 包**：baidunetdisk-bin（原 baidunetdisk）、clash-verge-rev-bin、feishu-bin、flac1.3、go-musicfox-bin（原 go-musicfox）、google-chrome、gtkmm、koreader-bin、libsoup、linuxqq、picgo-appimage、sioyek-git、ttf-lxgw-wenkai、ttf-lxgw-wenkai-mono-nerd、virtio-win、visual-studio-code-bin、wechat-bin、zoom。排除：peazip-qt-bin（不存在）、github-desktop-bin（冲突）。
+- **Stage 3 副作用回填**：`~/.config/noctalia/` 回填 `settings.json`（含 luckystar 引用）、`colors.json`、`colorschemes/`、`config.toml`（来源 `~/.local/state/cachyos-config/backups/20260825-163130/home/.config/noctalia/`）；`cfg/display.kdl` 末尾重加 `output "eDP-1" { scale 1.1 }`（niri 热重载，`niri msg outputs` 显示 Scale: 1.1，逻辑分辨率 1745x1090）。
+- **fcitx5**：字体（ttf-lxgw-wenkai 等）装完后重启实例（`fcitx5 -rd --replace`），`fcitx5-remote` = 2 激活，候选框 LXGW WenKai 生效；classicui.conf `Font="LXGW WenKai 18"` 未动。
+- **仓库同步**：`git pull` 快进到 902479e（go-musicfox/shelly/omp 配置等新内容）；`modules/sddm/sugar-candy` 子模块正式初始化（离线拷贝目录移出后 `git submodule update --init --recursive`，检出 d31dbf58），GitHub Desktop 报错已消除。
+- **辅助工具**：`~/.local/bin/install-progress`（实时进度条：已装/总数、剩余、网速、running/idle；`--once` 单次快照）。
+- **其它**：mkinitcpio 询问 limine-mkinitcpio 已回答 y；`sioyek-ecdict.service` 曾缺失被跳过——已通过 `scripts/module.sh install sioyek-ecdict` 安装（77 万词条索引，unit 已启用并启动），后续 restore-services 不再告警；未重启（提示用户自行重启后登录自启生效）。
+## 10. 重构轮记录（2026-08-25）
+
+### 10.1 脚本与结构
+- `scripts/lib/proxy.sh`（新）：`setup_proxy()` 唯一实现，`PROXY_HOST`/`PROXY_PORT` 可覆盖；install-packages.sh 已改为 source 它（去掉了内联 10 行）。`~/.zshrc`/`~/.bashrc` 仍各自内联同款块——家目录 shell 无法 source 仓库，属有意重复。
+- `scripts/post-restore-tweaks.sh`（新）：noctalia 运行时回填 + eDP-1 缩放 + 可选 `--wallpaper`/`--restart-fcitx5`/`--edp-scale`；restore-all Stage 6 自动执行（幂等），替代 AGENT.md §8 手搓命令。
+- `scripts/migrate-home-dirs-zh.sh`（新）：见 §1.4。
+- `scripts/install-progress.sh`：从 ~/.local/bin 移入仓库（`~/.local/bin/install-progress` 改软链，单一来源）；修复 `set -e` 下 `((done++))` 误退出问题。
+- `scripts/lib/common.sh` 新增 `ensure_sudo()`：非交互无免密 sudo 时 warn+return 1；restore-all Stage 0 调用并 die（顺序性：装包前先确认提权可用）。
+- `scripts/restore-all.sh`：改为 7 段（Stage 0 前置：ensure_sudo + 子模块初始化 + 可选 zh 目录迁移；Stage 1–5 原样；Stage 6 tweaks）；新增 `--migrate-zh-dirs`、`--wallpaper FILE`、`--restart-fcitx5`；`--dry-run` 现在正确跳过前置 sudo 检查。
+- 清单变更：`packages/pacman-explicit.txt` +noctalia-qs +noctalia-shell；`manifests/home-paths.txt` −.config/gtk-4.0。
+
+### 10.2 电源与硬件（实测）
+- 亮度-功率曲线（power-saver 档、空闲、电池供电）：100% = 11.7W / 50% = 9.8W / 30% = 8.7W；performance 档比 power-saver 高 ~2W（13.6W @100% 亮度）。
+- 电池健康 85.5%（energy_full 64.44Wh / design 75.4Wh）。目标续航 5.5h：50% 亮度轻度使用可达（~6.6h 待机）。
+- 已落地：亮度 70%（用户回调）；`/etc/bluetooth/main.conf` 加 `[Policy] AutoEnable=true`（蓝牙开机自启）。
+- 未做（待用户确认）：`intel_pstate/no_turbo=1`（省 0.5–1W 待机）、内核参数 `pcie_aspm=force`（重启生效）、powertop 审计。
+
+### 10.3 壁纸
+- 用户偏好为 `Pictures/Wallpapers/project_mifeng.png`（非 luckystar）；`modules/sddm/wallpaper.path` 已指向它，Noctalia 运行时已通过 IPC 设回。settings.json 中的 luckystar 只是头像引用（avatarImage），保留。
+
+### 10.4 验证
+- 全部脚本 `bash -n` 通过；`./scripts/restore-all.sh --dry-run` 完整跑通（Stage 0–6 命令全部打印）；`install-progress --once` 输出 265/265（清单含新增 2 包）；audit.sh 通过。
+### 10.5 docker-anirss 栈恢复（2026-08-25，重置后）
+
+初始化命令是 `docker-ass`（不是 `docker-anirss`，后者只是模块目录名）。本次三个叠加问题与修复：
+1. **docker 服务未启动**：restore-all Stage 5 只 `enable` 不 `start`（未传 `--now`）。手动 `systemctl start docker`。
+2. **`sg` 依赖 bug（仓库已修）**：`modules/docker-anirss/docker-ass` 的降级路径用 `sg docker -c <cmd>`，而 CachyOS 的 util-linux **已移除 `sg`**（Arch 系只有 `newgrp`/`setpriv`）。docker info 失败（用户不在 docker 组且未 re-login）即触发降级 → "sg: 未找到命令"。已改为 `sudo -g docker -u "$USER" sh -c "<cmd>"`（仓库源码 + `~/.local/bin` 同步）。
+3. **镜像名错误 + registry 被墙**：
+   - `shindoukyou/ani-rss` 在 Docker Hub **404**（不存在）；正确镜像 = **`wushuo894/ani-rss:latest`**（官方 docs.wushuo.top/deploy/docker 确认）。
+   - docker.io 直连超时（大陆网络）；`/etc/docker/daemon.json` 配 `registry-mirrors: ["https://dockerproxy.net"]`（daocloud 有白名单且不含此镜像，别用）+ `system-proxies`（http/https 7897，no-proxy 含 api.github.com）。
+   - compose 文件 `~/Projects/ASS/docker-compose.yml` 按官方参数重写：ani-rss 7789（CONFIG=/config、SERVER_PORT=7789、JAVA_OPTS 官方值），qbittorrent 8080（官方 webui），下载目录 `~/Downloads` 挂成 `/Media`（ani-rss 侧）与 `/downloads`（qb 侧）。
+- **最终状态**：`docker compose up -d` 两容器 Up；http://127.0.0.1:7789（ANI-RSS）与 http://127.0.0.1:8080（qBittorrent）均 200。
+- **注意事项**：用户 `eurekaimer` 已加入 docker 组（`usermod -aG`），**重新登录后 `docker ps` 免 sudo**；daemon.json 与 compose 文件为机器本地，不入 git。
+
+## 11. 触摸板开机自恢复模块（2026-09-10）
+
+- **问题**：Lenovo 82XF（IdeaPad Slim 5 16IRL8，i5-13500H，BIOS LACN22WW）I2C 触摸板（`MSFT0002:00 06CB:CEFE`）部分开机无法注册：`irq 27: nobody cared`（handlers `idma64.0, i2c_designware.0`）→ `i2c_designware.0: controller timed out` → `i2c-MSFT0002:00` 探测 `-110`。6.18.42-1/6.18.48-1（有成功也有失败）/7.2.0-1/7.2.2-1 均出现，非单版本回归；已注册设备还会在运行中停事件（11:05 复现，重绑恢复，11:10 root 捕获 34 个真实多指事件）。根因未定（时序/固件/驱动交互皆为可能性）。
+- **上游检索结论**（详见 `docs/en/touchpad-boot-recovery.md`）：同族报告已有——CachyOS/linux-cachyos#858（HP ENVY 13，SYNA329D，签名完全一致）、#982（7.2.0-rc7 延迟探测）、Arch 论坛 312363（同型号 IdeaPad Slim 5 16IRL8，ELAN06FA，12/13 冷启动失败）、Ubuntu 2072612（82ND 运行中失效，转 bugzilla 219101）。本机数据点（82XF + 06CB:CEFE + 多内核 + 运行中失效）未见任何一条包含，建议评论补充而非开新票（#858 评论待用户确认后代发）。
+- **新增**：`modules/touchpad-boot-recovery/`（脚本 + unit + install/uninstall + 双语 README）、`scripts/module.sh install touchpad-boot-recovery`（包装，--dry-run、ensure_sudo）、`docs/{en,zh-CN}/touchpad-boot-recovery.md`（现象/上游/边界）、README 双语索引 + user-scripts 双语清单、`packages/system-services.txt` +touchpad-boot-recovery.service（restore-services 幂等，目标机无此 unit 时只告警跳过）。
+- **设计边界**：oneshot 开机自恢复（Before=display-manager.service），最多等 10s 后一次性 unbind/bind `i2c_designware.0`，再等 5s 验证注册；不循环、不卸载共享模块、不加 irqpoll/timer/udev 规则。**是间歇故障应对，不是根因修复**。
+- **当前机状态**：unit 已 enabled 并运行（10:53 重绑成功）；仓库内文件与系统内文件逐字节一致（diff 通过）。真实下一次启动验证仍需用户自主重启后查 `journalctl -b _COMM=touchpad-boot-recovery` 与实际操作。
+
+
+## 12. Neovim Java 与 clang-format 插件（2026-09-11）
+
+- **新增插件**（`lazy-lock.json` 已锁定）：
+  - `nvim-jdtls`（`lua/plugins/java.lua`）——启动 eclipse.jdt.ls，提供整理 import、提取变量/常量/方法、`:JdtCompile` / `:JdtRestart` 等 JDT 扩展。
+  - `vim-clang-format`（`lua/plugins/editing.lua`）——驱动系统 `clang-format` 二进制，覆盖 C 系与 Java 等文件类型。
+- **架构决策（关键）**：`lsp.lua` 把 `jdtls` 列入 Mason 的 `ensure_installed`（新增 `plugin_managed_servers` 列表），但**不**调用 `vim.lsp.enable("jdtls")`，Java 客户端统一由 `java.lua` 通过 `require("jdtls").start_or_attach()` 启动。若两处都启用会同时 attach 两个客户端。
+- **实测验证**（headless，`/tmp/java-probe/`）：
+  - 客户端 attach 成功：`root=/tmp/java-probe`、`cmd=jdtls -data ~/.cache/nvim/jdtls/java-probe`、重复 `edit!` 后仍只有 1 个客户端。
+  - `textDocument/formatting` 不在初始 `server_capabilities` 里，而是 eclipse.jdt.ls 稍后**动态注册**——需要等待（实测 ~1–2s 内到位），`vim.lsp.buf.format()` 随后确实重排了乱缩进文件。
+  - `require("jdtls").organize_imports()` 生效：删除未使用的 `import java.util.Map;`。
+  - 补全可用：光标处 `textDocument/completion` 返回 28 项。
+  - `vim-clang-format`：`ugly.c` 与 `Ugly.java` 均被重排；`.clang-format` 存在时走 `-style=file`（把 IndentWidth 改成 8 后输出缩进随之变 8），不存在时回退 `{BasedOnStyle: google, IndentWidth: <shiftwidth>}`。
+- **Mason 安装 jdtls 的坑**：`projectlombok.org` 的 `lombok.jar` 会下载失败（`wget exit 4`），但 lombok 只是可选的注解支持，报错发生在 jdtls 主体解包**之后**；`lombok.jar` 实际已就位（2.0 MiB，zip 可读，1086 条目），包 66 MiB 完整可用。复现时直接确认 jar 是否存在即可，无需重装。
+- **包清单**：`packages/pacman-explicit.txt` +`clang`（`clang-format` 由它提供；原来只装了 `llvm-libs` 相关依赖，`clang` 本身未显式安装）。JDK 已在清单中（`jdk-openjdk` 26 + `jdk21-openjdk`）。
+- **文档**：`configs/home/.config/nvim/README.md`、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 三处同步更新（插件表、目录结构、LSP 表 +Java 行、外部依赖 +clang/JDK、Java 与 clang-format 小节、排障表）；语言服务器计数由六个改为七个。
+- **待办**：无。插件与配置均在实时配置与仓库快照中一致。
+
+## 13. Neovim 撰写辅助：autopair 与括号层级配色（2026-09-11）
+
+- **新增插件**：
+  - `mini.pairs`（`lua/plugins/editing.lua`，启动加载：曾用 `InsertEnter` 懒加载，但 headless 无法验证该事件真的加载插件，改为与 `mini.surround` 一致的常驻加载，插件本身很小）——括号/引号自动成对，`<BS>` 删整对，`<CR>` 展开成块。
+  - `rainbow-delimiters.nvim`（`lua/plugins/syntax.lua`，启动加载）——Treesitter 驱动的按嵌套深度着色。
+- **新增 Treesitter 解析器**：`java`、`c`、`cpp`（rainbow-delimiters 无解析器不工作）。`cpp` 首次下载被 TLS EOF 打断，重跑一次成功；`site/parser/` 现共 18 个 `.so`。
+- **改动**：
+  - `lua/config/keymaps.lua`：`<CR>` 表达式映射增加 `MiniPairs.cr()` 分支（补全菜单优先，其次成对展开，最后普通换行）。`vim.g.minipairs_disable` 为 nil 时正常触发。
+  - `lua/plugins/theme.lua`：`overrides` 中新增七个 `RainbowDelimiter*` 组，取自 Kanagawa palette（waveRed / carpYellow / crystalBlue / roninYellow / springGreen / oniViolet / waveAqua2）。插件默认顺序即「相邻层对比最强」，未覆盖 `highlight` 列表。
+  - `lua/plugins/lsp.lua`：新增 on-type formatting 能力探测启用；新增 `<A-s>` 签名帮助映射（Neovim 默认的插入模式 `CTRL-S` 已被本配置用作保存，故改用 `Alt+s`）。
+- **实测验证**（headless）：
+  - 配色：七组 fg 两两不同（`#e46876 / #e6c384 / #7e9cd8 / #ff9e3b / #98bb6c / #957fb8 / #7aa89f`）；在四层嵌套的 `Deep.java` 上同时出现 Red/Yellow/Blue/Orange 四个层级的 extmark，共 23 个。
+  - 成对：`if(` → `if()`；`if(1)` 输入闭括号时跳过不重复；`iif(<BS>` → `if`（整对删除）；`String s = "` → `String s = ""`；`if(1) {` + Enter → 展开为 `{\n\n}`；`if(` + Enter → `(\n\n        )`；反斜杠后不触发。
+  - `<BS>` 映射由 mini.pairs 在 setup 时创建（`v:lua.MiniPairs.bs()`），与 `<CR>` 无冲突。
+  - 签名帮助映射存在（`<A-s>` = 「签名帮助」），jdtls 声明 `signatureHelpProvider.triggerCharacters = ["(", ","]`。
+  - on-type formatting：`client._otf_enabled = true`、`vim.on_key` 已注册、jdtls 声明 `documentOnTypeFormattingProvider = {firstTriggerCharacter=";", moreTriggerCharacter=["\n","}"]}`。**注意**：headless 下用合成请求测试该能力返回空编辑列表（`edits={}`），且 `nvim_input`/`feedkeys` 在无 UI 环境无法可靠模拟真实键入，因此「打字时自动缩进」的**实际效果未能在本环境观察到**；配置本身按服务器能力探测启用，能力缺失的服务器自动跳过。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步新增「撰写辅助」小节、插件表条目、解析器列表、LSP 映射行与 Java on-type 说明。
+
+## 14. Neovim Markdown snippets 与 Obsidian callouts（2026-09-12）
+
+- **背景**：用户报告两件事——新增 `callouts-*` 片段（并让换行自动跟随 `>`），以及「Kanagawa
+  主题不生效、界面全黑」。
+- **主题结论：一直是好的**。对活动窗口截图取像素，背景 `#1f1f28`、正文 `#dcd7ba`、链接
+  `#7fb4ca`，即 Kanagawa Wave；`vim.g.colors_name` 亦为 `kanagawa`。用户看到的「全黑」来自
+  **配置未部署**：`~/.config/nvim` 停留在 9/7 版本，仓库 9/11 的两笔提交（`5988e7f`
+  Java+clang-format、`deead7d` autopair+rainbow）从未同步到实时配置。
+- **插件缺口**：按 `lazy-lock.json` 对比，仓库声明 21 个插件、本机仅 17 个，缺 `mini.pairs`、
+  `nvim-jdtls`、`rainbow-delimiters.nvim`、`vim-clang-format`；Mason 缺 `jdtls`，Treesitter 缺
+  `c`、`cpp`、`java`。执行 `:Lazy! install` + `:TSInstall! c cpp java` + `:MasonInstall jdtls`
+  补齐（解析器 15 → 18 个）。
+- **`mk` / `dm` 失效真因**：`fmta` 以 `<>` 作占位符定界符，格式串里的字面量 `>` 会抛
+  `Found unescaped > outside placeholder`，导致**整个片段文件加载失败**，原有片段一并消失
+  （`~/.local/state/nvim/luasnip.log` 有对应 ERROR）。
+- **`>` 不续行真因**：Markdown 自带 ftplugin 执行 `formatoptions-=r`（实测 `jtcqln`），`r`
+  缺失时 Vim 不在 `<Enter>` 重复 comment leader。
+- **改动**：
+  - `lua/snippets/markdown.lua`：重写为 LaTeX Suite 移植版。捕获到关键语义——原配置的 `A`
+    选项是**自动展开**（不只是 Tab），`m` 是**仅数学模式**；据此把 154 条数学片段做成
+    autosnippet 并经 `in_math()` 门控，13 条留 Tab（`mk` `dm` `aln` `align` `mat` `par`
+    `scr` `limt` `tayl`）。前缀冲突按「长触发器自动、短触发器 Tab」处理，并用 `priority`
+    解决 `ddot`/`dot`、`<->`/`->`（LuaSnip 默认优先级 1000，覆盖值需 > 1000）。纯字母触发器
+    要求词边界，避免 `eta` 吃掉 `beta`。callout 用 `text_node` 构造以规避 `>` 转义问题，
+    并由 `callout_types` 列表生成 20 种类型。
+  - `lua/config/autocmds.lua`：`FileType markdown` → `formatoptions:append("r")`。
+  - `lua/config/keymaps.lua`：`<CR>` 增加空白引用行折叠分支，`collapse_quote_run()` 把整段
+    连续空 `>` 行折叠为一个空行、光标落到下一行（同时向前向后扫描，避免只处理光标上方而
+    残留 `>`）；`return` 导出该函数供 `<Cmd>` 映射调用。
+- **实测验证**：
+  - `aligned` 自动展开；`beta` 不被 `eta` 吞；`<->` 输出 `\leftrightarrow` 而非 `<\to`；`//`
+    展开后光标在第一个括号、`<Tab>` 到第二个。
+  - 20 种 callout 全量矩阵测试通过（`> [!type] T` / `> b` / 空行 / `z`）。
+  - `collapse_quote_run()` 10 个边界用例通过：1/2/3 个空 `>`、光标在中间行、EOF、`> ` 带尾
+    空格、缩进行、非空行不折叠。
+  - 实时 PTY 端到端：`icallouts-todo` + Tab + 标题 + Tab + 两条 `- [ ]` + 两次回车，落盘
+    `> [!todo] C1` / `> - [ ] a` / `> - [ ] b` / 空行 / `next`。
+- **环境注意**：PTY 合成键入在触发词较长时偶发丢键（`body` → `dy`），属测试夹具问题；分块
+  投递（每块一次 write 后停顿）可稳定复现正确行为，逐字节投递反而更差。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 同步更新（片段表、
+  数学模式门控、前缀冲突规则、callout 一节与折叠语义、配置结构表）。
+- **待办**：无。实时配置与仓库快照一致。
+
+## 15. Neovim 图片渲染、callout 与配置分叉收口（2026-09-13）
+
+- **背景**：用户报告三件事——图片"有时"渲染失败并抛 curl 错误、callout 的 Tab 失效、
+  回车不再自动续 `>`。
+- **发现配置分叉（根因）**：上一轮提交 `615ffb1` 只改了仓库快照，**从未部署到实时
+  `~/.config/nvim`**。实时配置仍停留在 `615ffb1^`，因此上一轮的 `formatoptions+=r`、
+  空引用行折叠、LaTeX Suite 片段移植在实时环境全部缺失——这正是"回车不续 `>`"的真因。
+  本轮把仓库侧实现反向同步到实时配置。
+- **图片失败真因（上游缺陷）**：`image.nvim` 的 `from_url` 在 curl 的 stdout 关闭时就写入
+  `remote_cache`、从不检查退出码，并在异步回调里直接 `utils.throw`。一次被截断的下载会让
+  该 URL 永久命中坏缓存，之后每次渲染都失败。**未采用 `ignore_download_error` 掩盖**，
+  而是在 `lua/plugins/markdown.lua` 用 `download_image()` 替换下载器：以退出码判定成功、
+  失败时删临时文件并清理缓存、给出可读错误；并发请求各用独立临时文件。放在配置侧是为了
+  插件更新不会覆盖修复。
+- **图片不显示的第二真因**：`smear-cursor` 常驻的隐藏浮窗被 image.nvim 当作遮挡窗口，
+  `window_overlap_clear_enabled` 下直接跳过渲染。已把 `smear-cursor` 加入
+  `window_overlap_clear_ft_ignore`。
+- **图片不显示的第三真因**：`hijack_file_patterns` 只在 `WinNew`/`BufWinEnter`/`TabEnter`
+  生效，而插件仅以 `ft = "markdown"` 懒加载，直接打开 `.png` 时事件已过，故图片文件不会
+  被接管的判断成立。已补 `event = "BufReadPre *.png,..."`。
+- **callout 的 Tab 真因**：并非按键映射损坏。`render-markdown` 的 `opts={}` 让内置补全保持
+  `completions.lsp.enabled=false`，且当时片段文件只有 TeX，没有 callout 模板，因此 Tab 无
+  事可做。本轮启用内置补全并合并上一轮的 20 条 `callouts-<类型>` 模板。`[` `!` 不属关键字
+  字符，原生补全会替换整段关键字，故由 `markdown_completions()` 显式给出 `textEdit` 范围，
+  并复用 mini.pairs 已插入的 `]`，避免产生 `> [![!X]]`。
+- **片段文件缺陷**：上一轮的移植版把 `mk` / `dm` 同时定义为 `tab()` 片段和 autosnippet，
+  触发词重复。已删除 `tab()` 重复项，保留 autosnippet。
+- **审计顺带修复**：`vim.highlight.on_yank` → `vim.hl.on_yank`（0.12 正式位置）；Java 索引
+  缓存由仅 basename 改为 `<项目名>-<sha256(root)>`，避免同名项目共用工作区；可视模式
+  clang-format 改用 `:ClangFormat` 保留 `'<,'>` 范围（原 `<Cmd>` 会格式化整个文件）；
+  `breakat` 追加中文标点无效（`'breakat'` 仅支持 ASCII），已移除并让 Neovim 自行处理 Unicode 折行。
+- **实测验证**（真实 Kitty + 真实键入）：
+  - `callouts-todo` + `<Tab>` → `> [!todo] title` / `> `；
+  - 正文行回车自动续 `> `（`> next line`），空 `>` 行再回车折叠为单个空行；
+  - `> [!` 弹出 27 项补全，`completions()` 返回的 `textEdit` 范围经直接调用核验为
+    `start=2,end=4`、`newText=[!HINT`（复用 `]`）；
+  - 图片 `907x296`，`is_rendered=true`；故障注入脚本 PASS（截断下载恢复、HTTP 404、
+    非图片响应、缓存复用、真实 CDN）。
+- **文档**：nvim README、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 修正过期事实——片段计数
+  （152 自动 / 7 Tab）、手动展开表（原表列的 `fr`/`sq`/`vec`/`bf` 在移植版中并不存在）、
+  Java 缓存路径、`'formatoptions'` 期望值（原写 `ntcqljr`，实测 `tcqjlnr`）、中文标点折行说明。
+- **未提交的无关漂移**：本轮 `capture.sh` 同时捕获到与 nvim 无关的机器状态变化
+  （`noctalia` wifi 视图、`.omp` 模型、`.gitconfig` 新增 `core.editor`、`clang` 转为依赖安装、
+  `touchpad-boot-recovery.service` 已不存在）。这些未纳入本次提交，留待用户确认。
+- **待办**：无。实时配置与仓库快照一致。
+
+## 16. Neovim 图片预览：JPEG 尾部数据与失败通知刷屏（2026-09-13）
+
+- **背景**：用户报告图床（`Eurekaimer/MyIMGs`，经 jsDelivr）的部分图片仍不渲染，并伴随大量
+  "下载失败"通知；其中 `摆烂日记.md` 的三张 jpg 全部不显示。
+- **真因一（上游插件缺陷）**：`image.nvim` 的 `lua/image/utils/magic.lua` 中
+  `has_jpeg_end_signature()` 只读文件最后两个字节并要求等于 JPEG 结束标记 `FF D9`。
+  QQ/微信等导出图会在正常结束标记之后再附加少量数据（本轮实测为 24 字节），
+  于是 `detect_format()` 返回 nil、`is_image()` 为假，`image/image.lua:275` 直接
+  `return nil`。实测图床 56 个 jpg 中有 **33 个**属于该形态——即约六成 jpg 被静默拒绝，
+  与图片内容无关；这些文件在 ImageMagick（`identify`/`convert` 均正常）、浏览器、Obsidian
+  中均可正常解码。旁证：签名表中只有 JPEG 有这种结尾校验，PNG/GIF/WebP/BMP/ICO 都只看文件头；
+  且 `detect_format()` 失败时不会回退到 `magick_cli` processor 里基于 `identify` 的路径。
+- **上游对应关系**：issue #131（2024-02-22，已关闭）只修了文件**头**（`FF D8 FF E0` 放宽为
+  `FF D8 FF`，PR #133 / commit `2cb0a10`），未涉及文件**尾**；PR #379（2026-08-07 提交，
+  至今 open、无维护者回复）针对的正是本问题，做法是**直接删除** EOI 校验。本配置未采用该做法
+  ——删除后截断的 JPEG 也会被当作有效图片、错误推迟到 ImageMagick，而 EOI 校验唯一的价值
+  正是挡住不完整文件。改用「保留校验但改为流内搜索」。
+- **修复一**：在 `lua/plugins/markdown.lua` 增加 `accept_jpeg_with_trailer()`，包装
+  `magic.detect_format`：先走插件原逻辑（PNG/GIF/WebP 等行为完全不变），仅在其失败时才检查
+  首三字节是否为 JPEG SOI（`FF D8 FF`），并从文件末尾按 64 KB 分块**倒序**搜索 `FF D9`
+  （普通文件仍是一次读取，大文件不会全读）。截断下载因不含 EOI 依旧返回 nil。
+  沿用本文件既有模式（配置层覆盖插件内部函数），插件更新不会冲掉修复。
+- **真因二（配置 + 本机代理）**：失败通知来自配置自己的下载器
+  （`markdown.lua` 的 `vim.notify(...)`）。`lua/image/utils/document.lua` 的渲染流程在**每次
+  render pass** 都会对可视区内每个远程图片重新调用 `from_url`，因此代理（`127.0.0.1:7897`）
+  的偶发 TLS 中断会让同一 URL 反复弹窗。实测同一条 URL 用配置内完全相同的 curl 参数连续请求
+  三次，会出现 `code=35 TLS connect error: ... unexpected eof while reading`；图片最终能渲染
+  是因为后续 pass 重试成功——但每次失败都弹一次。**注意这不是插件缺陷**，是配置的提示策略
+  与本机代理共同所致。
+- **修复二**：下载器的 curl 增加 `--retry 3 --retry-delay 1 --retry-max-time 60
+  --retry-all-errors`（`--retry-all-errors` 才覆盖连接重置/TLS 中断，默认只重试超时与 5xx）；
+  并加入 `download_failures_reported` 表，同一 URL 每次会话最多提示一次，成功后清除标记。
+- **实测验证**：
+  - headless 检测用例 7/7：带尾部 jpg ×3 → `jpeg`（修复前 `nil`）；正常 jpg → `jpeg`、
+    正常 png → `png`（行为未变）；截断 JPEG（前 30000 字节、无 EOI）→ `nil`；文本文件 → `nil`。
+  - 真实 Kitty + 真实 `~/.config/nvim` + 真实笔记：三张 jpg 全部进入 image.nvim state，
+    逐行滚动验证 `曾渲染=true` ×3；全程拦截 `vim.notify` 记录为空（0 条失败通知）。
+  - 用配置内相同 curl 参数对 6 个图床 URL 跑 2 轮共 12 次下载：失败 0 次。
+  - 用必然失败的 URL 并发请求 5 次：回调 5 次、`notify` 仅 1 次（修复前 5 次）。
+- **排查过程记录**：中途多次出现"三张图仍未渲染"的假象，实为测试桩自身问题，已排除：
+  (a) 笔记在 22:38 被编辑过，图片由第 121–125 行移到第 74–78 行，而探测脚本仍定位到旧行号，
+  视口落在图片下方；(b) `editor_only_render_when_focused = true` 会让无焦点窗口清掉已渲染
+  图片；(c) 手写的测试 `state` 缺少 `extmarks_namespace` 等字段，导致 `from_file` 失败。
+  真实前台窗口中三张图均正常渲染。
+- **文档**：nvim README「图片显示」小节、`docs/zh-CN/neovim.md` 与 `docs/en/neovim.md`
+  排障表各新增/补充两条（JPEG 尾部数据、通知刷屏）。
+- **待办**：上游 PR #379 可考虑跟进（建议改为保留 EOI 校验、在流内搜索，而非直接删除）；
+  另建议单独排查 Clash Verge 代理的 TLS 间歇性中断（curl 35/56）。
+
+## 17. Neovim 状态栏行数/字符数与文件树显示 .class（2026-09-16）
+
+- **需求**：用户给出示例 `vim.opt.statusline = "%f %= Line:%l/%L  Chars:%{wordcount().chars}"`，
+  要求状态栏下方显示总行数与字符数；随后要求文件树（`Space e`）能看到 `.class`。
+- **状态栏不能照抄示例，两个实测问题**：
+  1. **直接赋值会删掉 Neovim 默认段**。`vim.o.statusline` 在 nvim 0.12 的默认值含文件标志
+     `%h%w%m%r`、终端退出码、`vim.diagnostic.status()`、搜索计数与 ruler 段；本仓库 README
+     正是以「原生状态栏已提供诊断上下文」为不装 lualine 的理由。改为读默认值再**追加**。
+  2. **`%{wordcount().chars}` 每次重绘都全量扫描缓冲区**。实测（headless，`nvim_eval_statusline`
+     循环）：1k 行 0.13 ms、10k 行 1.6 ms、50k 行 8.0 ms、100k 行 16 ms、200k 行 33 ms；
+     模拟击键（插入 + `redrawstatus`）同样为 16 ms/键（100k 行）。光标移动、滚动都会触发，
+     属于持续可感卡顿。
+- **实现**：新增 `lua/config/statusline.lua`，`chars_segment()` 返回 `  Chars:1234`：
+  - 按 `nvim_buf_get_changedtick` 把结果缓存在 `vim.b[buf]`，文本未变的重绘直接命中缓存
+    （实测 200k 行 0.03 ms/重绘，与不含该段的基准 0.04 ms 持平）；任何文本变化、撤销、
+    重做、`:edit!` 重新载入都会让 tick 变化，缓存不可能过期。
+  - 超过 1.5 MiB（与 Snacks `bigfile` 阈值一致）时返回空串，只保留 O(1) 的 `Line:` 段，
+    避免大文件每次击键都付扫描成本。缓冲区大小用 `nvim_buf_get_offset(buf, line_count)`
+    取，实测 0.0006 ms。
+  - `Line:%l/%L` 由 Neovim 直接求值，本身不扫描缓冲区。
+- **状态栏段取哪个 buffer（易错点）**：状态栏求值时 Neovim 会把「当前 buffer」临时切到
+  被绘制窗口的 buffer。实测 `nvim_eval_statusline(stl, { winid = <wb 的窗口> })` 时
+  `wordcount()` 返回的是 wb（200 字符），而真实当前 buffer 是 wc；`v:statusline_winid`
+  在段内读到 `nil`（不能依赖）。因此 `vim.api.nvim_get_current_buf()` 就是正确的缓存键。
+- **实测验证**：
+  - 真实终端（`script` PTY + `screenstring` 抓屏，真实 `~/.config/nvim` 全量启动）：
+    `pty_note.md ... 23,1  15%  Line:23/120  Chars:1400`，与 `wordcount()` 独立核对一致
+    （1400 字符 / 120 行）；默认段（诊断、搜索计数、ruler）仍在。
+  - 分屏三窗口 wa(6)/wb(200)/wc(14)：依次聚焦，状态栏分别显示 `Chars:6/1 行`、`Chars:200/50 行`、
+    `Chars:14/7 行`，与各文件真实值一一对应。
+  - 过期测试 10 项全对：插入、光标移动、撤销、重做、多字节、`:edit!`、新缓冲区、清空缓冲区。
+  - 阈值边界：1.5 MiB（1,572,000 B）仍计数，2.5 MiB 显示为空（`Chars:` 段消失，`Line:` 保留）。
+- **文件树 `.class`（真因不是 nvim）**：`.class` 与 Maven `target/` 都在各项目 `.gitignore` 里
+  （`CS61B/.gitignore:12` → `*.class`，`:139` → `target/`），而 Snacks explorer 默认
+  `ignored=false`；更关键的是 explorer 的**搜索路径走 `fd`**，`fd` 默认遵循 `.gitignore`，
+  这些文件根本没进入列表（实测 `fd --type f` 在 `lab3` 下 0 个 `.class`，加 `--no-ignore` 得 9 个）。
+- **修复**：`opts.picker.sources.explorer.include = { "*.class", "target", "target/**" }`。
+  `Snacks.picker.explorer.Filter` 的语义是 `include` **优先级高于** hidden/ignored/exclude
+  （`explorer/tree.lua:210-217` 有显式注释），因此只放行编译产物，不会把整个 ignored 类别
+  显示出来。`target` 必须同时匹配目录本身：`tree.lua:238-250` 的 walk 不会进入被过滤器
+  拒绝的目录，只有 `*.class` 时 `target/classes/**` 下的文件仍不可见。
+- **A/B 实测**（真实仓库、真实 explorer items；注意 `Snacks.explorer()` 会合并已配置的
+  source，故基线必须传 `include = {}` 而不是 `include = nil`）：
+  - `CS61B/lab6/capers`（`.class` 与 `.java` 同级）：基线 6 项 / 0 个 `.class`；
+    修复后 10 项 / 4 个 `.class`。
+  - `CS61B/lab3`（Maven `target/classes/...`）：基线 4 项 / 0 个；`include={*.class}` 仍 0 个
+    （父目录 `target/` 被剪枝）；`include={*.class,target,target/**}` 展开后 15 项 / 6 个 `.class`。
+  - 真实终端抓屏确认：`target/classes/timingtest/{AList,SLList,TimeAList,TimeSLList,StopwatchDemo,SLList$IntNode}.class`
+    全部列出。
+  - `dsa-from-scratch-java` 同为 Maven 布局（24 个 `.class`），覆盖同一模式。
+- **同步**：实时 `~/.config/nvim` 与仓库快照现已逐字节一致（`diff -rq` 无输出）。
+  注意实时 README 原为 9/13 旧版、仓库为 9/13 22:56 新版，本次以仓库版为准回写了实时副本，
+  避免把已在仓库中的 JPEG 尾部数据小节覆盖掉。
+- **文档**：nvim README（配置结构 + 状态栏小节 + 文件树说明）、`docs/zh-CN/neovim.md`、
+  `docs/en/neovim.md` 三处同步更新（结构表新增 `statusline.lua`、文件树 `include` 说明、
+  排障表新增「文件树看不到 `.class`」一行）。
+- **未提交的无关漂移**：本轮 `capture.sh` 同时捕获到与 nvim 无关的机器状态变化
+  （fcitx5 profile、koreader 设置、niri config.kdl 与新增 `gaming-binds.kdl`、`.omp` 模型、
+  ASS config、systemd 单元清单、硬件状态文件）。按 §15 先例未纳入本次提交，留待用户确认。
+- **待办**：无。
+
+## 18. Neovim 刷题插件 leetcode.nvim（2026-09-18）
+
+- **需求**：安装并配置 `kawre/leetcode.nvim`，对接 `leetcode.cn`（`cn.enabled`、翻译 UI 与
+  题目），默认语言 Java，`lang = "java"`，可用 `:Leet` / `list` / `daily` / `run` / `submit` /
+  `cookie update`；复用已有 picker 与 tree-sitter，不制造重复配置；不代填 Cookie。
+- **新增文件**：`lua/plugins/leetcode.lua`。`cmd = "Leet"` 懒加载，`opts` 只有 `lang` 与 `cn`
+  两项；`picker.provider` 刻意留空。
+- **picker 复用（无新依赖）**：插件的 `picker/init.lua` 按 `snacks-picker → fzf-lua →
+  telescope → mini-picker` 顺序探测，`Snacks.config.picker.enabled` 为真即命中。本配置
+  `ui.lua` 已常驻 Snacks，实测 `require("leetcode.picker").provider == "snacks"`，因此没有
+  安装第二个 picker。
+- **treesitter 复用**：`parser/init.lua` 只检查 `parser/html.so` 是否存在，存在即用 HTML
+  解析器格式化题目描述，否则退回 `Plain`。`syntax.lua` 的解析器列表补入 `html`
+  （实测安装前 `#nvim_get_runtime_file("parser/html.so") == 0`，`TSInstall! html` 后为 1）。
+- **新增依赖**：`plenary.nvim`、`nui.nvim`（此前均未安装）。前者提供 `Path` 与 `curl`
+  （插件的唯一 HTTP 通道），后者提供面板/控制台/输入框组件，二者都是硬依赖而非可选。
+- **验证（真实终端 PTY + 真实配置，非 headless 桩）**：
+  - `:Leet` 打开面板，页脚显示 `登录 / 使用Cookie登录 / 退出` 与 `leetcode.cn`，即
+    `cn.enabled` 与 `translator` 同时生效；`require("leetcode.config")` 读出
+    `domain=cn`、`is_cn=true`、`lang=java`。
+  - 补全列表含 `list,daily,run,submit,cookie,cache,tabs,lang,info,console,...` 全部子命令。
+  - `:Leet cookie update` 弹出 `输入 Cookie` 输入框（nui 组件 + 中文标题）；Esc 退出后
+    `~/.cache/nvim/leetcode/` 与 `~/.local/share/nvim/leetcode/` 仍为空，**未写入任何 Cookie**。
+  - `:Leet list` 在未登录时报 `User not logged-in`（`utils.auth_guard` 的预期行为），
+    说明命令链已接通到 API 层。
+- **Cookie 路径**：`cache/cookie.lua` 按 `config.is_cn` 选择文件名，启用 cn 后为
+  `~/.cache/nvim/leetcode/cookie_cn`（未启用则为 `cookie`）。该目录不在
+  `manifests/home-paths.txt` 中，不入快照；本仓库未新增任何凭据相关规则。
+- **文档**：nvim README（配置结构 + 插件表 + 新增「刷题」小节 + 管理命令 + 修改指南 + curl
+  用途）、`docs/zh-CN/neovim.md`、`docs/en/neovim.md` 三处同步更新；插件仓库计数 17 → 24。
+- **同步**：实时 `~/.config/nvim` 与仓库快照逐字节一致（`diff -rq` 无输出）；
+  `./scripts/audit.sh` 通过。
+- **待办**：无。用户自行执行 `:Leet` 并粘贴 Cookie。
+
+## 19. Second-machine (komarilover) reconciliation and bidirectional sync (2026-09-19)
+
+- **Scope**: the snapshot in this repository was captured from host `komari`
+  (kernel 7.2.4-cachyos, fstab UUIDs `3c68adfc-…`/`5ED2-98F6`). This round ran on
+  host `komarilover` (kernel 6.18.48-1-cachyos-lts, fstab UUIDs
+  `10edd8c2-…`/`0089-9373`), so every comparison below is cross-machine.
+- **Neovim was behind, not divergent**: live `~/.config/nvim` was byte-identical
+  to commit `615ffb1` (2026-09-12) — a strict ancestor of HEAD — and contained no
+  unique content. Repo → live was the only direction. Synced but repo-ahead.
+  - Missing on the machine: `lua/plugins/leetcode.lua` (with `plenary.nvim`,
+    `nui.nvim`), `lua/config/statusline.lua`, the `markdown.lua` image/downloader
+    and callout-completion fixes, `html` treesitter parser, the `vim.hl.on_yank`
+    rename, the merged n/v clang-format mapping, the sha256 Java workspace key,
+    and the `.class`/`target` explorer include.
+  - `Lazy! sync` bumped six plugins past the repository pins, so `Lazy! restore`
+    was run afterwards with the committed `lazy-lock.json` copied in first
+    (restoring from the already-overwritten live lock is a no-op).
+  - Verified: `require("leetcode.picker").provider == "snacks"`,
+    `config.statusline.chars_segment()` returns `  Chars:N`, jdtls + JDK 26 +
+    `html.so` present.
+- **Direction B (repo → live)**: `wechat.desktop` (the `XMODIFIERS=@im=fcitx`
+  candidate-panel fix), `starship.toml` (`$hostname` instead of a hardcoded
+  host), `niri/config.kdl` + `cfg/gaming-binds.kdl`, `.gitconfig` (`core.editor`),
+  `QtProject.conf` (history keys stripped), and removal of the inline Clash Verge
+  proxy blocks from `.zshrc`/`.bashrc`. Proxying now rests on Clash Verge's system
+  proxy (`gsettings org.gnome.system.proxy mode=manual`, `127.0.0.1:7897`) plus
+  `scripts/lib/proxy.sh` for repository scripts; verified `git ls-remote origin`
+  succeeds with every `*_proxy` variable unset.
+  - **Regression found and fixed**: copying the sanitized `configs/home/.gitconfig`
+    to `~/.gitconfig` removed `user.email` (capture strips it by design), which
+    broke committing. `git config --global user.email 2507983039@qq.com` restored
+    it; the snapshot keeps the email stripped.
+- **Direction A (live → repo)**, all decided by the user:
+  - `yazi.toml`: added the `chrome` opener — `text/html` and `*.{html,htm}` open in
+    a new Chrome window (`google-chrome-stable --new-window`). This is the
+    "default HTML handler" item. The prior `neovim-open` (`*.gitignore`) rule was
+    dropped from the live file and is not re-added by this merge.
+  - KOReader `2-pdf-scroll-guard.lua`: the committed version wrapped
+    `ReaderFooter.updateFooterChapterProgress`, which **does not exist** in the
+    installed koreader-bin 2026.07.1 (`grep` count 0) — the patch was dead code.
+    The machine's version wraps `setTocMarkers`, the surviving call site reaching
+    `document:getPosFromXPointer()` at `readerfooter.lua:2203`. Both `1-lxgw-fonts.lua`
+    and `2-pdf-scroll-guard.lua` are now byte-identical to the canonical
+    `Eurekaimer/koreader-keystream-config` repository.
+  - KOReader plugin rename: `plugins/scrollstep.koplugin` → `plugins/vimkeys.koplugin`
+    (module `VimKeys`, `InputContainer`, 35% scroll, TOC `Ctrl+J`/`Ctrl+K` paging).
+    The old name was stale; `install-koreader-keystream.sh` already referenced
+    `vimkeys.koplugin`, so the snapshot was internally inconsistent. `capture.sh`
+    was updated to keep `vimkeys.koplugin` and prune any other plugin, and both
+    koreader docs were updated (name, 30% → 35%, patch mechanism).
+- **Direction C (live → repo)**: `.omp/agent/config.yml` (`deepseek-v4.1-flash`,
+  `composer.shape=band`, `task.agentModelOverrides.scout`), `noctalia/settings.json`
+  (`nightLight.enabled=true`, wifi `grid`), `fcitx5/conf/notifications.conf`
+  (commented-out `HiddenNotifications`), `niri/cfg/misc.kdl` (`no_proxy` now
+  includes `api.github.com`, matching `scripts/lib/proxy.sh`), `dconf/user.ini`
+  (regenerated through the same filter as `capture.sh`), and `.config/micro/syntax`
+  (146 files, 664K) added to `manifests/home-paths.txt`.
+  - **Open concern — `micro/syntax`**: micro never writes syntax files itself
+    (`internal/config/rtfiles.go` only *reads* `ConfigDir/syntax/*.yaml`; it falls
+    back to assets embedded in the binary, which the installed 2.0.15 carries).
+    The 146 vendored files are third-party data that differ from every nearby
+    upstream tag and from the embedded set, so they *shadow* the newer built-in
+    syntax. Vendoring 664K of upstream data also runs against NOTES §6 (no
+    vendoring). Kept because the instruction was "live wins"; recommend dropping
+    it and deleting `~/.config/micro/syntax` unless local edits are wanted.
+- **Not synced (machine-specific, by design)**: `etc/fstab`/`etc/hostname`
+  (hardware layer), `mkinitcpio.conf`, `ufw/user*.rules`, `pacman.d/mirrorlist`,
+  the eDP-1 scale in niri `display.kdl`, `packages/*` (this host's explicit
+  packages, AUR set and enabled units differ substantially — e.g. the snapshot
+  lists alacritty/clash-verge-rev-bin/feishu-bin/firefox/google-chrome while this
+  host has bat/dosbox/eza plus `waydroid-container`, `niri-cs2-capslock-guard`,
+  `wd-venus`), and the `.zshrc` API key placeholder.
+- **Verification**: `./scripts/audit.sh` passes; `diff -r` reports live
+  `~/.config/nvim` and `~/.config/yazi/yazi.toml` identical to the snapshot;
+  patch syntax checked with `luajit -bl`.
+- **Todo**: decide the fate of the vendored `micro/syntax` (see concern above).
+
+## 20. Clash Verge domestic direct routing (2026-09-28)
+
+- Synced the credential-free global `profiles/Script.js` into the home snapshot
+  and exact-file capture/restore manifest. Bilibili domains and `GEOSITE,cn`
+  route directly; a missing China-IP fallback is inserted before the catch-all.
+  Subscription rules and overseas node selection are otherwise preserved.
+- Kept subscriptions, node credentials, generated YAML and runtime state out of
+  the repository. The audit permits only the exact global script path.
+- Restore with Clash Verge closed, then reopen it in Rule mode. Restore private
+  subscriptions separately; subscription updates do not replace this script.
+- Verification: snapshot matches the live script byte-for-byte; routing smoke
+  checks and `restore-user.sh --dry-run --skip-dconf` pass; `audit.sh` passes and
+  rejects a temporary non-allowlisted Clash profile probe, removed afterwards.
+- Live routing was verified before sync: Bilibili, its image CDN, Baidu and JD
+  used DIRECT and returned HTTPS 200; Google retained the selected proxy route.

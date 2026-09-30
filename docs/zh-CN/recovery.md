@@ -37,7 +37,7 @@ sudo reboot
 软件层装好 Sioyek 后执行：
 
 ```bash
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 重启 Sioyek，选中英文单词并按 `s` 即可查词。生成的文件与卸载方法见

@@ -101,7 +101,7 @@ retained plugin owns the same responsibility.
 
 The first column is alphabetized. Required extras are recorded in
 `packages/required-extra.txt`; explicit workstation packages remain in
-`packages/pacman-explicit.txt`.
+`packages/profiles/full.txt`.
 
 | Requirement | Status | Used by |
 | --- | --- | --- |

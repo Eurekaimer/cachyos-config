@@ -13,13 +13,13 @@ yay -S sioyek-git
 
 git clone https://github.com/Eurekaimer/cachyos-config.git
 cd cachyos-config
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 包装脚本会通过 `pacman` 自动补齐 `uv`、`python-gobject` 和 `gtk4-layer-shell`，随后调用仓库内置插件的安装器。只预览、不修改系统时执行：
 
 ```bash
-./scripts/install-sioyek-ecdict.sh --dry-run
+./scripts/module.sh install sioyek-ecdict --dry-run
 ```
 
 安装后请保留此仓库目录，不要随意移动或删除。systemd 用户服务指向 `modules/sioyek-ecdict/.venv/` 中的虚拟环境。
@@ -72,7 +72,7 @@ PyGObject、GTK4 与 Gtk4LayerShell，确保它们匹配宿主 ABI；`bootstrap`
 安装过程可重复执行。拉取仓库更新后再次运行：
 
 ```bash
-./scripts/install-sioyek-ecdict.sh
+./scripts/module.sh install sioyek-ecdict
 ```
 
 检查服务或直接查询：
@@ -85,7 +85,7 @@ modules/sioyek-ecdict/.venv/bin/sioyek-ecdict lookup Map
 删除服务和本项目写入的 Sioyek 键位，同时保留已下载的数据库：
 
 ```bash
-./modules/sioyek-ecdict/uninstall.sh
+./scripts/module.sh uninstall sioyek-ecdict
 ```
 
 ## 故障排查

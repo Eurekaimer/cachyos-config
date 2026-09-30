@@ -9,9 +9,51 @@ The allowlists under `manifests/` remain the source of truth.
 
 ## User layer
 
-`configs/home/` mirrors allowlisted paths under `$HOME`.
-`configs/dconf/user.ini` is a portable text export rather than the binary dconf
-database.
+Configuration is authored once, under `configs/apps/<app>/`, which mirrors the
+paths that application owns relative to `$HOME`. `configs/home/` is a
+**generated** install tree rebuilt from those directories by
+`scripts/sync-configs.sh --to-snapshot`; `scripts/restore-user.sh` reads only
+the generated tree, so `configs/home/` is never edited by hand.
+`manifests/home-paths.txt` is generated from `configs/apps/*/paths` at the same
+time. `configs/dconf/user.ini` is a portable text export rather than the binary
+dconf database.
+
+| Application | Directory | Owns |
+| --- | --- | --- |
+| AniRSS | `configs/apps/ani-rss/` | `Projects/ASS/config/{ani,config}.v2.json` |
+| CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
+| Clash Verge | `configs/apps/clash-verge/` | autostart entry, global `Script.js` |
+| Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`, `fcitx5-toggle-japanese` |
+| Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
+| Git | `configs/apps/git/` | `.gitconfig` |
+| Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
+| GTK | `configs/apps/gtk/` | `.config/gtk-3.0/` |
+| Kitty | `configs/apps/kitty/` | `.config/kitty/` |
+| KOReader | `configs/apps/koreader/` | `.config/koreader/` |
+| Micro | `configs/apps/micro/` | settings and colorschemes (no `syntax/`) |
+| MIME defaults | `configs/apps/mimeapps/` | `.config/mimeapps.list` |
+| MPV | `configs/apps/mpv/` | `.config/mpv/` |
+| Niri | `configs/apps/niri/` | `.config/niri/`, niri helpers, hotkey text |
+| Noctalia | `configs/apps/noctalia/` | `.config/noctalia/` |
+| Neovim | `configs/apps/nvim/` | `.config/nvim/`, Markdown desktop entry |
+| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/` (no `service.json`) |
+| OMP | `configs/apps/omp/` | `.omp/agent/config.yml` |
+| Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
+| Shell | `configs/apps/shell/` | `.zshrc`, `.bashrc`, `.bash_profile`, `.bash_logout` |
+| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
+| Starship | `configs/apps/starship/` | `.config/starship.toml` |
+| Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
+| Timewarrior | `configs/apps/timewarrior/` | `.config/timewarrior/` config and extension |
+| Wallpapers | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |
+| WeChat | `configs/apps/wechat/` | `wechat.desktop` |
+| XDG user dirs | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
+| Yazi | `configs/apps/yazi/` | `.config/yazi/` |
+
+Each application directory contains a `paths` file listing the `$HOME`-relative
+paths it owns; that list is what both the capture and the restore use. See
+`docs/agents/MEMORY.md` for per-application editing notes and
+`docs/agents/ARCHITECTURE.md` for the data flow.
 
 | Feature | Live location | Snapshot location |
 | --- | --- | --- |
@@ -20,7 +62,7 @@ database.
 | Bash | `~/.bashrc`, `~/.bash_profile`, `~/.bash_logout` | `configs/home/` |
 | CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
 | Dconf | `~/.config/dconf/user` binary database | `configs/dconf/user.ini` text export |
-| Docker helper | `~/.local/bin/docker-ass` | not snapshotted; install with `scripts/install-docker-anirss.sh` |
+| Docker helper | `~/.local/bin/docker-ass` | not snapshotted; install with `scripts/module.sh install docker-anirss` |
 | Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
 | Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
 | Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
@@ -39,7 +81,6 @@ database.
 | OBS Studio | `~/.config/obs-studio/` (`global.ini`, `user.ini`, `basic/scenes/`, `basic/profiles/`, `plugin_manager/modules.json`) | `configs/home/.config/obs-studio/`; `service.json` (stream key) is deleted before publishing; logs and profiler data stay out |
 | OMP (Oh My Pi frontend prefs) | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml` (frontend prefs only; runtime state stays out) |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
-| Shelly | `~/.config/shelly/config.json` | `configs/home/.config/shelly/` |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
@@ -105,17 +146,25 @@ subvolumes, mount points, and intended host identity against
 
 ## Software and services
 
-The first column is the actual manifest path and is sorted alphabetically.
+`packages/` splits into install inputs and capture outputs. The first column is
+the actual path and is sorted alphabetically.
 
-| Manifest | Content |
-| --- | --- |
-| `packages/aur-explicit.txt` | Explicit AUR or external packages |
-| `packages/bun-global.txt` | Bun global tools, including Oh My Pi Agent |
-| `packages/pacman-explicit.txt` | Explicit packages from configured repositories |
-| `packages/required-extra.txt` | Dependencies required by managed configuration or recovery scripts |
-| `packages/rustup-toolchains.txt` | Rust toolchains |
-| `packages/system-services.txt` | Enabled system services |
-| `packages/user-services.txt` | Enabled user services |
+| Manifest | Role | Content |
+| --- | --- | --- |
+| `packages/profiles/full.txt` | **install input** | Current workstation profile: NVIDIA, gaming, containers, comms, heavy IDEs |
+| `packages/profiles/minimal.txt` | **install input** | ThinkPad T480 class profile: Intel iGPU, no gaming/containers, CN/EN TeX |
+| `packages/inventory/pacman-explicit.txt` | capture output | Explicit packages from configured repositories |
+| `packages/inventory/aur-explicit.txt` | capture output | Explicit AUR or external packages |
+| `packages/services/system.txt` | capture output | Enabled system services |
+| `packages/services/user.txt` | capture output | Enabled user services |
+| `packages/toolchains/rustup.txt` | capture output | Rust toolchains |
+| `packages/toolchains/bun.txt` | capture output | Bun global tools, including Oh My Pi Agent |
+| `packages/required-extra.txt` | **install input** | Dependencies required by managed configuration or recovery scripts |
+
+Only `profiles/` and `required-extra.txt` are installer inputs; the `inventory/`,
+`services/` and `toolchains/` trees record what the capturing machine actually
+had. Select a profile with `scripts/profile.sh use NAME`, and inspect the
+difference between two profiles with `scripts/profile.sh diff full minimal`.
 
 ### Clash Verge domestic routing
 

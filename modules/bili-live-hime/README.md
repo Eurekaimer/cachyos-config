@@ -9,7 +9,7 @@
 ## 安装
 
 ```bash
-./scripts/install-bili-live-hime.sh
+./scripts/module.sh install bili-live-hime
 ```
 
 安装器按需补齐，不会重复做已有的事：
@@ -57,7 +57,7 @@ Cookie/密钥类别：该路径不在 `manifests/home-paths.txt` 中，`audit.sh
 ## 卸载
 
 ```bash
-modules/bili-live-hime/uninstall.sh
+./scripts/module.sh uninstall bili-live-hime
 ```
 
 只移除 `~/.local/bin/bili-live-hime`；项目目录与构建产物保留，可手动删除。

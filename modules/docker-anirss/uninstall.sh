@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-install_path="${CAMPUS_BIN_DIR:-$HOME/.local/bin}/docker-ass"
+install_path="${DOCKER_ASS_BIN_DIR:-$HOME/.local/bin}/docker-ass"
 
 if [[ ! -e "$install_path" && ! -L "$install_path" ]]; then
     echo "docker-ass 未安装，无需卸载。"

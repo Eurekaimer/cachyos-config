@@ -22,7 +22,7 @@ Lenovo 82XF（IdeaPad Slim 5 16IRL8，i5-13500H，BIOS LACN22WW）的 I2C 触摸
 ## 安装
 
 ```bash
-./scripts/install-touchpad-boot-recovery.sh
+./scripts/module.sh install touchpad-boot-recovery
 ```
 
 需要桌面用户 + `sudo`（脚本内部提权）。已存在的同名文件会先备份到
@@ -44,7 +44,7 @@ grep 'MSFT0002:00 06CB:CEFE Touchpad' /proc/bus/input/devices
 ## 卸载
 
 ```bash
-modules/touchpad-boot-recovery/uninstall.sh
+./scripts/module.sh uninstall touchpad-boot-recovery
 ```
 
 停用服务并删除两个文件；不解绑触摸板，当前会话不受影响。

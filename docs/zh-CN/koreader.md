@@ -25,14 +25,14 @@ KOReader 在加载设备模块前会探测设备类型。它的检测逻辑把�
 `/usr/bin/hwdetect` 都当作 Kobo 固件标记，但 Arch extra 仓库恰好提供了同名
 二进制，于是本机误命中、加载 Kobo 设备模块，桌面启动随即崩溃。
 
-本仓库把修复做成 `scripts/patch-koreader-desktop.sh`——手工修复落在
+本仓库把修复做成 `koreader` 模块——手工修复落在
 `/usr/lib`（属于软件包文件），`koreader-bin` 升级后会自动还原坏掉的探测行、
-崩溃复发。每次升级后重跑该脚本：
+崩溃复发。每次升级后重跑该模块：
 
 ```bash
-./scripts/patch-koreader-desktop.sh             # 应用修复；会提示输入 sudo
-./scripts/patch-koreader-desktop.sh --dry-run   # 只预览不修改
-./scripts/patch-koreader-desktop.sh --restore   # 复原为厂商原版
+./scripts/module.sh install koreader             # 应用修复；会提示输入 sudo
+./scripts/module.sh install koreader --dry-run   # 只预览不修改
+./scripts/module.sh uninstall koreader           # 复原为厂商原版
 ```
 
 `--restore` 优先用打补丁时留下的日期备份恢复；若无备份，自动 clone
@@ -47,11 +47,11 @@ KOReader 官方仓库中与已装版本匹配的 tag（如 `v2026.07.1`）并复
 `~/.config/koreader/`：
 
 ```bash
-./scripts/install-koreader-keystream.sh            # clone + 复原；临时 checkout，不留盘
-./scripts/install-koreader-keystream.sh --force    # 覆盖已有 hotkeys/defaults 示例
-./scripts/install-koreader-keystream.sh --dry-run  # 只预览
-./scripts/install-koreader-keystream.sh --skip-dictionary     # 只复原键位、插件和补丁
-./scripts/install-koreader-keystream.sh --refresh-dictionary  # 强制重建 ECDICT
+./scripts/module.sh install koreader            # clone + 复原；临时 checkout，不留盘
+./scripts/module.sh install koreader --force    # 覆盖已有 hotkeys/defaults 示例
+./scripts/module.sh install koreader --dry-run  # 只预览
+./scripts/module.sh install koreader --skip-dictionary     # 只复原键位、插件和补丁
+./scripts/module.sh install koreader --refresh-dictionary  # 强制重建 ECDICT
 ```
 
 按上游 README 约定，已存在的 `hotkeys.lua` / `defaults.custom.lua` **不会**被
@@ -86,7 +86,7 @@ scroll 分支并调用 `document:getPosFromXPointer()`——这是 CRE 引擎
 readerfooter.lua:2203: attempt to call method 'getPosFromXPointer' (a nil value)
 ```
 
-`scripts/patch-koreader-desktop.sh` 同时修复此问题：在
+`scripts/module.sh install koreader` 同时修复此问题：在
 `/usr/lib/koreader/frontend/apps/reader/modules/readerfooter.lua` 加一行能力
 守卫（幂等，日期备份 `readerfooter.lua.bak-YYYYMMDD`），非 CRE 文档改用基于
 页数的进度。无论滚动默认值如何，PDF 始终保持翻页模式。此 bug 已整理为上游
@@ -102,7 +102,7 @@ issue/PR 材料（见 `~/Projects/koreader-issue.md`）；上游合并该守卫�
 在首次构建进度条时调用：菜单回调、`readertoc`、`pagebrowserwidget` 都会调
 它；而 2026.07.1 中根本没有 `updateFooterChapterProgress`（本补丁修复前所挂
 的方法），`setTocMarkers` 是同一崩溃残留的唯一路径。其余文档不受影响。它不依赖改 `/usr/lib`，
-因此 `koreader-bin` 升级后依然生效；与 `patch-koreader-desktop.sh` 任一先
+因此 `koreader-bin` 升级后依然生效；与 `koreader` 模块的系统补丁任一先
 命中即可。已用 KOReader 自带 luajit 对 PDF/CRE × scroll/page 四种组合做了
 mock 验证。
 

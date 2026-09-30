@@ -64,7 +64,7 @@ mvn -v           # confirm the runtime JDK
 
 ## Restore behavior
 
-`packages/pacman-explicit.txt` lists `jdk-openjdk`, `jdk21-openjdk`, and
+`packages/profiles/full.txt` lists `jdk-openjdk`, `jdk21-openjdk`, and
 `maven`; `./scripts/install-packages.sh` installs all of them and then points
 the default Java environment at the current major version of `jdk-openjdk`
 (read dynamically from the installed package, so it follows the rolling

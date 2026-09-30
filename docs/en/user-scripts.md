@@ -1,18 +1,29 @@
 # Optional user scripts
 
-Five machine-specific helpers are kept out of the generic
-snapshot restore because not every machine needs them. Install each one with
-its own script; each module ships an `uninstall.sh`.
+Machine-specific helpers are kept out of the generic snapshot restore because
+not every machine needs them. They are **modules**: each lives in
+`modules/<name>/` with `install.sh`, `uninstall.sh`, `README.md` and an
+`installed-check` file, and runs through the single entry point
+`scripts/module.sh`:
 
-| Script | Purpose | Install | Remove |
+```bash
+./scripts/module.sh list                        # every module + installed state
+./scripts/module.sh status komari-call          # which check paths exist
+./scripts/module.sh install komari-call         # install; --dry-run to preview
+./scripts/module.sh uninstall komari-call       # remove
+```
+
+| Module | Purpose | Install | Remove |
 | --- | --- | --- | --- |
-| `bili-live-hime` | Launch the release build of `~/Projects/bili-live-hime` (Bilibili streaming companion: ingest URL/key, room edits, danmaku) | `./scripts/install-bili-live-hime.sh` | `modules/bili-live-hime/uninstall.sh` |
-| `campus-login` | Open the Nankai campus-network authentication page in an isolated Chrome profile with proxies bypassed, so Clash/mihomo cannot intercept the captive portal | `./scripts/install-campus-login.sh` | `modules/campus-login/uninstall.sh` |
-| `docker-ass` | Manage the ANI-RSS + qBittorrent docker compose stack and open its web interfaces | `./scripts/install-docker-anirss.sh` | `modules/docker-anirss/uninstall.sh` |
-| `komari-call` | Build the KOMABELIKA terminal companion from GitHub with cargo and link it into `~/.local/bin` | `./scripts/install-komari-call.sh` | `modules/komari-call/uninstall.sh` |
-| `touchpad-boot-recovery` | Boot-time self-recovery for the Lenovo 82XF I2C touchpad: rebinds `i2c_designware.0` once when the touchpad is still missing after boot (intermittent-failure workaround, not a kernel fix) | `./scripts/install-touchpad-boot-recovery.sh` | `modules/touchpad-boot-recovery/uninstall.sh` |
+| `bili-live-hime` | Launch the release build of `~/Projects/bili-live-hime` (Bilibili streaming companion: ingest URL/key, room edits, danmaku) | `./scripts/module.sh install bili-live-hime` | `./scripts/module.sh uninstall bili-live-hime` |
+| `campus-login` | Open the Nankai campus-network authentication page in an isolated Chrome profile with proxies bypassed, so Clash/mihomo cannot intercept the captive portal | `./scripts/module.sh install campus-login` | `./scripts/module.sh uninstall campus-login` |
+| `docker-anirss` | Manage the ANI-RSS + qBittorrent docker compose stack and open its web interfaces | `./scripts/module.sh install docker-anirss` | `./scripts/module.sh uninstall docker-anirss` |
+| `komari-call` | Build the KOMABELIKA terminal companion from GitHub with cargo and link it into `~/.local/bin` | `./scripts/module.sh install komari-call` | `./scripts/module.sh uninstall komari-call` |
+| `koreader` | Patch the two AUR `koreader-bin` desktop defects and restore the canonical keyboard config | `./scripts/module.sh install koreader` | `./scripts/module.sh uninstall koreader` |
+| `sioyek-ecdict` | Offline English-to-Chinese lookup plugin for Sioyek | `./scripts/module.sh install sioyek-ecdict` | `./scripts/module.sh uninstall sioyek-ecdict` |
+| `touchpad-boot-recovery` | Boot-time self-recovery for the Lenovo 82XF I2C touchpad: rebinds `i2c_designware.0` once when the touchpad is still missing after boot (intermittent-failure workaround, not a kernel fix) | `./scripts/module.sh install touchpad-boot-recovery` | `./scripts/module.sh uninstall touchpad-boot-recovery` |
 
-All installers accept `--dry-run` to preview without changing the machine.
+Every command accepts `--dry-run` to preview without changing the machine.
 The user scripts land in `~/.local/bin`; `touchpad-boot-recovery` installs
 `/usr/local/sbin/touchpad-boot-recovery` and
 `/etc/systemd/system/touchpad-boot-recovery.service` (as root). Previous
@@ -54,6 +65,24 @@ non-docker-group login session.
 --force komari-call`, then `~/.local/bin/komari-call` symlinks to
 `~/.cargo/bin/komari-call`. Requires a Rust toolchain (CachyOS:
 `sudo pacman -S rust`, or rustup). The first build takes a few minutes.
+
+## koreader
+
+Patches the two desktop defects shipped by AUR `koreader-bin` — the startup
+device-probe crash in `/usr/lib/koreader/frontend/device.lua` and the PDF
+footer crash in `apps/reader/modules/readerfooter.lua` — and restores the
+canonical keyboard configuration from `Eurekaimer/koreader-keystream-config`
+into `~/.config/koreader/`. `uninstall` rolls the system Lua files back to the
+upstream originals and leaves the user configuration alone. Details:
+[KOReader](koreader.md) and `modules/koreader/README.md`.
+
+## sioyek-ecdict
+
+Installs the vendored offline English-to-Chinese lookup plugin into the current
+user's native Sioyek configuration, plus a resident user service that keeps the
+ECDICT dictionary warm. `uninstall` removes the service and the plugin's
+Sioyek key bindings while preserving the project directory and dictionary data.
+Details: [Sioyek ECDICT](sioyek-ecdict.md).
 
 ## touchpad-boot-recovery
 

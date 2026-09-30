@@ -22,8 +22,8 @@ flowchart LR
 本机工具链相关。用独立安装脚本：
 
 ```bash
-./scripts/install-bili-live-hime.sh
-./scripts/install-bili-live-hime.sh --dry-run   # 只预览
+./scripts/module.sh install bili-live-hime
+./scripts/module.sh install bili-live-hime --dry-run   # 只预览
 ```
 
 安装器按需补齐，不重复已有工作：项目目录缺失则从上游 `git clone --depth 1`；
@@ -42,11 +42,11 @@ flowchart LR
 `--rebuild`，不会擅自重编译。依赖：Node.js 20+、Rust 工具链，以及
 `webkit2gtk-4.1`、`libsoup3`、`gtk3`、`librsvg`。
 
-卸载启动器用 `modules/bili-live-hime/uninstall.sh`；项目目录与产物保留。
+卸载启动器用 `./scripts/module.sh uninstall bili-live-hime`；项目目录与产物保留。
 
 ## OBS Studio
 
-`obs-studio`（当前 32.2.2）显式安装在 `packages/pacman-explicit.txt`，配置进入
+`obs-studio`（当前 32.2.2）显式安装在 `packages/profiles/full.txt`，配置进入
 托管快照：
 
 | 快照内容 | 说明 |

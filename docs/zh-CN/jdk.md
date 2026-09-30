@@ -51,4 +51,4 @@ mvn -v           # 确认实际使用的 JDK
 
 ## 恢复行为
 
-`packages/pacman-explicit.txt` 同时收录 `jdk-openjdk`、`jdk21-openjdk` 与 `maven`，`./scripts/install-packages.sh` 会安装三者，并自动把默认 Java 环境设为 `jdk-openjdk` 的当前主版本（版本号从已安装包动态读取，仓库滚动到新主版本后自动跟随，无需修改脚本）。
+`packages/profiles/full.txt` 同时收录 `jdk-openjdk`、`jdk21-openjdk` 与 `maven`，`./scripts/install-packages.sh` 会安装三者，并自动把默认 Java 环境设为 `jdk-openjdk` 的当前主版本（版本号从已安装包动态读取，仓库滚动到新主版本后自动跟随，无需修改脚本）。

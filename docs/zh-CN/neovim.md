@@ -93,7 +93,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 ## 外部依赖
 
 第一列按字母顺序排列。必需的额外依赖记录在 `packages/required-extra.txt`，当前
-工作站显式安装的软件记录在 `packages/pacman-explicit.txt`。
+工作站显式安装的软件记录在 `packages/profiles/full.txt`。
 
 | 依赖 | 状态 | 用途 |
 | --- | --- | --- |

@@ -1,0 +1,2 @@
+/usr/local/sbin/touchpad-boot-recovery
+/etc/systemd/system/touchpad-boot-recovery.service

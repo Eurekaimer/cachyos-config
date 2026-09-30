@@ -1,7 +1,7 @@
 # AGENT.md —— 全自动恢复运行手册（供 AI Agent 直接读取执行）
 
 > 目标：`git clone` 本仓库后，Agent 依照本文件按序执行脚本即可一键复原整台 CachyOS 笔记本。
-> 原则：**能用仓库脚本就不要手搓命令**；每步执行后必须验证再进下一步；任何脚本无法覆盖的偏差记入 `NOTES.md`。
+> 原则：**能用仓库脚本就不要手搓命令**；每步执行后必须验证再进下一步；任何脚本无法覆盖的偏差记入 `docs/agents/JOURNAL.md`。
 
 # 检测并导出代理（唯一实现：scripts/lib/proxy.sh；install-packages.sh 会自动调用）
 source scripts/lib/proxy.sh && setup_proxy
@@ -123,9 +123,9 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 1. `qs list --all` 有实例 且 `launcher toggle` exit 0
 2. `fcitx5-remote` exit 0；任意应用打拼音出候选框（LXGW WenKai 样式）
 3. `restore-all.sh` 尾行 `== Full restore complete`
-4. `systemctl list-unit-files | grep -Fxf packages/system-services.txt` 抽查 enabled
+4. `systemctl list-unit-files | grep -Fxf packages/services/system.txt` 抽查 enabled
 5. `niri validate -c ~/.config/niri/config.kdl` 通过
-6. `NOTES.md` 记录了本次所有 warning/偏差
+6. `docs/agents/JOURNAL.md` 记录了本次所有 warning/偏差
 
 ## 5. 排错决策树
 
@@ -139,9 +139,9 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 | paru 卡死/锁冲突 | 上一个 paru/pacman 未退出 | `pgrep -af 'paru\|pacman'` 确认后等待或清 `/var/lib/pacman/db.lck` |
 | Caps/Super+Space 无反应 | quickshell 外壳没起 | §2 路线 B 的手动拉起三连 |
 | 候选框字体不对 | LXGW 未装/未刷新缓存 | `pacman -Q ttf-lxgw-wenkai ttf-lxgw-wenkai-mono-nerd`; `fc-cache -f` |
-| 单个 AUR 包反复构建失败 | 上游问题 | 从列表剔除该包单独装其余，记录 NOTES.md |
+| 单个 AUR 包反复构建失败 | 上游问题 | 从列表剔除该包单独装其余，记录 docs/agents/JOURNAL.md |
 | `冲突的软件包将需要手动确认` | 包文件冲突 | 从清单剔除冲突包名，保留已装好的同名包 |
-| `无法找到所有需要的软件包: X` | X 在 AUR 不存在 | 从清单剔除 X，记录 NOTES.md |
+| `无法找到所有需要的软件包: X` | X 在 AUR 不存在 | 从清单剔除 X，记录 docs/agents/JOURNAL.md |
 | 壁纸/配色恢复后被回退 | restore-user 覆盖了运行时文件 | 跑 `scripts/post-restore-tweaks.sh`（幂等）|
 
 ## 6. 字体下载（无需 vendor）
@@ -155,7 +155,7 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 - 不传 `--with-hardware`（fstab/hostname 是机器绑定的）
 - 不自动 reboot——最后提示用户自己重启
 - 不跳过备份（默认备份到 `~/.local/state/cachyos-config/backups/<ts>/`）
-- 临时提权文件（sudoers.d/askpass）用完必须删除并在 NOTES.md 记录
+- 临时提权文件（sudoers.d/askpass）用完必须删除并在 docs/agents/JOURNAL.md 记录
 restore-user 会用快照覆盖 `~/.config/noctalia` 与 `cfg/display.kdl`，丢掉运行时状态。
 **不要手搓命令**——跑仓库脚本（restore-all 的 Stage 6 已自动执行）：
 

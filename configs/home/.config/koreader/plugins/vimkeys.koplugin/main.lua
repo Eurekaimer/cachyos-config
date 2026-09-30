@@ -19,13 +19,13 @@ local Event = require("ui/event")
 local InputDialog = require("ui/widget/inputdialog")
 local InfoMessage = require("ui/widget/infomessage")
 local logger = require("logger")
-local InputContainer = require("ui/widget/container/inputcontainer")
+local WidgetContainer = require("ui/widget/container/widgetcontainer")
 local UIManager = require("ui/uimanager")
 local _ = require("gettext")
 
-local STEP_FRACTION = 0.35
+local STEP_FRACTION = 0.3
 
-local VimKeys = InputContainer:extend{
+local VimKeys = WidgetContainer:extend{
     name = "vimkeys",
     is_doc_only = false,
 }
@@ -34,13 +34,13 @@ function VimKeys:onDispatcherRegisterActions()
     Dispatcher:registerAction("scroll_step_down", {
         category = "none",
         event = "ScrollStepDown",
-        title = _("Scroll down 35% of the screen"),
+        title = _("Scroll down 30% of the screen"),
         reader = true,
     })
     Dispatcher:registerAction("scroll_step_up", {
         category = "none",
         event = "ScrollStepUp",
-        title = _("Scroll up 35% of the screen"),
+        title = _("Scroll up 30% of the screen"),
         reader = true,
     })
     Dispatcher:registerAction("edit_book_title", {
@@ -203,9 +203,6 @@ end
 function VimKeys:init()
     self:installHistoryBindings()
     if self.ui.document then
-        self.key_events = {
-            VimKeysSpaceScrollDown = { { " " } },
-        }
         self:installTocBindings()
         self:installReaderMenuBindings()
         self:onDispatcherRegisterActions()
@@ -391,10 +388,6 @@ function VimKeys:onScrollStepDown()
     self:scrollStep(1)
     return true
 end
-function VimKeys:onVimKeysSpaceScrollDown()
-    return self:onScrollStepDown()
-end
-
 
 function VimKeys:onScrollStepUp()
     self:scrollStep(-1)

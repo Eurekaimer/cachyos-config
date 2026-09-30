@@ -6,6 +6,8 @@ SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 source "$SCRIPT_DIR/lib/common.sh"
 # shellcheck source=scripts/lib/proxy.sh
 source "$SCRIPT_DIR/lib/proxy.sh"
+# shellcheck source=scripts/lib/profile.sh
+source "$SCRIPT_DIR/lib/profile.sh"
 
 require_non_root_user
 require_command pacman
@@ -13,17 +15,31 @@ setup_proxy || true
 
 skip_aur=0
 skip_toolchains=0
+profile_arg=""
 while (($#)); do
     case "$1" in
         --dry-run) DRY_RUN=1 ;;
         --skip-aur) skip_aur=1 ;;
         --skip-toolchains) skip_toolchains=1 ;;
+        --profile)
+            shift
+            (($#)) || die "--profile requires a name (full or minimal)"
+            profile_arg=$1
+            ;;
         -h|--help)
             cat <<'EOF'
-Usage: scripts/install-packages.sh [--dry-run] [--skip-aur] [--skip-toolchains]
+Usage: scripts/install-packages.sh [--profile NAME] [--dry-run] [--skip-aur] [--skip-toolchains]
 
-Installs the captured pacman/AUR packages, required extras, Rust toolchains,
-and Bun global tools. Run as the target desktop user; sudo is requested for pacman.
+Installs the packages of ONE profile (packages/profiles/<NAME>.txt), required
+extras, Rust toolchains, and Bun global tools. Run as the target desktop user;
+sudo is requested for pacman.
+
+Profiles:
+  full      Current workstation: NVIDIA GPU, gaming, containers, comms, heavy IDEs.
+  minimal   ThinkPad T480 class: Intel iGPU, no gaming, no containers, CN/EN TeX.
+
+Default resolution order: --profile > PACKAGE_PROFILE > `scripts/profile.sh use`
+> full. List and compare profiles with scripts/profile.sh.
 EOF
             exit 0
             ;;
@@ -31,6 +47,9 @@ EOF
     esac
     shift
 done
+profile=$(resolve_profile "$REPO_ROOT" "$profile_arg")
+profile_file="$REPO_ROOT/packages/profiles/$profile.txt"
+[[ -r "$profile_file" ]] || die "Unknown package profile '$profile' (expected $profile_file)"
 
 [[ -r /etc/os-release ]] || die "Cannot identify the operating system"
 # shellcheck disable=SC1091
@@ -42,7 +61,7 @@ run sudo pacman -Syu --noconfirm
 
 mapfile -t requested < <(
     {
-        read_list "$REPO_ROOT/packages/pacman-explicit.txt"
+        read_list "$profile_file"
         read_list "$REPO_ROOT/packages/required-extra.txt"
     } | LC_ALL=C sort -u
 )
@@ -56,8 +75,9 @@ for package in "${requested[@]}"; do
         aur_packages+=("$package")
     fi
 done
-mapfile -t captured_aur < <(read_list "$REPO_ROOT/packages/aur-explicit.txt")
-aur_packages+=("${captured_aur[@]}")
+# AUR membership is derived from the profile itself: every requested name that
+# has no repository entry is an AUR/external package. packages/inventory/ holds
+# capture output (the recorded live state), not installer input.
 
 if ((${#repo_packages[@]})); then
     log "Installing ${#repo_packages[@]} repository packages"
@@ -96,14 +116,14 @@ if (( ! skip_toolchains )); then
         while IFS= read -r toolchain; do
             [[ -n "$toolchain" ]] || continue
             run rustup toolchain install "$toolchain"
-        done < <(read_list "$REPO_ROOT/packages/rustup-toolchains.txt")
+        done < <(read_list "$REPO_ROOT/packages/toolchains/rustup.txt")
     fi
 
     if command -v bun >/dev/null 2>&1; then
         while IFS= read -r package; do
             [[ -n "$package" ]] || continue
             run bun add --global "$package"
-        done < <(read_list "$REPO_ROOT/packages/bun-global.txt")
+        done < <(read_list "$REPO_ROOT/packages/toolchains/bun.txt")
     fi
 
     # Dual OpenJDK: install the newest release as the default java/javac while
@@ -126,25 +146,19 @@ if command -v zsh >/dev/null 2>&1; then
     fi
 fi
 
-# koreader-bin ships two desktop defects (startup crash, PDF crash); apply the
-# repo's fix automatically when the package is present. Restore with
-# scripts/patch-koreader-desktop.sh --restore.
-if [[ -f /usr/lib/koreader/frontend/device.lua ]]; then
+# koreader-bin ships two desktop defects (startup crash, PDF crash) and the
+# canonical keyboard config lives in a separate upstream repo; both halves are
+# the koreader module. Apply it when koreader-bin is present; roll the system
+# half back with `scripts/module.sh uninstall koreader`.
+if pacman -Qq koreader-bin >/dev/null 2>&1; then
     if (( DRY_RUN )); then
-        print_cmd "$SCRIPT_DIR/patch-koreader-desktop.sh"
+        print_cmd "$SCRIPT_DIR/module.sh" install koreader
     else
-        "$SCRIPT_DIR/patch-koreader-desktop.sh" || \
-            warn "koreader patch failed; run scripts/patch-koreader-desktop.sh manually"
+        "$SCRIPT_DIR/module.sh" install koreader || \
+            warn "koreader module failed; run scripts/module.sh install koreader manually"
     fi
-fi
-
-# Restore the canonical KOReader keyboard config from Eurekaimer/
-# koreader-keystream-config (clone + copy; skips existing user files).
-if (( DRY_RUN )); then
-    print_cmd "$SCRIPT_DIR/install-koreader-keystream.sh"
 else
-    "$SCRIPT_DIR/install-koreader-keystream.sh" || \
-        warn "koreader keystream restore failed; run scripts/install-koreader-keystream.sh manually"
+    log "koreader-bin is not installed; skipping the koreader module"
 fi
 
 log "Package installation complete"

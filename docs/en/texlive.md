@@ -10,15 +10,18 @@ manual tarball — so it rolls with the system and upgrades through the usual
 
 | Package | Role |
 |---|---|
-| `texlive-basic` | Core format files and the standard engines |
-| `texlive-binextra` | Additional binaries such as `latexmk` |
+| `texlive-basic` | Core format files, the standard engines, `tlmgr` |
+| `texlive-latex` | Fundamental LaTeX packages (`latex.ltx`) |
 | `texlive-latexrecommended` | Recommended LaTeX packages |
-| `texlive-fontsrecommended` | Recommended font families |
-| `texlive-xetex` | XeTeX engine support |
 | `texlive-langchinese` | Chinese typesetting (`ctex`, `xeCJK`) |
 
-Dependencies pull in `texlive-bin` (the engines and `tlmgr`), `texlive-latex`,
-and `texlive-langcjk` automatically.
+Dependencies pull in `texlive-bin` (the engines and `tlmgr`) and
+`texlive-langcjk` automatically, so the four packages above are the complete
+Chinese/English set. `texlive-xetex`, `texlive-binextra` and
+`texlive-fontsrecommended` are deliberately NOT installed: the `xelatex`
+engine and its `xelatex.ini` format definition ship with `texlive-basic`, and
+`texlive-xetex` only adds Arabic/Persian font mappings. Add `texlive-binextra`
+only if you need `latexmk`.
 
 ## Verification
 
@@ -27,7 +30,6 @@ After a restore the engines should be on `PATH`:
 ```bash
 pdflatex --version    # pdfTeX ... (TeX Live 2026/Arch Linux)
 xelatex --version     # XeTeX ... (TeX Live 2026/Arch Linux)
-latexmk --version
 lualatex --version
 tlmgr --version
 ```
@@ -44,6 +46,7 @@ xelatex /tmp/hello.tex    # -> /tmp/hello.pdf
 
 ## Restore behavior
 
-`packages/pacman-explicit.txt` lists the six packages above;
+`packages/profiles/full.txt` and `packages/profiles/minimal.txt` list the four
+packages above;
 `./scripts/install-packages.sh` installs them together with their dependencies,
 so a fresh restore gets a working LaTeX toolchain with no extra steps.
