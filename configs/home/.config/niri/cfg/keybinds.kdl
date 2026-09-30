@@ -16,7 +16,8 @@ binds {
     Mod+R                               hotkey-overlay-title="切换中文输入法：Fcitx5" { spawn "fcitx5-remote" "-t"; }
     Mod+Shift+R repeat=false hotkey-overlay-title="切换中英/日英输入模式" { spawn "/home/eurekaimer/.local/bin/fcitx5-toggle-japanese"; }
     Mod+B                               hotkey-overlay-title="打开 VS Code" { spawn "code"; }
-    Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "yazi"; }
+    // Run the cwd-aware wrapper, then keep an interactive shell in that directory.
+    Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "zsh" "-ic" "y; exec zsh -i"; }
     Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
     Mod+S                               hotkey-overlay-title="打开 ECDICT 英汉词典" { spawn "gdbus" "call" "--session" "--dest" "io.github.sioyek.ecdict" "--object-path" "/io/github/sioyek/ecdict" "--method" "io.github.sioyek.ecdict.Prompt"; }

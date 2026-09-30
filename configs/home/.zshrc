@@ -54,6 +54,17 @@ if (( $+commands[eza] )); then
     alias tree='eza --tree --icons=auto'
 fi
 
+# Official Yazi shell wrapper: q follows the last directory; Q keeps this one.
+# https://yazi-rs.github.io/docs/quick-start/#shell-wrapper
+function y() {
+    local tmp cwd
+    tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+    command yazi "$@" --cwd-file="$tmp"
+    IFS= read -r -d '' cwd < "$tmp"
+    [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd" || builtin true
+    command rm -f -- "$tmp"
+}
+
 
 # Sorin-inspired two-line prompt: framed identity/path with compact Git state.
 if (( $+commands[starship] )); then
