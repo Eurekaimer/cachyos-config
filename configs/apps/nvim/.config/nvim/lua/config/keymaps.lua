@@ -34,14 +34,60 @@ map({ "i", "s" }, "<Tab>", function()
   if vim.fn.pumvisible() == 1 then
     return "<C-n>"
   end
-  return snippet_forward() or "<Tab>"
-end, { expr = true, silent = true, desc = "补全下一项或展开片段" })
+  local snippet = snippet_forward()
+  if snippet then
+    return snippet
+  end
+  -- CTRL-X CTRL-N searches only this buffer, without needing an LSP server.
+  -- Preserve literal Tab for indentation and after non-keyword characters.
+  local before_cursor = vim.api.nvim_get_current_line():sub(1, vim.api.nvim_win_get_cursor(0)[2])
+  if vim.api.nvim_get_mode().mode == "i" and vim.fn.matchstr(before_cursor, [[\k\+$]]) ~= "" then
+    return "<C-x><C-n>"
+  end
+  return "<Tab>"
+end, { expr = true, silent = true, desc = "补全文件内关键词或展开片段" })
 map({ "i", "s" }, "<S-Tab>", function()
   if vim.fn.pumvisible() == 1 then
     return "<C-p>"
   end
   return snippet_backward() or "<S-Tab>"
 end, { expr = true, silent = true, desc = "补全上一项或返回片段" })
+
+local bracket_pairs = { { "(", ")" }, { "\\[", "\\]" }, { "{", "}" } }
+local function skip_string_or_comment()
+  local row, col = vim.fn.line(".") - 1, vim.fn.col(".") - 1
+  local ok, captures = pcall(vim.treesitter.get_captures_at_pos, 0, row, col)
+  if ok then
+    for _, capture in ipairs(captures) do
+      if capture.capture:match("^string") or capture.capture:match("^comment") then
+        return true
+      end
+    end
+  end
+  local syntax = vim.fn.synIDattr(vim.fn.synID(row + 1, col + 1, true), "name"):lower()
+  return syntax:find("string", 1, true) ~= nil or syntax:find("comment", 1, true) ~= nil
+end
+
+local function jump_out_of_bracket()
+  local target
+  for _, pair in ipairs(bracket_pairs) do
+    local pos = vim.fn.searchpairpos(pair[1], "", pair[2], "cnW", skip_string_or_comment, 0, 50)
+    if pos[1] > 0 and (not target or pos[1] < target[1] or (pos[1] == target[1] and pos[2] < target[2])) then
+      target = pos
+    end
+  end
+  -- Accept the displayed candidate and close its menu before moving the cursor.
+  local accept = vim.fn.pumvisible() == 1 and "<C-y>" or ""
+  if target then
+    -- Search columns are one-based; that same number is just past the ASCII closer.
+    return accept .. ("<Cmd>lua vim.api.nvim_win_set_cursor(0, {%d, %d})<CR>"):format(target[1], target[2])
+  end
+  return accept
+end
+
+map("i", "<C-Tab>", jump_out_of_bracket, { expr = true, silent = true, desc = "跳出当前括号" })
+map("i", "<M-l>", jump_out_of_bracket, { expr = true, silent = true, desc = "跳出当前括号（终端备用键）" })
+
 -- A run of empty quote lines (`>` with nothing after it) is how an Obsidian
 -- callout ends. Pressing <Enter> on one collapses the whole run into a single
 -- blank line and puts the cursor on the line below, so the callout stays tidy

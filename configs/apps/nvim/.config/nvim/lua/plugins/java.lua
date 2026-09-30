@@ -38,24 +38,37 @@ return {
           local root_dir = jdtls.setup.find_root(root_markers, vim.api.nvim_buf_get_name(args.buf))
             or vim.fn.getcwd()
 
+          -- CS61B lab poms set <sourceDirectory>${project.basedir}</sourceDirectory>, so m2e
+          -- refuses the import ("Cannot nest 'lab6/src/main/resources' inside 'lab6'") and
+          -- leaves the project half-built: afterwards every file fails with "does not resolve
+          -- to a ICompilationUnit", which kills completion, diagnostics and navigation.
+          -- The import runs during `initialize`, so the flag must arrive as
+          -- initializationOptions settings - workspace/didChangeConfiguration is too late.
+          local java_settings = {
+            import = { maven = { enabled = false } },
+            -- Without a build model, jdtls roots the invisible project at the folder holding
+            -- the sources (`capers/`), so every `package capers;` file reports "declared
+            -- package does not match the expected package". Rooting at the workspace instead
+            -- makes `capers/` the package directory the declarations expect.
+            project = { sourcePaths = { "." } },
+            signatureHelp = { enabled = true },
+            sources = {
+              organizeImports = { starThreshold = 9999, staticStarThreshold = 9999 },
+            },
+            completion = {
+              favoriteStaticMembers = {
+                "org.junit.jupiter.api.Assertions.*",
+                "java.util.Objects.requireNonNull",
+              },
+            },
+            codeGeneration = { useBlocks = false },
+          }
+
           jdtls.start_or_attach({
             cmd = { "jdtls", "-data", workspace_dir(root_dir) },
             root_dir = root_dir,
-            settings = {
-              java = {
-                signatureHelp = { enabled = true },
-                sources = {
-                  organizeImports = { starThreshold = 9999, staticStarThreshold = 9999 },
-                },
-                completion = {
-                  favoriteStaticMembers = {
-                    "org.junit.jupiter.api.Assertions.*",
-                    "java.util.Objects.requireNonNull",
-                  },
-                },
-                codeGeneration = { useBlocks = false },
-              },
-            },
+            init_options = { settings = { java = java_settings } },
+            settings = { java = java_settings },
           })
 
           map(args.buf, "n", "<leader>co", jdtls.organize_imports, "整理 import")
