@@ -145,6 +145,8 @@ fetchers = [
 	{ url = "local://*",  run = "mime.local",  prio = "high", group = "mime" },
 	{ url = "trash://*",  run = "mime.trash",  prio = "high", group = "mime" },
 	{ url = "remote://*", run = "mime.remote", prio = "high", group = "mime" },
+	# Directory sizes (dirsize.yazi)
+	{ url = "*/",         run = "dirsize",     prio = "low",  group = "size" },
 ]
 spotters = [
 	# Multi-file

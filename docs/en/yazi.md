@@ -74,6 +74,35 @@ Enter on a lesson or reference `.html` opens a new Chrome window. A bare
 session and can look like a no-op; `--new-window` makes each Enter visibly do
 something. The MIME rule also covers HTML detected as `text/plain`.
 
+## Directory sizes in the file list
+
+**Problem**: the built-in `size` linemode prints an item count for
+directories, so the list never says how much space a folder occupies, and
+counts mixed with sizes make one column look ragged.
+
+**Fix**: the `dirsize` plugin measures every directory listed on the current
+page in the background and publishes the result into the file list, exactly
+like the built-in folder spotter (`<Tab>`) does. Three files cooperate:
+
+| File | Purpose |
+| --- | --- |
+| `plugins/dirsize.yazi/main.lua` | fetcher: measures directories and emits `FilesOp::Size` |
+| `init.lua` | plugin setup, the `size` linemode override, and the status-bar child |
+| `yazi.toml` | `[plugin] fetchers` rule `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
+
+The `size` linemode prints a size only, so the column stays aligned, and a
+directory whose size has not been measured yet stays blank instead of showing
+a count. The item count of the hovered directory is appended to its name in
+the status bar: `2 items`, `1 item`, or `empty`.
+
+Measurements are cached per directory and invalidated by its mtime; a
+directory that is already being measured is claimed, so concurrent fetchers
+never walk the same tree twice; a running measurement stops when the user
+navigates away. Unreadable directories are skipped with a single
+`dirsize: cannot measure …` line in `~/.local/state/yazi/yazi.log`. The value
+is the sum of file lengths — the same number `sort_by = "size"` and the folder
+spotter show — not allocated disk blocks.
+
 ## Missing Sioyek libraries after an upgrade
 
 On 2026-09-07, upgrading `libmupdf` from 1.28.0 to 1.28.3 left the locally
@@ -105,4 +134,5 @@ image caches live in `/tmp/yazi-<uid>/`.
 ## Restore behavior
 
 `restore-user.sh` restores `~/.config/yazi/` from the allowlist. After
-restore, Yazi gains the multi-window PDF behavior with no extra steps.
+restore, Yazi gains the multi-window PDF behavior and the directory-size
+plugin with no extra steps.

@@ -57,6 +57,22 @@ chrome = [
 `google-chrome.desktop`，它复用已有会话，看起来像没反应；`--new-window` 让每次
 回车都有可见结果。MIME 规则同时覆盖被识别为 `text/plain` 的 HTML。
 
+## 文件列表显示目录大小
+
+**问题**：内置 `size` linemode 对目录显示的是条目数量，列表里看不到文件夹实际占多少空间；数量与大小混在同一列也参差不齐。
+
+**修复**：`dirsize` 插件在后台测量当前页面里每个目录的大小，并按与内置文件夹 spotter（`<Tab>`）相同的方式写回文件列表。三个文件配合：
+
+| 文件 | 作用 |
+| --- | --- |
+| `plugins/dirsize.yazi/main.lua` | fetcher：测量目录并发出 `FilesOp::Size` |
+| `init.lua` | 插件 setup、`size` linemode 覆写、状态栏子项 |
+| `yazi.toml` | `[plugin] fetchers` 规则 `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
+
+`size` linemode 只输出大小，列保持右对齐；尚未测出大小的目录留空，不再回退成数量。悬停目录的条目数追加在状态栏文件名之后：`2 items`、`1 item` 或 `empty`。
+
+测量结果按目录缓存、以目录 mtime 失效；正在测量的目录会被抢占标记，并发的 fetcher 不会重复遍历同一棵树；用户切换目录时正在进行的测量会中止。不可读目录会被跳过，并在 `~/.local/state/yazi/yazi.log` 里只记录一行 `dirsize: cannot measure …`。数值是各文件长度之和（与 `sort_by = "size"` 及文件夹 spotter 相同），不是磁盘块占用。
+
 ## 更新后 Sioyek 缺少共享库
 
 2026-09-07，`libmupdf` 从 1.28.0 升到 1.28.3 后，原有 AUR
@@ -79,4 +95,4 @@ Yazi 的 PDF 预览依赖 `pdftoppm`（poppler 提供，已在包清单中）；
 
 ## 恢复行为
 
-`restore-user.sh` 会按 allowlist 恢复 `~/.config/yazi/`。恢复后 `yazi` 即可获得 PDF 多窗口打开行为，无需额外步骤。
+`restore-user.sh` 会按 allowlist 恢复 `~/.config/yazi/`。恢复后 `yazi` 即可获得 PDF 多窗口打开行为与目录大小插件，无需额外步骤。
