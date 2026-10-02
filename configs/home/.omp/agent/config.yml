@@ -1,6 +1,6 @@
 modelRoles:
   smol: deepseek/deepseek-v4-flash:high
-  default: openai-codex/gpt-6.1-sol:medium
+  default: commandcode/deepseek/deepseek-v4.1-flash:max
 symbolPreset: ascii
 theme:
   dark: dark-terminal
@@ -18,8 +18,6 @@ tui:
   codexResetFireworks: true
 task:
   agentModelOverrides:
-    reviewer: openai-codex/gpt-5.6-sol
-    scout: openai-codex/gpt-5.6-sol
-    security-reviewer: openai-codex/gpt-5.6-sol
-    sonic: openai-codex/gpt-5.6-sol
-    task: openai-codex/gpt-5.6-sol
+    reviewer: commandcode/deepseek/deepseek-v4.1-flash
+    scout: commandcode/deepseek/deepseek-v4.1-flash
+    sonic: commandcode/deepseek/deepseek-v4.1-flash
