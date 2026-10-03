@@ -20,6 +20,62 @@ return {
       "mason-org/mason-lspconfig.nvim",
     },
     init = function()
+      -- Native autotrigger covers server punctuation, not ordinary typing or
+      -- backspace after the menu loses all matches. Reopen from the edited text.
+      local completion_group = vim.api.nvim_create_augroup("user_lsp_completion", { clear = true })
+      local completion_timer = assert(vim.uv.new_timer())
+      local generation = 0
+      local dismissed_buf, dismissed_tick
+      local function cancel_completion()
+        generation = generation + 1
+        completion_timer:stop()
+      end
+      vim.api.nvim_create_autocmd({ "TextChangedI", "TextChangedP" }, {
+        group = completion_group,
+        callback = function(args)
+          cancel_completion()
+          if vim.fn.pumvisible() ~= 0
+            or (dismissed_buf == args.buf and dismissed_tick == vim.b[args.buf].changedtick) then
+            return
+          end
+          local pending = generation
+          local cursor = vim.api.nvim_win_get_cursor(0)
+          completion_timer:start(80, 0, vim.schedule_wrap(function()
+            if pending ~= generation or vim.api.nvim_get_current_buf() ~= args.buf
+              or not vim.deep_equal(cursor, vim.api.nvim_win_get_cursor(0))
+              or not vim.api.nvim_get_mode().mode:match("^i") or vim.fn.pumvisible() ~= 0 then
+              return
+            end
+            local prefix = vim.api.nvim_get_current_line():sub(1, cursor[2])
+            if vim.fn.match(prefix, [[\k$\|\.$]]) < 0
+              or #vim.lsp.get_clients({ bufnr = args.buf, method = "textDocument/completion" }) == 0 then
+              return
+            end
+            vim.lsp.completion.get()
+          end))
+        end,
+      })
+      vim.api.nvim_create_autocmd({ "InsertLeave", "BufLeave" }, {
+        group = completion_group,
+        callback = cancel_completion,
+      })
+      vim.api.nvim_create_autocmd("CompleteDone", {
+        group = completion_group,
+        callback = function(args)
+          cancel_completion()
+          if vim.v.event.reason == "accept" or vim.v.event.reason == "cancel" then
+            -- Accepting a word itself fires TextChangedI; wait for a new edit.
+            dismissed_buf, dismissed_tick = args.buf, vim.b[args.buf].changedtick
+          end
+        end,
+      })
+      vim.api.nvim_create_autocmd("VimLeavePre", {
+        group = completion_group,
+        callback = function()
+          cancel_completion()
+          completion_timer:close()
+        end,
+      })
       vim.api.nvim_create_autocmd("LspAttach", {
         group = vim.api.nvim_create_augroup("user_lsp_keymaps", { clear = true }),
         callback = function(args)

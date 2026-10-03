@@ -17,6 +17,16 @@ Mason 确保以下服务器已安装并由 Neovim 0.12 原生接口启用：
 
 Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim runtime library。支持 completion 的 server 会自动启用 Neovim 原生补全。
 
+原生 `autotrigger` 只响应服务器声明的触发字符（例如 Pyright 的 `.`），不会自行覆盖
+普通标识符输入和退格。本配置在文本变化后等待 80 ms，在菜单关闭且光标位于关键词
+或 `.` 后时请求 LSP 补全；菜单打开时仍由原生补全筛选候选。确认、取消、离开插入
+模式或切换缓冲区会取消待触发请求，避免菜单立即重新弹出。
+
+Python 使用 Pyright 的语义补全：`imp` 提示 `import`，`import asy` 提示 `asyncio`；
+已有 `import asyncio` 和 `event_loop` 定义时，`asy`、`event_l` 分别提示模块和变量。
+`asyncio.` 的成员补全在错字导致菜单消失后，退格修正前缀会再次出现；无需重新输入 `.`。
+`<C-Space>` 仍可手动触发，`<Tab>` / `<S-Tab>` 选择，`<Enter>` 确认，`<C-e>` 取消。
+
 ### Java
 
 Java 由 `nvim-jdtls` 启动 eclipse.jdt.ls（Mason 只负责安装 `jdtls` 启动器，
