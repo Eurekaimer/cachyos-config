@@ -121,7 +121,8 @@ without `install.sh` (currently `modules/sddm`, consumed by
 3. user configuration and dconf (`configs/home/`)
 4. SDDM theme (needs the submodule from stage 0)
 5. service enablement
-6. post-restore tweaks (noctalia runtime backfill, eDP-1 scaling, wallpaper)
+6. post-restore tweaks (eDP-1 scaling, optional native Noctalia wallpaper)
 
-Stage 3 replaces whole paths, so anything machine-specific that lives inside a
-managed path is re-applied in stage 6 from the backup taken in stage 3.
+Stage 3 replaces managed paths with copies of the snapshot; stage 6 handles
+output scaling and optional wallpaper/input-method actions. Noctalia's native
+configuration and saved GUI overrides come from the snapshot, never older backups.

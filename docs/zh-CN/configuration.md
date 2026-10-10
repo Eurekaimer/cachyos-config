@@ -32,7 +32,7 @@
 | MIME 默认 | `configs/apps/mimeapps/` | `.config/mimeapps.list` |
 | MPV | `configs/apps/mpv/` | `.config/mpv/` |
 | Niri | `configs/apps/niri/` | `.config/niri/`、niri 辅助脚本、热键文本 |
-| Noctalia | `configs/apps/noctalia/` | `.config/noctalia/` |
+| Noctalia | `configs/apps/noctalia/` | 原生 `.config/noctalia/`、`.local/state/noctalia/settings.toml`、`.local/share/noctalia/plugins/storage-gb/` |
 | Neovim | `configs/apps/nvim/` | `.config/nvim/`、Markdown 桌面项 |
 | OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/`（不含 `service.json`） |
 | OMP | `configs/apps/omp/` | `.omp/agent/config.yml` |
@@ -73,7 +73,7 @@
 | Neovim | `~/.config/nvim/`、Neovim Markdown desktop entry | `configs/home/.config/nvim/`、`configs/home/.local/share/applications/neovim-markdown.desktop` |
 | Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
 | Niri helpers（辅助脚本） | `~/.local/bin/niri-hotkeys-zh`、`~/.local/bin/niri-stack-column`、快捷键文本 | `configs/home/.local/bin/`、`configs/home/.local/share/niri/` |
-| Noctalia | `~/.config/noctalia/` | `configs/home/.config/noctalia/` |
+| Noctalia | `~/.config/noctalia/`、`~/.local/state/noctalia/settings.toml`、`~/.local/share/noctalia/plugins/storage-gb/` | `configs/home/` 下对应路径；GUI 覆盖优先于底层配置，历史/缓存/私有状态不纳管 |
 | OBS Studio | `~/.config/obs-studio/`（`global.ini`、`user.ini`、`basic/scenes/`、`basic/profiles/`、`plugin_manager/modules.json`） | `configs/home/.config/obs-studio/`；`service.json`（推流密钥）发布前删除，日志与 profiler 数据不入快照 |
 | OMP（Oh My Pi 前端偏好） | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml`（仅前端偏好，运行态不入） |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`；最近路径元数据会被移除 |

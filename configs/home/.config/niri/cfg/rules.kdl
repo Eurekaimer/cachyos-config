@@ -33,6 +33,14 @@
         default-window-height { fixed 1100; }
     }
 
+    // Native Noctalia settings should float instead of adding a side column.
+    window-rule {
+        match app-id=r#"^dev\.noctalia\.Noctalia$"#
+        open-floating true
+        default-column-width { fixed 1080; }
+        default-window-height { fixed 920; }
+    }
+
     layer-rule {
         match namespace="^noctalia-wallpaper*"
         place-within-backdrop true

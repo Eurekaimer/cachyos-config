@@ -1,0 +1,179 @@
+# Native Noctalia v5 preferences migrated from v4 on 2026-10-09.
+# Bar/widget/Dock settings live in widgets.toml; v4 JSON is not loaded.
+# GUI changes override these files via ~/.local/state/noctalia/settings.toml.
+
+[accessibility]
+ui_scale = 1.1
+
+[shell]
+font_family = "LXGW WenKai"
+lang = "zh-Hans"
+avatar_path = "/home/eurekaimer/Pictures/Wallpapers/luckystar_avator.png"
+telemetry_enabled = false
+setup_wizard_enabled = false
+polkit_agent = true
+clipboard_enabled = false
+clipboard_auto_paste = "off"
+app_icon_colorize = false
+
+[shell.animation]
+enabled = false
+speed = 1.0
+
+[shell.shadow]
+direction = "down_right"
+
+[shell.panel]
+transparency_mode = "soft"
+borders = false
+shadow = true
+launcher_placement = "attached"
+launcher_position = "center"
+control_center_placement = "attached"
+wallpaper_placement = "attached"
+session_placement = "floating"
+
+[shell.launcher]
+categories = true
+show_icons = true
+app_grid = false
+sort_by_usage = true
+pinned = []
+
+[shell.launcher.providers.session]
+global = true
+
+[shell.mpris]
+blacklist = []
+
+[theme]
+mode = "light"
+source = "wallpaper"
+wallpaper_scheme = "m3-tonal-spot"
+pure_black_dark = false
+
+[theme.templates]
+enable_builtin_templates = false
+enable_community_templates = false
+
+[wallpaper]
+enabled = true
+directory = "/home/eurekaimer/Pictures/Wallpapers"
+fill_mode = "crop"
+fill_color = "#000000"
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
+transition_duration = 1500
+edge_smoothness = 0.05
+transition_on_startup = true
+
+[wallpaper.default]
+path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+
+[wallpaper.automation]
+enabled = false
+interval_seconds = 300
+recursive = false
+
+[notification]
+enable_daemon = false
+background_opacity = 1.0
+keep_dismissed_in_history = false
+layer = "overlay"
+
+[osd]
+position = "top_right"
+hide_delay_ms = 2000
+background_opacity = 1.0
+
+[audio]
+enable_overdrive = false
+enable_sounds = false
+
+[brightness]
+enable_ddcutil = true
+
+[location]
+auto_locate = true
+address = "Tokyo"
+
+[weather]
+enabled = true
+unit = "celsius"
+effects = true
+
+[lockscreen]
+enabled = true
+lock_before_suspend = true
+fingerprint = false
+blur_intensity = 0.2
+tint_intensity = 0.16
+
+[idle.behavior.lock]
+enabled = false
+timeout = 660
+action = "lock"
+
+[idle.behavior.screen-off]
+enabled = false
+timeout = 600
+action = "screen_off"
+
+[shell.session]
+grid = true
+show_shortcuts = true
+
+[[shell.session.actions]]
+action = "lock"
+shortcut = "1"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "suspend"
+shortcut = "2"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "command"
+command = "systemctl hibernate"
+label = "休眠"
+glyph = "bed"
+shortcut = "3"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "reboot"
+shortcut = "4"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "logout"
+shortcut = "5"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "shutdown"
+shortcut = "6"
+countdown_seconds = 10
+
+[[shell.session.actions]]
+action = "command"
+command = "systemctl reboot --firmware-setup"
+label = "重启至 UEFI"
+glyph = "device-desktop"
+shortcut = "7"
+countdown_seconds = 10
+
+[osd.kinds]
+volume = true
+volume_output = true
+volume_input = true
+brightness = true
+wifi = false
+bluetooth = false
+power_profile = false
+caffeine = false
+nightlight = false
+dnd = false
+lock_keys = false
+keyboard_layout = false
+privacy = false

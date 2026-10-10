@@ -1,1 +1,3 @@
 .config/noctalia
+.local/state/noctalia/settings.toml
+.local/share/noctalia/plugins/storage-gb

@@ -82,15 +82,13 @@ linux-cachyos-lts-headers
 linux-cachyos-lts-nvidia-open
 linux-cachyos-nvidia-open
 
-# [02-desktop-shell] 桌面外壳：niri 做 compositor；noctalia-shell 提供状态栏/启动器/锁屏，qs 二进制来自 noctalia-qs
+# [02-desktop-shell] 桌面外壳：niri 做 compositor；原生 noctalia 提供状态栏/启动器/锁屏
 cachyos-niri-noctalia
 grim
 gtk4-layer-shell
 kitty
 niri
 noctalia
-noctalia-qs
-noctalia-shell
 qt5-wayland
 qt6-3d
 qt6-5compat

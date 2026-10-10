@@ -50,6 +50,15 @@ flowchart TD
 
 Git is the transport: capture on the machine you configure, restore on any other machine.
 
+Managed files are copied, not symlinked or automatically synchronized:
+`configs/apps/` is the source and `configs/home/` its generated mirror.
+The active shell is native Noctalia (observed `v5.2.1 (5.2.1-1-dirty)`),
+with `config.toml`/`widgets.toml` plus saved GUI overrides in
+`.local/state/noctalia/settings.toml` and the local `storage_gb` plugin.
+After a GUI change is saved, capture it before publishing; restore deploys the
+saved snapshot without backfilling retired JSON settings. See
+[Noctalia](docs/en/noctalia.md) for the managed paths and native commands.
+
 **Publish from the current machine** after any config, package, or service change:
 
 ```bash

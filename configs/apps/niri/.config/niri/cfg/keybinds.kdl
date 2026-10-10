@@ -3,23 +3,23 @@ binds {
     // ────────────── Keybindings ──────────────
     // https://github.com/YaLTeR/niri/wiki/Configuration:-Key-Bindings
 
-    // ─── noctalia-shell keybinds ───
-    // https://docs.noctalia.dev/getting-started/keybinds/
+    // ─── Noctalia keybinds ───
+    // https://docs.noctalia.dev/noctalia/ipc/shell/
 
     Mod+Shift+ESCAPE                    hotkey-overlay-title="显示快捷键总览" { show-hotkey-overlay; }
     Mod+Shift+Slash                     hotkey-overlay-title="显示中文快捷键手册" { spawn "/home/eurekaimer/.local/bin/niri-hotkeys-zh"; }
 
     // ─── Applications ───
     Mod+Return                          hotkey-overlay-title="打开终端：Kitty" { spawn "kitty"; }
-    Mod+CTRL+Return                     hotkey-overlay-title=null { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
-    Mod+Space                           repeat=false hotkey-overlay-title="打开应用启动器：Noctalia" { spawn-sh "qs -c noctalia-shell ipc call launcher toggle"; }
+    Mod+CTRL+Return                     hotkey-overlay-title=null { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
+    Mod+Space                           repeat=false hotkey-overlay-title="打开应用启动器：Noctalia" { spawn "noctalia" "msg" "panel-toggle" "launcher"; }
     Mod+R                               hotkey-overlay-title="切换中文输入法：Fcitx5" { spawn "fcitx5-remote" "-t"; }
     Mod+Shift+R repeat=false hotkey-overlay-title="切换中英/日英输入模式" { spawn "/home/eurekaimer/.local/bin/fcitx5-toggle-japanese"; }
     Mod+B                               hotkey-overlay-title="打开 VS Code" { spawn "code"; }
     // Run the cwd-aware wrapper, then keep an interactive shell in that directory.
     Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "zsh" "-ic" "y; exec zsh -i"; }
-    Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn-sh "qs -c noctalia-shell ipc call lockScreen lock"; }
-    Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn-sh "qs -c noctalia-shell ipc call sessionMenu toggle"; }
+    Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn "noctalia" "msg" "session" "lock"; }
+    Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn "noctalia" "msg" "panel-toggle" "session"; }
     Mod+S                               hotkey-overlay-title="打开 ECDICT 英汉词典" { spawn "gdbus" "call" "--session" "--dest" "io.github.sioyek.ecdict" "--object-path" "/io/github/sioyek/ecdict" "--method" "io.github.sioyek.ecdict.Prompt"; }
 
     // Keep the original GNOME file manager as the primary graphical browser.

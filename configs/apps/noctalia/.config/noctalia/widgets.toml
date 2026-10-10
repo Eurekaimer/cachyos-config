@@ -1,0 +1,190 @@
+[bar.main]
+position = "top"
+# Compact bar with normally proportioned sans-serif text.
+thickness = 44
+radius = 12
+enabled = true
+auto_hide = false
+smart_auto_hide = false
+show_on_workspace_switch = true
+reserve_space = true
+background_opacity = 0.93
+border_width = 0.0
+# Match the ordinary window gaps configured by Niri.
+margin_ends = 16
+margin_edge = 16
+padding = 5
+widget_spacing = 6
+# Larger icons without larger text: 14px × 1.2 × 1.0 ≈ 16.8px.
+scale = 1.2
+font_scale = 1.0
+font_family = "Noto Sans"
+font_weight = 400
+color = "on_surface_variant"
+icon_color = "primary"
+capsule_foreground = "on_surface_variant"
+capsule = true
+capsule_thickness = 0.72
+capsule_padding = 6
+capsule_opacity = 1.0
+start = ["launcher", "clock", "cpu-usage", "cpu-temperature", "memory-usage", "disk-free"]
+center = ["workspaces", "audio-visualizer"]
+end = ["taskbar", "tray", "notifications", "battery", "volume", "bluetooth", "brightness", "control-center", "wallpaper"]
+
+[bar.main.dead_zone.actions]
+right = "panel-toggle control-center home"
+middle = "none"
+scroll_up = "none"
+scroll_down = "none"
+
+[widget.launcher]
+type = "launcher"
+custom_image = "/usr/share/icons/cachyos.svg"
+custom_image_colorize = false
+
+[widget.clock]
+type = "clock"
+format = "%H:%M · %m/%d"
+vertical_format = "%H %M - %d %m"
+tooltip_format = "%H:%M %a, %b %d"
+
+[widget.cpu-usage]
+type = "sysmon"
+stat = "cpu_usage"
+visualization = "none"
+show_value = true
+show_glyph = true
+label_show_units = true
+font_family = "Noto Sans"
+capsule = false
+
+[widget.cpu-temperature]
+type = "sysmon"
+stat = "cpu_temp"
+visualization = "none"
+show_value = true
+show_glyph = true
+label_show_units = true
+font_family = "Noto Sans"
+capsule = false
+
+[widget.memory-usage]
+type = "local/storage_gb:memory"
+font_family = "Noto Sans"
+capsule = false
+
+# Decimal GB available on the bar; full capacity and usage details on hover.
+[widget.disk-free]
+type = "local/storage_gb:available"
+font_family = "Noto Sans"
+capsule = false
+
+[widget.workspaces]
+type = "workspaces"
+hide_when_empty = false
+show_all_outputs = false
+show_labels = true
+label_source = "id"
+labels_only_when_occupied = true
+max_label_chars = 2
+show_icons = false
+style = "focus_hint"
+font_family = "Noto Sans"
+font_scale = 1.0
+focused_output_only = false
+focused_color = "primary"
+occupied_color = "secondary"
+empty_color = "secondary"
+font_weight = 500
+
+[widget.audio-visualizer]
+type = "audio_visualizer"
+width = 96
+show_when_idle = false
+color_1 = "primary"
+color_2 = "primary"
+
+[widget.tray]
+type = "tray"
+hidden = []
+pinned = []
+hide_passive = false
+drawer = false
+
+[widget.notifications]
+type = "notifications"
+hide_when_no_unread = false
+
+[widget.battery]
+type = "battery"
+device = "auto"
+display_mode = "graphic"
+show_label = false
+hide_when_plugged = false
+hide_when_full = false
+
+[widget.volume]
+type = "volume"
+device = "output"
+show_label = false
+
+[widget.volume.actions]
+middle = "exec pwvucontrol || pavucontrol"
+
+[widget.bluetooth]
+type = "bluetooth"
+show_label = false
+hide_when_adapter_off = false
+hide_when_no_connected_device = false
+
+[widget.brightness]
+type = "brightness"
+show_label = false
+
+[widget.control-center]
+type = "control-center"
+glyph = "noctalia"
+
+[widget.wallpaper]
+type = "wallpaper"
+
+[dock]
+enabled = false
+position = "bottom"
+background_opacity = 1.0
+auto_hide = true
+smart_auto_hide = false
+reserve_space = false
+show_running = true
+show_dots = false
+show_instance_count = false
+inactive_opacity = 0.6
+magnification = false
+launcher_position = "none"
+pinned = []
+monitors = []
+
+[control_center]
+shortcuts = [
+  { type = "wifi" },
+  { type = "bluetooth" },
+  { type = "wallpaper" },
+  { type = "notification" },
+  { type = "power_profile" },
+  { type = "caffeine" },
+  { type = "nightlight" },
+]
+
+# Running applications stay visible in the top bar; the bottom Dock remains disabled.
+[widget.taskbar]
+type = "taskbar"
+group_by_workspace = false
+show_all_outputs = true
+only_active_workspace = false
+show_window_title = false
+icon_scale = 1.1
+item_spacing = 5
+taskbar_max_width = 360
+show_active_indicator = true
+active_indicator_color = "primary"
+inactive_opacity = 0.85

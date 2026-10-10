@@ -521,3 +521,41 @@ output "eDP-1" {
   rejects a temporary non-allowlisted Clash profile probe, removed afterwards.
 - Live routing was verified before sync: Bilibili, its image CDN, Baidu and JD
   used DIRECT and returned HTTPS 200; Google retained the selected proxy route.
+
+## 22. 原生 Noctalia 纳管与旧恢复路径切换（2026-10-10）
+
+- 当前运行程序为 `/usr/bin/noctalia`，版本实测 `v5.2.1 (5.2.1-1-dirty)`；
+  旧 `noctalia-shell 4.7.7-3` 仍安装不表示其 UI 正在运行。此前日志中的
+  QuickShell 启动、JSON 配置与运行时回填为历史操作，不再是当前恢复说明。
+- 原生底层 `config.toml`/`widgets.toml`、GUI 覆盖
+  `.local/state/noctalia/settings.toml`、本地
+  `.local/share/noctalia/plugins/storage-gb/` 纳入现有复制快照管理。
+  `configs/apps/noctalia/` 是源，`configs/home/` 是生成副本，不创建软链接。
+  GUI 改动保存后仍需 `capture.sh` 才会进入仓库，不自动同步。
+- GUI 覆盖单独保留，不合并到底层配置。当前有效 UI scale 1.25、圆角比例
+  1.35、full 侧栏等沿用；此次不调整 UI。
+- 主线程已删除当前用户及仓库快照中淘汰的 JSON、QML 插件/配色目录，
+  保留原生配置与本地插件；未卸载系统旧包，未修改 CachyOS meta 包。
+  主线程报告隔离 HOME 经仓库 restore helper 部署后原生 merged 配置逐字段一致，
+  清理并重载后 merged 配置仍一致。
+- `post-restore-tweaks.sh` 删除从最新备份回填旧 `settings.json`、
+  `colors.json`、`colorschemes/` 和 `config.toml` 的流程，保留 eDP 缩放与
+  fcitx5 逻辑；可选壁纸使用实际 help 确认的 `noctalia msg wallpaper-set`。
+- `sync-sddm-theme.sh` 使用 `noctalia msg wallpaper-get` 读取当前运行状态，
+  不读取旧 JSON cache。离线恢复使用 `--from-snapshot`，或显式 `--wallpaper FILE`。
+  `state.toml` 实测只有迁移/模板标记，GUI `settings.toml` 是配置覆盖，
+  不把两者误当成旧格式壁纸缓存。
+- full/minimal profile 保留原生 `noctalia` 与现有 meta 包，不再显式请求
+  `noctalia-shell`/`noctalia-qs`；同步更新当前中英文使用说明与 Agent 运行手册。
+- 已核对 2026-10-09 会话 `01a12000-65f2-7466-b233-b450b2314623`：
+  之前迁移时助手确实按用户要求调整了状态栏尺寸、字体、胶囊、工作区、
+  任务栏，并新增 `storage_gb` 控件；不是所有布局都未修改。
+  锁屏模糊/染色与壁纸时长/平滑度沿用旧值；旧 `pixelate` 过渡因原生版
+  无对应项而移除。记录未显示定制锁屏布局或改写壁纸特效实现。
+  用户明确满意当前设计，后续纳管与清理须保持现有外观。
+- 验证通过：隔离 HOME 经真实 restore helper 部署后 `noctalia config validate`
+  与 merged 配置一致性检查；当前清理/重载前后 merged 配置一致。
+  原生壁纸 IPC 设置同一壁纸并读回成功，状态栏保持可见。
+- 恢复脚本 shell 语法检查、post-restore 壁纸 dry-run、SDDM 实时/离线
+  dry-run、本地插件 lint（0 errors / 0 warnings）、生成 Niri 配置验证、
+  完整 `scripts/audit.sh` 全部通过；未重启 SDDM 或触发锁屏。

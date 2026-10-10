@@ -3,8 +3,6 @@
 .bash_logout
 .bash_profile
 .bashrc
-.config/QtProject.conf
-.config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .config/cachyos-hello.json
 .config/fastfetch
@@ -26,7 +24,9 @@
 .config/obs-studio/global.ini
 .config/obs-studio/plugin_manager/modules.json
 .config/obs-studio/user.ini
+.config/QtProject.conf
 .config/starship.toml
+.config/Thunar/uca.xml
 .config/timewarrior/extensions/totals.py
 .config/timewarrior/timewarrior.cfg
 .config/user-dirs.dirs
@@ -41,8 +41,10 @@
 .local/share/applications/wechat.desktop
 .local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js
 .local/share/niri/hotkeys-zh.txt
+.local/share/noctalia/plugins/storage-gb
+.local/state/noctalia/settings.toml
 .omp/agent/config.yml
-.zshrc
 Pictures/Wallpapers
 Projects/ASS/config/ani.v2.json
 Projects/ASS/config/config.v2.json
+.zshrc

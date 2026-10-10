@@ -1,0 +1,14 @@
+id = "local/storage_gb"
+name = "Storage GB"
+version = "1.0.0"
+plugin_api = 16
+author = "local"
+description = "Decimal GB capacity readouts using the host sampler, with details on hover."
+
+[[widget]]
+id = "available"
+entry = "available.luau"
+
+[[widget]]
+id = "memory"
+entry = "memory.luau"

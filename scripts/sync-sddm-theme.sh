@@ -7,7 +7,6 @@ source "$SCRIPT_DIR/lib/common.sh"
 
 require_non_root_user
 require_command patch
-require_command python3
 
 from_snapshot=0
 wallpaper_override=""
@@ -30,7 +29,7 @@ selected Noctalia wallpaper and SDDM configuration represented in this repo.
 Options:
   --dry-run            Validate inputs and print system/repository changes
   --from-snapshot      Use modules/sddm/wallpaper.path and configs/home instead
-                       of reading the current Noctalia runtime cache
+                       of reading the current Noctalia runtime state
   --wallpaper FILE     Override the current Noctalia wallpaper
   -h, --help           Show this help
 EOF
@@ -63,28 +62,11 @@ else
         [[ -f "$wallpaper_override" ]] || die "Wallpaper does not exist: $wallpaper_override"
         wallpaper=$(realpath -- "$wallpaper_override")
     else
-        wallpaper_cache="${XDG_CACHE_HOME:-$HOME/.cache}/noctalia/wallpapers.json"
-        [[ -f "$wallpaper_cache" ]] || die "Noctalia wallpaper cache not found: $wallpaper_cache"
-        wallpaper=$(python3 - "$wallpaper_cache" <<'PY'
-import json
-import os
-import sys
-
-with open(sys.argv[1], encoding="utf-8") as handle:
-    data = json.load(handle)
-for screen_name in sorted(data.get("wallpapers", {})):
-    entry = data["wallpapers"][screen_name]
-    if isinstance(entry, str):
-        candidates = [entry]
-    else:
-        candidates = [entry.get("dark"), entry.get("light")]
-    for candidate in candidates:
-        if candidate and os.path.isfile(candidate):
-            print(os.path.realpath(candidate))
-            raise SystemExit(0)
-raise SystemExit("No readable wallpaper found in Noctalia cache")
-PY
-)
+        require_command noctalia
+        wallpaper=$(noctalia msg wallpaper-get) \
+            || die "Cannot read current Noctalia wallpaper; use --from-snapshot or --wallpaper FILE when the shell is not running"
+        [[ -f "$wallpaper" ]] || die "Current Noctalia wallpaper is not a readable file: $wallpaper"
+        wallpaper=$(realpath -- "$wallpaper")
     fi
 
     case "$wallpaper" in

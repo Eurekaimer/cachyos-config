@@ -17,13 +17,16 @@
 
 ## 同步当前 Noctalia 壁纸
 
-Noctalia 当前壁纸记录在运行时缓存中。切换到满意的壁纸后执行：
+切换到满意的壁纸后，从原生 Noctalia 当前运行状态同步：
 
 ```bash
 ./scripts/sync-sddm-theme.sh
 ```
 
-脚本读取 `~/.cache/noctalia/wallpapers.json`，将壁纸同步进 `configs/home/`，更新 `modules/sddm/wallpaper.path`，应用 Qt6 补丁并部署 SDDM 主题。也可以显式指定图片：
+脚本通过原生 `noctalia msg wallpaper-get` 读取实时状态，将壁纸同步进
+`configs/home/`，更新 `modules/sddm/wallpaper.path`，应用 Qt6 补丁并部署 SDDM 主题。
+不再读取旧 `~/.cache/noctalia/wallpapers.json`。原生实例必须正在运行；
+离线时使用 `--from-snapshot` 或显式指定图片：
 
 ```bash
 ./scripts/sync-sddm-theme.sh --wallpaper ~/Pictures/Wallpapers/project_mifeng.png

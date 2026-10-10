@@ -23,14 +23,12 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **`packages/inventory/`, `packages/services/`, `packages/toolchains/` are
   capture output.** Only `packages/profiles/` and `packages/required-extra.txt`
   are installer inputs.
-- **`niri`, `noctalia`, `noctalia-shell`, `noctalia-qs`, `zsh`, `nodejs` must be
-  listed explicitly in every profile.** On the current workstation all six are
-  installed as *dependencies* of `cachyos-niri-noctalia`, so `pacman -Qqen` does
-  not report them; without explicit entries a restore has no desktop and no
-  shell.
-- **The desktop shell is `noctalia-shell` + `noctalia-qs`** (`qs -c
-  noctalia-shell`). The `noctalia` package is only a hard dependency of
-  `cachyos-niri-noctalia`; no process or configuration references its binary.
+- **`niri`, `noctalia`, `zsh`, `nodejs` must be listed explicitly in every
+  profile.** Dependency-installed packages may not appear in `pacman -Qqen`.
+- **The desktop shell is native `/usr/bin/noctalia`**, observed as
+  `v5.2.1 (5.2.1-1-dirty)` on 2026-10-10. Use `noctalia msg`, not QuickShell IPC.
+  Profiles do not explicitly install `noctalia-shell` or `noctalia-qs`; leave
+  the CachyOS meta package and existing system packages alone.
 - **TeX Live is exactly four packages**: `texlive-basic texlive-latex
   texlive-latexrecommended texlive-langchinese`. `xelatex` and its
   `xelatex.ini` format definition ship in `texlive-basic`; `texlive-xetex`
@@ -67,7 +65,7 @@ means upstream code that must stay untouched.
 | mimeapps | `.config/mimeapps.list` | yes | — | — |
 | mpv | `.config/mpv/` | `mpv.conf`, `input.conf`, `profiles.conf`, `script-opts/*.conf`, `scripts/memo.lua` | `scripts/uosc/` + `fonts/` + `scripts/{autoload,evafast,inputevent,thumbfast}.lua` + `script-opts/uosc.conf`'s upstream defaults | `memo.lua` is ours; `script-opts/uosc.conf` is locally tuned; the playback cache and `memo-history.log` are runtime state |
 | niri | `.config/niri/`, `.local/bin/niri-hotkeys-zh`, `.local/bin/niri-stack-column`, `.local/share/niri/hotkeys-zh.txt` | all | — | `cfg/display.kdl` output scaling is machine-specific and re-applied by `post-restore-tweaks.sh`. The `jq`-based `niri-stack-column` is why `jq` is in `required-extra.txt` |
-| noctalia | `.config/noctalia/` | `settings.json`, `colors.json`, `plugins/polkit-agent/` | vendored plugin QML/i18n | Runtime `colorschemes/` and `config.toml` are restored from the backup by `post-restore-tweaks.sh` |
+| noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; history/cache/private state are excluded. No backup backfill |
 | nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; requires `fd` (Snacks picker), `tree-sitter-cli` (parser builds) and `curl` |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |
 | omp | `.omp/agent/config.yml` | yes | everything else in `.omp/` | Only the secret-free frontend preferences file is portable; `audit.sh` rejects any other `.omp` content |

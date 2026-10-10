@@ -58,12 +58,12 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 ### 路线 A：完整一键（推荐，机器不急时）
 
 | 0 | 内置（无独立脚本） | 前置：`ensure_sudo` 检查 + `git submodule update --init --recursive` |
-| 1 | `scripts/install-packages.sh` | paru 装 pacman-explicit + aur-explicit 全量（含 noctalia-qs/noctalia-shell）|
+| 1 | `scripts/install-packages.sh` | 按选定 profile 安装（含原生 noctalia，不显式拉旧 qs/shell）|
 | 2 | `scripts/restore-system.sh` | 系统配置（sudo；结尾 daemon-reload/locale-gen/mkinitcpio -P）|
 | 3 | `scripts/restore-user.sh` | 家目录配置替换 + dconf |
 | 4 | `scripts/sync-sddm-theme.sh --from-snapshot` | SDDM Sugar Candy 主题 |
 | 5 | `scripts/restore-services.sh` | systemctl enable 系统/用户单元 |
-| 6 | `scripts/post-restore-tweaks.sh` | noctalia 运行时回填 + eDP-1 缩放 + 可选壁纸/fcitx5 重启 |
+| 6 | `scripts/post-restore-tweaks.sh` | eDP-1 缩放 + 可选原生 Noctalia 壁纸/fcitx5 重启；不回填旧配置 |
 
 可选参数：`--migrate-zh-dirs`（Stage 0 顺带迁移中文家目录）、`--wallpaper FILE`（Stage 6 设壁纸）、
 `--restart-fcitx5`（Stage 6 重启输入法）、`--now`、`--skip-aur`、`--no-backup`、`--dry-run`。
@@ -102,10 +102,11 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 登录自启只对下次登录生效；当前会话内立即启用：
 
 ```bash
-pkill -x noctalia; sleep 1
-setsid qs -d -c noctalia-shell </dev/null >/dev/null 2>&1 &
-sleep 3; qs list --all                       # 必须列出实例
-qs -c noctalia-shell ipc call launcher toggle # exit 0 = Super/Caps+Space 启动器可用
+noctalia --version                         # 当前实测 v5.2.1 (5.2.1-1-dirty)
+# 仅在原生实例尚未运行时启动；不要杀掉原生实例改跑 qs
+noctalia --daemon
+noctalia msg status                        # 原生实例实时状态
+noctalia msg panel-toggle launcher         # 启动器
 ```
 
 ## 3. 输入法快速自检
@@ -120,7 +121,7 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 
 ## 4. 验证总表（全部通过才算完成）
 
-1. `qs list --all` 有实例 且 `launcher toggle` exit 0
+1. `noctalia msg status` 成功 且 `noctalia msg panel-toggle launcher` exit 0
 2. `fcitx5-remote` exit 0；任意应用打拼音出候选框（LXGW WenKai 样式）
 3. `restore-all.sh` 尾行 `== Full restore complete`
 4. `systemctl list-unit-files | grep -Fxf packages/services/system.txt` 抽查 enabled
@@ -137,12 +138,12 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 | Stage 4 die: Sugar Candy missing | 子模块未初始化 | 见 §1（Stage 0 已自动处理） |
 | GitHub 连接超时/SSL EOF | 直连被墙/抖动 | proxy 已有(clash verge)则查规则；否则用 vendor/ 或旧克隆离线救 |
 | paru 卡死/锁冲突 | 上一个 paru/pacman 未退出 | `pgrep -af 'paru\|pacman'` 确认后等待或清 `/var/lib/pacman/db.lck` |
-| Caps/Super+Space 无反应 | quickshell 外壳没起 | §2 路线 B 的手动拉起三连 |
+| Caps/Super+Space 无反应 | 原生 Noctalia 没起或键位仍指向旧 qs | 检查 niri 的 `noctalia msg panel-toggle launcher`；用 `noctalia --daemon` 启动 |
 | 候选框字体不对 | LXGW 未装/未刷新缓存 | `pacman -Q ttf-lxgw-wenkai ttf-lxgw-wenkai-mono-nerd`; `fc-cache -f` |
 | 单个 AUR 包反复构建失败 | 上游问题 | 从列表剔除该包单独装其余，记录 docs/agents/JOURNAL.md |
 | `冲突的软件包将需要手动确认` | 包文件冲突 | 从清单剔除冲突包名，保留已装好的同名包 |
 | `无法找到所有需要的软件包: X` | X 在 AUR 不存在 | 从清单剔除 X，记录 docs/agents/JOURNAL.md |
-| 壁纸/配色恢复后被回退 | restore-user 覆盖了运行时文件 | 跑 `scripts/post-restore-tweaks.sh`（幂等）|
+| 壁纸/配色恢复后被回退 | 快照未采集当前 GUI 覆盖，或仍使用旧回填命令 | 检查 `.local/state/noctalia/settings.toml`；采集正确状态，不从旧备份回填 |
 
 ## 6. 字体下载（无需 vendor）
 
@@ -156,34 +157,24 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 - 不自动 reboot——最后提示用户自己重启
 - 不跳过备份（默认备份到 `~/.local/state/cachyos-config/backups/<ts>/`）
 - 临时提权文件（sudoers.d/askpass）用完必须删除并在 docs/agents/JOURNAL.md 记录
-restore-user 会用快照覆盖 `~/.config/noctalia` 与 `cfg/display.kdl`，丢掉运行时状态。
-**不要手搓命令**——跑仓库脚本（restore-all 的 Stage 6 已自动执行）：
+Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`，
+不是 QuickShell 的 `noctalia-shell`。配置底层在 `~/.config/noctalia/config.toml`
+和 `widgets.toml`，GUI 保存到 `~/.local/state/noctalia/settings.toml` 并覆盖底层值；
+本地插件 `~/.local/share/noctalia/plugins/storage-gb` 也纳管。
+
+仓库使用**复制快照，不是软链接或自动同步**：`configs/apps/noctalia/` 为源，
+`configs/home/` 为生成副本，`restore-user.sh` 复制部署。GUI 修改保存后运行
+`./scripts/capture.sh` 更新快照，再 `./scripts/audit.sh` 检查后发布。
+不要将 GUI 覆盖简单并入 `config.toml`，也不要回填历史 `settings.json`、
+`colors.json`、`colorschemes/`、旧 `config.toml`，否则会回滚当前配置。
+不要卸载已安装旧软件包，也不要改动 CachyOS meta 包。
 
 ```bash
-# 完整收尾（noctalia 回填 + eDP-1 scale 1.1；可选加壁纸/重启 fcitx5）
+# 收尾仅处理 eDP-1 scale 1.1；可选原生壁纸设置与 fcitx5 重启
 ./scripts/post-restore-tweaks.sh
 ./scripts/post-restore-tweaks.sh --wallpaper project_mifeng.png --restart-fcitx5
-```
 
-自检：`grep -c luckystar ~/.config/noctalia/settings.json` > 0；
-`niri msg outputs | sed -n '6,8p'` 显示 `Scale: 1.1`。
-
-restore-user 会用快照覆盖 `~/.config/noctalia` 与 `cfg/display.kdl`，丢掉运行时状态：
-
-```bash
-# 1) noctalia 运行时文件（来自备份目录）
-TS=$(ls -1dt ~/.local/state/cachyos-config/backups/*/ | head -1)
-cp -a "$TS/home/.config/noctalia/settings.json" "$TS/home/.config/noctalia/colors.json" ~/.config/noctalia/
-cp -a "$TS/home/.config/noctalia/colorschemes" ~/.config/noctalia/ 2>/dev/null || true
-cp -a "$TS/home/.config/noctalia/config.toml" ~/.config/noctalia/ 2>/dev/null || true
-grep -c luckystar ~/.config/noctalia/settings.json   # >0
-
-# 2) eDP-1 缩放（机器相关，不入快照）
-grep -q 'output "eDP-1"' ~/.config/niri/cfg/display.kdl || cat >> ~/.config/niri/cfg/display.kdl <<'EOF'
-
-output "eDP-1" {
-    scale 1.1
-}
-EOF
-niri msg outputs | sed -n '6,8p'   # Scale: 1.1
+# 原生实时状态与当前壁纸（不读旧 JSON/cache）
+noctalia msg status
+noctalia msg wallpaper-get
 ```

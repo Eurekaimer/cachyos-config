@@ -52,7 +52,7 @@ Stages (in order):
   3  User configuration and dconf
   4  SDDM theme (requires modules/sddm/sugar-candy, initialized in Stage 0)
   5  Service enablement
-  6  Post-restore tweaks: noctalia runtime backfill, eDP-1 scaling
+  6  Post-restore tweaks: eDP-1 scaling, optional native Noctalia wallpaper
 
 Machine-bound state is never touched by default: disk UUIDs, /etc/machine-id,
 /etc/fstab, and /etc/hostname are excluded unless --with-hardware is passed

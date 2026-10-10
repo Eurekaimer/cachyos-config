@@ -1,13 +1,40 @@
-# Noctalia Shell
+# Noctalia
 
 [简体中文](../zh-CN/noctalia.md)
 
-Noctalia provides the bar, launcher, control center, notifications, color scheme integration, and session UI on top of Niri. The managed snapshot is `configs/home/.config/noctalia/`:
+The active shell is native `/usr/bin/noctalia`, observed as
+`v5.2.1 (5.2.1-1-dirty)` on 2026-10-10, not the retired QuickShell
+`noctalia-shell` UI. It provides the bar, launcher, control center, notifications,
+theme integration, and session UI on Niri. This migration does not redesign the UI.
 
-+ `settings.json` — shell behavior and module settings.
-+ `colors.json` and `colorschemes/` — visual palette.
-+ `plugins.json` and `plugins/` — plugin selection and bundled plugin files.
+`configs/apps/noctalia/` is the authoritative snapshot source:
 
-The lock screen obtains the active desktop wallpaper directly from `WallpaperService`. The current visual profile uses `lockScreenBlur=0.2`, `lockScreenTint=0.16`, and lock-screen animations so the authentication panel stays readable without hiding the wallpaper. Niri forwards `Super+Shift+L` to the Noctalia lock IPC.
++ `.config/noctalia/config.toml` and `widgets.toml` — native base configuration.
++ `.local/state/noctalia/settings.toml` — saved GUI overrides, which take
+  precedence over base values (including UI scale 1.25, corner-radius scale 1.35,
+  and the full control-center sidebar in the captured profile).
++ `.local/share/noctalia/plugins/storage-gb/` — the local `storage_gb` plugin.
 
-Restore it through `./scripts/restore-user.sh`; do not copy generated backups or cache directories into the manifest. If settings change while Noctalia is running, use its normal reload/restart mechanism and capture only after the saved files reflect the intended state.
+`configs/home/` is a generated copy. `restore-user.sh` deploys copies, not
+symlinks; edits in the GUI do not automatically update Git. Wait for settings
+to be saved, then use `./scripts/capture.sh` and `./scripts/audit.sh` before
+publishing. Keep GUI overrides separate rather than flattening them into the
+base config. Histories, caches, credentials, and other private state stay out.
+
+Native commands:
+
+```bash
+noctalia msg status
+noctalia msg config-reload
+noctalia msg panel-toggle launcher
+noctalia msg session lock
+noctalia msg wallpaper-get
+noctalia msg wallpaper-set ~/Pictures/Wallpapers/project_mifeng.png
+```
+
+Niri forwards `Super+Shift+L` to `noctalia msg session lock`. Do not start
+`qs -c noctalia-shell` or restore `settings.json`, `colors.json`, old QML
+plugins/colorschemes, or older `config.toml` from backups. Stage 6 no longer
+backfills Noctalia settings. Profiles request native `noctalia`, not the old
+`noctalia-shell`/`noctalia-qs` stack; existing system packages and the CachyOS
+meta package are left untouched.

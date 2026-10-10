@@ -13,7 +13,7 @@
             off
         }
 
-        background-color "transparent" // <- needed for noctalia-shell to set wallpaper
+        background-color "transparent" // Let Noctalia show the wallpaper behind the overview.
 
         preset-column-widths {
             proportion 0.33333

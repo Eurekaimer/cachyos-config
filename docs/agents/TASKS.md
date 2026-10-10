@@ -56,7 +56,8 @@ into `JOURNAL.md`.
   to what the machine had, and restoring it would shadow micro's built-in
   syntax definitions.
 
-- **`noctalia` (the package) remains installed** solely as a hard dependency of
-  `cachyos-niri-noctalia`, although nothing references its binary. Removing it
-  would break that package's dependency resolution; it stays listed in both
-  profiles so the dependency graph is reproduced explicitly.
+- **Native `noctalia` is the active desktop shell** (2026-10-10), not merely
+  an unused dependency. Both profiles retain `noctalia` and the unmodified
+  `cachyos-niri-noctalia` meta package, but no longer explicitly request the
+  retired `noctalia-shell`/`noctalia-qs` stack. Do not uninstall system packages
+  as part of configuration cleanup.

@@ -46,6 +46,13 @@ flowchart TD
 
 Git 就是传输介质：在配置好的机器上采集，在任意其他机器上恢复。
 
+纳管文件使用复制，**不是软链接或自动同步**：`configs/apps/` 是源，
+`configs/home/` 是生成副本。当前桌面外壳为原生 Noctalia，实测版本
+`v5.2.1 (5.2.1-1-dirty)`；底层配置为 `config.toml`/`widgets.toml`，
+GUI 覆盖保存在 `.local/state/noctalia/settings.toml`，并保留本地 `storage_gb` 插件。
+GUI 改动保存后应先采集再发布；恢复只部署已保存快照，不回填淘汰的 JSON 配置。
+具体路径与原生命令见 [Noctalia](docs/zh-CN/noctalia.md)。
+
 **在当前机器上发布**（配置、软件包或服务有任何改动后）：
 
 ```bash

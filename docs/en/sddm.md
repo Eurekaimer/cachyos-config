@@ -23,7 +23,11 @@ After selecting the desired wallpaper in Noctalia, run:
 ./scripts/sync-sddm-theme.sh
 ```
 
-The script reads `~/.cache/noctalia/wallpapers.json`, synchronizes the image into `configs/home/`, updates `modules/sddm/wallpaper.path`, applies the Qt6 patch, and deploys the SDDM theme. An explicit image can be selected instead:
+The script reads current runtime state via native `noctalia msg wallpaper-get`,
+synchronizes the image into `configs/home/`, updates `modules/sddm/wallpaper.path`,
+applies the Qt6 patch, and deploys the SDDM theme. It never reads the retired
+`~/.cache/noctalia/wallpapers.json`. The native shell must be running; use
+`--from-snapshot` or an explicit image when offline:
 
 ```bash
 ./scripts/sync-sddm-theme.sh --wallpaper ~/Pictures/Wallpapers/project_mifeng.png
