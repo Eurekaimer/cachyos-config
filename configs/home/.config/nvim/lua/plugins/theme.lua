@@ -4,14 +4,6 @@ return {
   priority = 1000,
   lazy = false,
   opts = {
-    compile = false,
-    undercurl = true,
-    commentStyle = { italic = true },
-    keywordStyle = { italic = true },
-    statementStyle = { bold = true },
-    transparent = false,
-    dimInactive = false,
-    terminalColors = true,
     theme = "wave",
     background = { dark = "wave", light = "lotus" },
     colors = {

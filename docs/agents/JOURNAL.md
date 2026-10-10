@@ -522,6 +522,41 @@ output "eDP-1" {
 - Live routing was verified before sync: Bilibili, its image CDN, Baidu and JD
   used DIRECT and returned HTTPS 200; Google retained the selected proxy route.
 
+## 21. Neovim plugin cleanup, tests and CS61B Maven workflow (2026-10-04)
+
+- User choices: remove only vim-be-good; replace vim-clang-format with Conform;
+  retain smear-cursor dynamics and use a 10 ms draw interval. No extra suggested
+  plugins were added. Added neotest adapters for Java, Python, Go and Rust.
+- Normal Maven projects retain jdtls Maven import. CS61B root-source projects
+  retain the invisible-project workaround; the parent pom's relative path
+  locates course jars, and initialization refreshes cached classpaths.
+  First-file Java attachment is handled explicitly.
+- Added explicit CS61BPom/CS61BSetup/CS61BSync/CS61BTest commands. Setup saves
+  source/target 14 only when invoked; Maven commands override the local repo
+  and use the credential-free empty maven-settings.xml instead of user settings.
+- Verification: actual runners for all four languages exposed both passing and
+  intentionally failing tests and rendered results/output. Real lab2 Java
+  editing resolved JUnit/jh61b without diagnostics; ArithmeticTest passed twice.
+  A complete isolated lab2 copy resolved Maven dependencies and passed all
+  10 tests (BUILD SUCCESS); generated classes have major version 58 (Java 14).
+  Original course poms were not modified.
+- Conform smoke covered fallback indentation, project style precedence and
+  range formatting. Smear's 10 ms setting was exercised in a terminal; this
+  does not assert subjective smoothness on the user's Kitty screen.
+- Bounded Neovim sync is used because sync-configs.sh has no single-app mode:
+  configs/apps/nvim/.config/nvim is the source, and configs/home/.config/nvim
+  is its generated mirror. Other application snapshots/manifests are unchanged.
+  The previous Neovim snapshot is backed up outside this repository at
+  ~/.local/state/nvim-config-backups/2026-10-04-before-neotest-sync/.
+- JUnit runner and cargo-nextest installations are runtime prerequisites,
+  documented in the Neovim language guide, not vendored into the snapshot.
+- Sync verification: live/source/generated Neovim directories are byte-identical
+  (`diff -qr`); launching with XDG_CONFIG_HOME pointing at the generated snapshot
+  also passes CS61BSetup, CS61BSync and CS61BTest using its own settings file.
+  Temporary fixtures and validation scripts were removed after verification.
+- Full repository audit passed. The initial 90-second run timed out during
+  package-profile checks; the longer run completed all checks in 96.46 seconds.
+
 ## 22. 原生 Noctalia 纳管与旧恢复路径切换（2026-10-10）
 
 - 当前运行程序为 `/usr/bin/noctalia`，版本实测 `v5.2.1 (5.2.1-1-dirty)`；

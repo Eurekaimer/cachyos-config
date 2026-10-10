@@ -148,7 +148,28 @@ Markdown 默认展开所有层级，大纲折叠会同步收起正文中的整�
 | `[d` / `]d` | 上一个/下一个诊断 |
 
 
-Java 和 clang-format 的详细说明见[语言工具](languages.md)。
+Java 和 Conform 外部格式化的详细说明见[语言工具](languages.md)。
+CS61B Maven 入口：`:CS61BPom` 打开 pom、`:CS61BSetup` 显式保存 Java 14 设置、
+`:CS61BSync` 同步依赖、`:CS61BTest` 运行测试。详见[课程流程](languages.md#cs61b-maven-操作)。
+
+普通/可视模式 `<leader>cF` 分别格式化文件/选区；`:ConformInfo` 查看当前格式化器与日志。
+
+### 测试（neotest）
+
+前缀为大写 `T`（空格后 `Shift+t`）；小写 `<leader>tt` 仍然打开终端。
+
+| 按键 | 作用 |
+|---|---|
+| `<leader>Tn` | 运行光标附近的测试 |
+| `<leader>Tf` | 运行当前文件测试 |
+| `<leader>Ta` | 运行当前工作目录下的测试（先核对 `:pwd`） |
+| `<leader>Tl` | 重新运行上次测试 |
+| `<leader>Ts` | 切换测试结果树 |
+| `<leader>To` | 查看当前位置测试输出并进入窗口 |
+| `<leader>Tp` | 切换完整测试输出面板 |
+| `<leader>Tx` | 停止光标附近的测试 |
+
+运行前提与语言限制见[测试说明](languages.md#测试neotest)；Java 的 runner 安装命令为 `:NeotestJava setup`。
 
 ### 可视模式
 

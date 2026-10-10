@@ -88,6 +88,7 @@ return {
         { "<leader>m", group = "Markdown" },
         { "<leader>s", group = "保存/搜索/诊断" },
         { "<leader>w", group = "窗口" },
+        { "<leader>T", group = "测试" },
       },
     },
   },
@@ -100,6 +101,8 @@ return {
       return not vim.g.neovide
     end,
     opts = {
+      -- Keep the existing fast, low-bounce dynamics; draw more frequently.
+      time_interval = 10,
       smear_between_buffers = true,
       smear_between_neighbor_lines = true,
       scroll_buffer_space = true,

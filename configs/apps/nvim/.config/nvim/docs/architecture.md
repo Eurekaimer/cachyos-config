@@ -20,11 +20,12 @@
     ├── plugins/
     │   ├── theme.lua           # Kanagawa Wave 与括号逐层配色
     │   ├── ui.lua              # Snacks、Aerial、which-key、smear-cursor
-    │   ├── editing.lua         # mini.pairs/surround、auto-save、clang-format、LuaSnip、vim-be-good
+    │   ├── editing.lua         # mini.pairs/surround、auto-save、Conform、LuaSnip
     │   ├── syntax.lua          # Treesitter parsers、rainbow-delimiters
     │   ├── markdown.lua        # render-markdown、image.nvim
     │   ├── java.lua            # nvim-jdtls（eclipse.jdt.ls）
     │   ├── leetcode.lua        # leetcode.nvim（leetcode.cn 刷题面板）
+    │   ├── testing.lua         # neotest、四语言 adapters、测试键位
     │   └── lsp.lua             # Mason、LSP、补全与 buffer-local 键位
     └── snippets/
         └── markdown.lua        # Markdown 专用 TeX 公式与 callout 片段
@@ -52,20 +53,25 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [mini.surround](https://github.com/nvim-mini/mini.surround) | 添加、删除、替换环绕字符 | 常驻 |
 | [mini.pairs](https://github.com/nvim-mini/mini.pairs) | 括号/引号自动成对、`<BS>` 整对删除、`<CR>` 展开成块 | 常驻 |
 | [auto-save.nvim](https://github.com/okuuva/auto-save.nvim) | 离开插入模式或文本变化后自动写盘，防止断电丢稿 | `InsertLeave`、`TextChanged` |
-| [vim-clang-format](https://github.com/rhysd/vim-clang-format) | 调用系统 `clang-format` 格式化 C/C++/Java 等语言 | C 系与 Java 文件类型 |
+| [conform.nvim](https://github.com/stevearc/conform.nvim) | 外部格式化；项目 clang-format 样式优先，支持文件/选区 | `<leader>cF` 或 `:ConformInfo` |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | Markdown TeX 公式与 Obsidian callout snippets | 仅 `markdown` |
 | [vim-repeat](https://github.com/tpope/vim-repeat) | 让 snippet 展开正确接入重复操作 | LuaSnip 依赖 |
 | [rainbow-delimiters.nvim](https://github.com/HiPhish/rainbow-delimiters.nvim) | 按嵌套层级给 `()` `[]` `{}` 逐层着色 | 启动加载 |
 | [render-markdown.nvim](https://github.com/MeanderingProgrammer/render-markdown.nvim) | 标题、列表、表格、代码块等编辑器内渲染 | 仅 `markdown` |
 | [image.nvim](https://github.com/3rd/image.nvim) | Markdown 内联图片及图片文件显示 | 仅 Kitty + `markdown` |
-| [vim-be-good](https://github.com/ThePrimeagen/vim-be-good) | Vim 操作训练 | `:VimBeGood` 时加载 |
 | [nvim-jdtls](https://github.com/mfussenegger/nvim-jdtls) | Java 的 eclipse.jdt.ls 客户端扩展（整理 import、提取变量/常量/方法、编译命令） | 仅 `java` |
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP server 配置来源 | 按需 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 外部语言服务器管理 | LSP 依赖 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Mason 与 Neovim LSP 对接 | LSP 依赖 |
 | [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | leetcode.cn 刷题面板：浏览、运行、提交题目 | `:Leet` 时加载 |
-| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | leetcode.nvim 的路径与 curl 工具库 | leetcode.nvim 依赖 |
+| [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | 刷题与测试的通用工具库 | 上层插件依赖 |
 | [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim 的弹窗/布局/输入框组件 | leetcode.nvim 依赖 |
+| [neotest](https://github.com/nvim-neotest/neotest) | 运行测试、状态标记、结果树、失败输出 | `<leader>T…` / `:NeotestJava` |
+| [nvim-nio](https://github.com/nvim-neotest/nvim-nio) | neotest 的异步任务运行库 | neotest 依赖 |
+| [neotest-java](https://github.com/rcasia/neotest-java) | 通过现有 jdtls 编译/取得 classpath，使用 JUnit runner | neotest 依赖 |
+| [neotest-python](https://github.com/nvim-neotest/neotest-python) | 项目 Python 的 pytest/django/unittest | neotest 依赖 |
+| [neotest-golang](https://github.com/fredrikaverpil/neotest-golang) | `go test` | neotest 依赖 |
+| [neotest-rust](https://github.com/rouge8/neotest-rust) | `cargo nextest` | neotest 依赖 |
 
 ## 主题与光标动画
 
@@ -84,7 +90,7 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 
 两套动画不会同时运行：
 
-- Kitty 等终端：启用 `smear-cursor.nvim`，使用偏快速、低弹性的拖尾；
+- Kitty 等终端：启用 `smear-cursor.nvim`，保留快速、低弹性的动力学参数；绘制间隔由 17 ms 调为 10 ms；
 - Neovide：禁用 smear-cursor，保留 Neovide 原生 ripple 光标和原生动画参数。
 
 命令：
@@ -92,6 +98,10 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 ```vim
 :SmearCursorToggle
 ```
+
+拖尾配置在 `lua/plugins/ui.lua` 的 `time_interval`；改回 `17` 即可恢复原绘制间隔。
+更短的间隔增加重绘频率与开销，不保证终端实测帧率等于理论调度频率。
+未叠加其他光标动画，也未启用未经字体验证的 legacy computing symbols。
 
 
 ## 撰写辅助

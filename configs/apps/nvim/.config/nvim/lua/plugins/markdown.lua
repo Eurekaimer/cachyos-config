@@ -201,8 +201,6 @@ return {
         -- smear-cursor keeps hidden floating windows parked over the editor;
         -- image.nvim treats them as occluders and skips rendering entirely.
         "smear-cursor",
-        "cmp_menu",
-        "cmp_docs",
         "snacks_notif",
         "snacks_picker_list",
         "snacks_picker_preview",

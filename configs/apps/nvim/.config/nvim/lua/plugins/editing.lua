@@ -1,6 +1,4 @@
--- Editing primitives: autopairs, structural edits, formatters, Markdown math snippets, and optional training.
-
--- clang-format covers the C family plus Java, JavaScript, TypeScript and Protobuf.
+-- Editing primitives, explicit formatting, and Markdown math snippets.
 local clang_format_filetypes = {
   "c",
   "cpp",
@@ -20,41 +18,60 @@ return {
     opts = {},
   },
 
-  -- Autopairs: an opener inserts its partner, <BS> deletes the whole pair, and
-  -- <CR> inside an empty pair opens an indented block. Pressing <CR> is wired in
-  -- config/keymaps.lua, which owns the completion-confirm branch.
+  -- Completion-aware <CR> handling lives in config/keymaps.lua.
   {
     "nvim-mini/mini.pairs",
     version = "*",
     opts = {},
   },
 
-  -- External formatter backed by the system `clang-format` binary. The plugin
-  -- resolves style in two steps: a `.clang-format` / `_clang-format` found from
-  -- the file's directory upward is passed as `-style=file`; with no style file it
-  -- falls back to `-style={BasedOnStyle: google, IndentWidth: <shiftwidth>}`.
   {
-    "rhysd/vim-clang-format",
-    ft = clang_format_filetypes,
-    config = function()
-      vim.api.nvim_create_autocmd("FileType", {
-        group = vim.api.nvim_create_augroup("user_clang_format", { clear = true }),
-        pattern = clang_format_filetypes,
-        callback = function(args)
-          vim.keymap.set("n", "<leader>cF", "<cmd>ClangFormat<CR>", {
-            buffer = args.buf,
-            desc = "clang-format 格式化",
-          })
-          vim.keymap.set("x", "<leader>cF", ":ClangFormat<CR>", {
-            buffer = args.buf,
-            desc = "clang-format 格式化选区",
-          })
+    "stevearc/conform.nvim",
+    cmd = "ConformInfo",
+    keys = {
+      {
+        "<leader>cF",
+        function()
+          require("conform").format({ async = true })
         end,
-      })
+        mode = { "n", "x" },
+        desc = "格式化文件/选区",
+      },
+    },
+    opts = function()
+      local formatters_by_ft = {
+        python = { "black" },
+        go = { "gofmt" },
+        rust = { "rustfmt" },
+        lua = { "stylua" },
+      }
+      for _, ft in ipairs(clang_format_filetypes) do
+        formatters_by_ft[ft] = { "clang-format" }
+      end
+      return {
+        formatters_by_ft = formatters_by_ft,
+        formatters = {
+          ["clang-format"] = {
+            -- Project style wins; only unconfigured files use Google + buffer indent.
+            prepend_args = function(_, ctx)
+              local style_file = vim.fs.find({ ".clang-format", "_clang-format" }, {
+                path = vim.fs.dirname(ctx.filename),
+                upward = true,
+                type = "file",
+              })[1]
+              if style_file then
+                return { "-style=file" }
+              end
+              local width = vim.api.nvim_buf_call(ctx.buf, vim.fn.shiftwidth)
+              return { string.format("-style={BasedOnStyle: Google, IndentWidth: %d}", width) }
+            end,
+          },
+        },
+      }
     end,
   },
 
-  -- Continuous persistence: a power loss must not cost more than one debounce window.
+  -- Persist edits independently of formatting.
   {
     "okuuva/auto-save.nvim",
     version = "^1.0.0",
@@ -65,6 +82,7 @@ return {
   {
     "L3MON4D3/LuaSnip",
     version = "v2.*",
+    -- LuaSnip uses repeat#set to repeat expansions with ".".
     dependencies = { "tpope/vim-repeat" },
     ft = "markdown",
     config = function()
@@ -78,10 +96,5 @@ return {
         paths = { vim.fn.stdpath("config") .. "/lua/snippets" },
       })
     end,
-  },
-
-  {
-    "ThePrimeagen/vim-be-good",
-    cmd = "VimBeGood",
   },
 }
