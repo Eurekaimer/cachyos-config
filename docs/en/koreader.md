@@ -137,7 +137,11 @@ If the font files are absent, the patch exits without changing settings.
 `scripts/` and `styletweaks/` keep their empty directories (KOReader expects
 the config points) but publish no files.
 
-Restore with `./scripts/restore-user.sh`.
+Restore with `./scripts/restore-user.sh`. The complete existing
+`~/.config/koreader/data/dict/` tree is retained even with `--no-backup` and
+takes precedence over snapshot dictionaries. Dictionary symlinks are copied
+as their contents without modifying external targets, and dictionary text is
+never subject to captured-home rewriting. `--dry-run` changes no files.
 
 ## Reading modes
 

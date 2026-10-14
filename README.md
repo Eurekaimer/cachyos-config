@@ -91,6 +91,13 @@ reviewed `--with-hardware` on the same disks/host. A different username on the
 target machine is fine — absolute home paths in managed files are rewritten
 for the current user at restore time.
 
+The final post-restore step disables supported UPower battery charge thresholds
+to allow charging to 100%; this hardware preference is not a Noctalia TOML setting.
+The native power panel displays the charging-time estimate when available from
+the battery/UPower; zero charging power cannot provide a reliable estimate.
+User-config restore retains existing KOReader `data/dict` contents, even with
+`--no-backup`, and does not rewrite dictionary definitions as configuration.
+
 ## Documentation
 
 ### Configuration and boundaries

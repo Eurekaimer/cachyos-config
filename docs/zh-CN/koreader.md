@@ -127,7 +127,10 @@ mock 验证。
 不改变设置。`scripts/`、`styletweaks/` 保留空目录（KOReader 期待这些配置点
 存在）但不发布任何文件。
 
-用 `./scripts/restore-user.sh` 恢复。
+用 `./scripts/restore-user.sh` 恢复。现有的
+`~/.config/koreader/data/dict/` 整棵词典目录会完整保留，优先于快照中的词典，
+即使传入 `--no-backup` 也不例外。词典符号链接按其实际内容复制，不修改外部
+链接目标；词典文本不会参与旧家目录路径替换。`--dry-run` 不修改任何文件。
 
 ## 阅读模式
 

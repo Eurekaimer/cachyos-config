@@ -18,9 +18,13 @@ while (($#)); do
             cat <<'EOF'
 Usage: scripts/restore-user.sh [--dry-run] [--no-backup] [--skip-dconf]
 
-Directly replaces every managed path below the current user's home directory.
-By default existing paths are copied to ~/.local/state/cachyos-config/backups/.
-Absolute references to the captured home are rewritten for the current user.
+Replaces managed paths below the current user's home directory, retaining all
+existing KOReader data/dict contents in preference to snapshot dictionaries.
+Dictionary symlinks are copied as their contents; retention also applies with
+--no-backup. By default existing paths are copied to
+~/.local/state/cachyos-config/backups/.
+Absolute references to the captured home are rewritten in configuration only,
+never in KOReader dictionaries. --dry-run does not change any files.
 EOF
             exit 0
             ;;

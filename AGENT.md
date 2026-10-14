@@ -63,7 +63,7 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 | 3 | `scripts/restore-user.sh` | 家目录配置替换 + dconf |
 | 4 | `scripts/sync-sddm-theme.sh --from-snapshot` | SDDM Sugar Candy 主题 |
 | 5 | `scripts/restore-services.sh` | systemctl enable 系统/用户单元 |
-| 6 | `scripts/post-restore-tweaks.sh` | eDP-1 缩放 + 可选原生 Noctalia 壁纸/fcitx5 重启；不回填旧配置 |
+| 6 | `scripts/post-restore-tweaks.sh` | 关闭支持的电池充电阈值（允许充至 100%）+ eDP-1 缩放 + 可选原生 Noctalia 壁纸/fcitx5 重启；不回填旧配置 |
 
 可选参数：`--migrate-zh-dirs`（Stage 0 顺带迁移中文家目录）、`--wallpaper FILE`（Stage 6 设壁纸）、
 `--restart-fcitx5`（Stage 6 重启输入法）、`--now`、`--skip-aur`、`--no-backup`、`--dry-run`。
@@ -169,8 +169,16 @@ Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`�
 `colors.json`、`colorschemes/`、旧 `config.toml`，否则会回滚当前配置。
 不要卸载已安装旧软件包，也不要改动 CachyOS meta 包。
 
+KOReader 配置恢复必须保留目标机器已有的 `data/dict`，包括 `--no-backup`；
+已有词典整目录优先于快照，词典内容不参与 home 路径改写。词典软链接在恢复时
+复制为实际内容，避免旧配置目录替换后失效。
+充电阈值是 UPower/固件状态，不是 Noctalia TOML。Stage 6 通过
+`EnableChargeThreshold(false)` 关闭支持的限充并保存偏好；原生控制中心
+「电源 → 电池充电 → 使用充电阈值」应关闭。充满时间仍由硬件/UPower 估算；
+充电功率为零或无有效估算时，不承诺准确倒计时，不写入伪造时间。
+
 ```bash
-# 收尾仅处理 eDP-1 scale 1.1；可选原生壁纸设置与 fcitx5 重启
+# 收尾关闭充电阈值并处理 eDP-1 scale 1.1；可选原生壁纸设置与 fcitx5 重启
 ./scripts/post-restore-tweaks.sh
 ./scripts/post-restore-tweaks.sh --wallpaper project_mifeng.png --restart-fcitx5
 

@@ -29,6 +29,15 @@ The combined restore installs packages and toolchains, restores portable system 
 ./scripts/restore-services.sh
 ```
 
+User configuration restore keeps existing KOReader `data/dict` intact, including
+with `--no-backup`; existing dictionaries take precedence over the snapshot.
+Dictionary definitions are excluded from home-path rewriting.
+The combined restore also runs `scripts/post-restore-tweaks.sh`, which disables
+supported UPower charge thresholds so batteries may charge to 100%. To apply
+this final step separately, run `./scripts/post-restore-tweaks.sh`.
+Charging-time estimates in native Noctalia remain supplied by the battery/UPower,
+not by a saved UI setting.
+
 The vendored Sioyek dictionary is an explicit post-restore step because it
 downloads ECDICT data. Once the AUR package layer has installed Sioyek, run:
 

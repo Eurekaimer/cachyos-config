@@ -594,3 +594,31 @@ output "eDP-1" {
 - 恢复脚本 shell 语法检查、post-restore 壁纸 dry-run、SDDM 实时/离线
   dry-run、本地插件 lint（0 errors / 0 warnings）、生成 Niri 配置验证、
   完整 `scripts/audit.sh` 全部通过；未重启 SDDM 或触发锁屏。
+
+## 23. 允许充满与 KOReader 词典保留（2026-10-14）
+
+- 用户要求允许电池充至 100%，并将配置与不会覆盖词典的恢复脚本纳入本仓库。
+- `post-restore-tweaks.sh` 通过 UPower 的 `EnableChargeThreshold(false)`
+  关闭支持的电池充电阈值并读回确认，沿用 Stage 6，不新增后台服务。
+  这是 UPower/固件偏好，不是 Noctalia TOML；原生电源页已有「距离充满」，
+  时间仍由硬件/UPower 提供，零功率时不保证有效估算。
+- 当日 09:31 备份包含 ECDICT，原 live `data/dict` 为空。
+  已将备份词典恢复到 live，KOReader 自带 sdcv 查询
+  `computational` 返回「计算的」。
+- `restore-user.sh` 对已有 KOReader `data/dict` 做保留式暂存替换；
+  即使 `--no-backup` 也保留完整原词典，优先于快照。软链接复制为实际内容，
+  字典复制失败保持原配置；最终安装失败回滚。home 路径改写跳过词典释义。
+- 隔离 HOME 执行真实 `restore-user.sh`：默认备份、无备份、dry-run、
+  快照冲突、外部/内部词典软链接、悬空软链接失败、新安装均通过。
+  真实 ECDICT 复制到隔离 HOME 并恢复后仍可查词；注入最终 mv 失败后
+  原配置和词典回滚通过，返回码 73。
+- full-charge 收尾脚本实际执行成功；读回 `ChargeThresholdEnabled=false`、
+  `Fast [Standard] Long_Life`。该次运行触发已有 eDP 缩放逻辑及缩放警告，
+  已移除本次追加的显示块，保留用户原显示配置。另验证收尾 dry-run。
+- 更新中英文恢复说明、KOReader 说明、README 与 AGENT 手册。
+  未写入 sudo 密码、未创建提权文件、未提交或推送。
+- 改动脚本的 shell 语法检查通过。完整 `audit.sh` 在软件包 profile 检查
+  失败：`packages/profiles/full.txt` 中的 `github-desktop-bin`、
+  `peazip-qt-bin`、`waydroid-nvidia-bin` 无法解析为仓库/已安装/AUR 包名；
+  未改动这些与本次恢复逻辑无关的软件包选择。其余审计检查未报告失败，
+  当前快照不应宣称已通过完整发布审计。

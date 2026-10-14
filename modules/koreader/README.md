@@ -98,3 +98,14 @@ The portable snapshot (`configs/apps/koreader/`) publishes `settings.reader.lua`
 and the recent-file keys inside `settings.reader.lua` are pruned by
 `scripts/capture.sh` and rejected by `scripts/audit.sh`. Full user-facing
 documentation: `docs/en/koreader.md` and `docs/zh-CN/koreader.md`.
+
+`scripts/restore-user.sh` retains the complete existing
+`~/.config/koreader/data/dict/` tree when replacing KOReader configuration,
+including with `--no-backup`. Existing dictionaries win over the entire
+snapshot dictionary tree; snapshot dictionaries are used only when none exist
+locally. Symlinked dictionaries are copied as their contents so links into the
+old configuration cannot become dangling; external targets are not modified.
+The replacement is staged before switching directories and rolls back if the
+switch fails. Dictionary text is excluded from captured-home rewriting.
+`--dry-run` only reports the intended replacement and retention without
+creating backups or changing files.

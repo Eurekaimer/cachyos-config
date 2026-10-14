@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Post-restore machine tweaks: eDP-1 scale and optional native Noctalia wallpaper.
+# Post-restore machine tweaks: full charging, eDP-1 scale and optional wallpaper.
 #
 # Noctalia config and GUI overrides are restored from the managed snapshot.
 # Never backfill older Noctalia files from restore backups.
@@ -34,6 +34,7 @@ Usage: scripts/post-restore-tweaks.sh [OPTIONS]
 
 Restores machine-specific state that restore-user.sh cannot carry:
   * niri output scaling (default: eDP-1 at 1.1) appended to cfg/display.kdl
+  * disable supported UPower battery charge thresholds (allow charging to 100%)
   * optional: set the Noctalia wallpaper via native msg
   * optional: restart fcitx5 so newly installed fonts take effect
 
@@ -123,6 +124,34 @@ restart_fcitx() {
     log "fcitx5 restarted"
 }
 
+# UPower saves this preference; it is hardware state, not Noctalia TOML.
+allow_full_charge() {
+    if ! command -v upower >/dev/null 2>&1 || ! command -v busctl >/dev/null 2>&1; then
+        warn "UPower or busctl unavailable; full-charge policy skipped"
+        return 0
+    fi
+    local devices device supported enabled
+    devices=$(upower -e) || die "Cannot enumerate UPower batteries"
+    while IFS= read -r device; do
+        [[ "$device" == /org/freedesktop/UPower/devices/battery_* ]] || continue
+        supported=$(busctl --system get-property org.freedesktop.UPower "$device" \
+            org.freedesktop.UPower.Device ChargeThresholdSupported) \
+            || die "Cannot read charge threshold support for $device"
+        [[ "$supported" == "b true" ]] || continue
+        run sudo busctl --system call org.freedesktop.UPower "$device" \
+            org.freedesktop.UPower.Device EnableChargeThreshold b false
+        if (( DRY_RUN )); then
+            log "Would allow charging to 100% for $device"
+        else
+            enabled=$(busctl --system get-property org.freedesktop.UPower "$device" \
+                org.freedesktop.UPower.Device ChargeThresholdEnabled)
+            [[ "$enabled" == "b false" ]] || die "Charge threshold remains enabled for $device"
+            log "Full charging allowed for $device (charge threshold disabled)"
+        fi
+    done <<<"$devices"
+}
+
+allow_full_charge
 apply_edp_scale
 apply_wallpaper
 restart_fcitx

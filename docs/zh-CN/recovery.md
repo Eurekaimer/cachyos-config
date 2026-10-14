@@ -33,6 +33,13 @@ sudo reboot
 ./scripts/restore-services.sh
 ```
 
+恢复用户配置时会保留 KOReader 已有的 `data/dict`，包括 `--no-backup`；
+已有词典优先于快照，词典释义不参与 home 路径改写。
+组合恢复还会运行 `scripts/post-restore-tweaks.sh`，关闭 UPower 支持的
+充电阈值，允许电池充至 100%。单独应用此收尾步骤可执行
+`./scripts/post-restore-tweaks.sh`。原生 Noctalia 的充满时间仍取自电池/UPower，
+不是可写入配置的固定时间。
+
 内置的 Sioyek 离线词典会下载 ECDICT 数据，因此保留为显式的恢复后步骤。AUR
 软件层装好 Sioyek 后执行：
 
