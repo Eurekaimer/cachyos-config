@@ -42,6 +42,7 @@ manager itself.
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/java.lua` | nvim-jdtls: the Java language server and JDT extension commands |
 | `lua/plugins/leetcode.lua` | leetcode.nvim: the leetcode.cn practice dashboard |
+| `lua/config/leetcode_lists.lua` / `leetcode_hot100.lua` | In-plugin list UI / official Hot100 frontend numbers |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
 | `lua/snippets/markdown.lua` | Markdown-only TeX formula and Obsidian callout snippets |
 
@@ -60,7 +61,7 @@ boundary; the reason column is the acceptance test for keeping it.
 | [image.nvim](https://github.com/3rd/image.nvim) | Kitty + `markdown` only | Renders Markdown inline images and image files inside the editor | Core Neovim cannot draw images. It activates only in terminals that speak the Kitty graphics protocol and is skipped elsewhere. |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | Startup | Provides the Kanagawa Wave colorscheme | Long reading and writing sessions need a low-contrast palette; `options.lua` still keeps a built-in fallback. |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | Startup | Plugin installation, dependency resolution, lazy-loading, lockfile management | A small manager is required to reproduce the plugin set. It also removes the need for custom clone/update scripts. |
-| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | `:Leet` only | LeetCode practice dashboard: browse, run, and submit problems | Practising on the mainland endpoint needs a client that speaks `leetcode.cn` and the authenticated submit API; no other retained plugin does either. It loads only on `:Leet` and reuses the Snacks picker, so normal editing pays nothing. |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | `:Leet` | LeetCode practice dashboard: lists, browsing, running, and submitting problems | Practising on the mainland endpoint needs a client that speaks `leetcode.cn` and the authenticated submit API; no other retained plugin does either. It is command-lazy and reuses the Snacks picker, so normal editing pays nothing. |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | `markdown` only | Expands TeX formula snippets in Markdown | Formula snippets need a maintainable snippet engine; it loads only for markdown files and costs nothing elsewhere. |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Startup | Maps nvim-lspconfig server names to Mason packages | Keeps the seven-server install list declarative and avoids duplicating package-name mappings. |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | Startup | Installs language-server binaries under Neovim's data directory | Language servers otherwise require seven separate system/package-manager workflows. Mason is kept only for developer tools, not general plugins. |
@@ -405,6 +406,7 @@ from that one plugin. Commands used day to day:
 | --- | --- |
 | `:Leet` | Open the dashboard (also the sign-in page when no cookie is stored) |
 | `:Leet list` | Pick a problem; accepts `status=` and `difficulty=` |
+| `:Leet lists` | Open Problems → Lists: Hot100, custom IDs, and imported online lists |
 | `:Leet daily` | Open today's question |
 | `:Leet run` | Run the current question against the shown testcases |
 | `:Leet submit` | Submit the current question |
@@ -420,6 +422,25 @@ no cookie: run `:Leet` and paste it into the prompt, which writes it to
 `~/.cache/nvim/leetcode/cookie_cn`. The `cn` suffix matters — without
 `cn.enabled` the same prompt writes `cookie`, and the two endpoints do not share
 sessions. That cache directory is not in the snapshot.
+
+After signing in with `:Leet`, press `l` on the Problems page to enter Lists.
+Use `h` for Hot100, `n` to paste frontend IDs, `f` to import a text file,
+`u` to import a CN problem-list or study-plan URL, `r` to refresh an imported
+online list, `x` to delete a local list, and `q` to return.
+Online imports use authenticated, asynchronous GraphQL pagination, not scraping;
+private lists need account access. Original URLs are retained for refresh.
+Successful refresh replaces IDs while keeping the local name; failure keeps old data.
+User lists live in `~/.local/share/nvim/leetcode/problem_lists.json`, separated
+by domain. Saving the same name replaces it; built-in Hot100 is protected.
+Lookup uses frontend numbers rather than internal IDs. Missing cached questions
+remain visible as unavailable; selecting one prompts a cache update, while other
+questions open normally through the plugin.
+`lua/config/leetcode_hot100.lua` retains the static official Hot100 IDs;
+import the [official plan](https://leetcode.cn/studyplan/top-100-liked/) for an online version.
+No installed plugin files or credentials are copied; website plan progress is not synced.
+These CN web-internal APIs are not guaranteed stable. The old standalone
+`:LeetHot100` entry has been replaced by the in-plugin list page.
+
 
 Requires `curl` on `PATH` (already in `packages/required-extra.txt`); every API
 call goes through plenary's curl wrapper.

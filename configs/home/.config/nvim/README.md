@@ -35,6 +35,7 @@ nvim
 | 跳出 `()` / `[]` / `{}` | `<C-Tab>`（终端备用：`<M-l>`） |
 | Markdown 渲染 / 图片开关 | `<leader>mr` / `<leader>mi` |
 | 最近测试 / 当前文件测试 / 结果树 | `<leader>Tn` / `<leader>Tf` / `<leader>Ts` |
+| Hot100 / 自定义及在线题单 | 插件“题库 → 题单”，或 `:Leet lists`（先用 `:Leet` 登录） |
 
 完整键位见[快捷键参考](docs/keymaps.md)。
 
@@ -59,6 +60,7 @@ init.lua
 | Mason、通用 LSP 与补全 / Java 客户端 | `lua/plugins/lsp.lua` / `java.lua` |
 | Markdown 渲染、图片与 callout 补全 | `lua/plugins/markdown.lua` |
 | 数学与 callout 片段定义 / 刷题 | `lua/snippets/markdown.lua` / `lua/plugins/leetcode.lua` |
+| 题单界面 / Hot100 官方题号 | `lua/config/leetcode_lists.lua` / `leetcode_hot100.lua` |
 | Java/Python/Go/Rust 测试、结果树与输出 | `lua/plugins/testing.lua` |
 
 全局行为在 `config/`，插件配置在 `plugins/`；插件专用键位也可能定义在对应插件文件中，不全在 `keymaps.lua`。
@@ -72,7 +74,7 @@ init.lua
 | [LSP、Java、格式化与测试](docs/languages.md) | 服务器、Java 项目与重构、格式化器、neotest 依赖与限制 |
 | [Markdown 渲染与图片](docs/markdown.md) | 渲染开关、依赖、图片诊断、兼容处理与远程下载风险 |
 | [数学 snippets 与 callouts](docs/snippets.md) | 触发词、自动展开、数学模式门控、callout 输入；不是 `.tex` 工程配置 |
-| [LeetCode 刷题](docs/leetcode.md) | 国内站点、默认语言、登录、缓存与命令 |
+| [LeetCode 刷题](docs/leetcode.md) | 国内站点、默认语言、登录、缓存、Hot100 题单与按题号打开 |
 
 ## 管理与维护
 

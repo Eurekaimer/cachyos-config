@@ -21,5 +21,9 @@ return {
         translate_problems = true,
       },
     },
+    config = function(_, opts)
+      require("leetcode").setup(opts)
+      require("config.leetcode_lists").setup()
+    end,
   },
 }

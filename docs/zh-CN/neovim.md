@@ -36,6 +36,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/java.lua` | nvim-jdtls：Java 语言服务器与 JDT 扩展命令 |
 | `lua/plugins/leetcode.lua` | leetcode.nvim：leetcode.cn 刷题面板 |
+| `lua/config/leetcode_lists.lua` / `leetcode_hot100.lua` | 题库内题单入口 / 官方 Hot100 网页题号 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
 | `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式与 Obsidian callout 片段 |
 
@@ -54,7 +55,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | [image.nvim](https://github.com/3rd/image.nvim) | 仅 Kitty + `markdown` | 在编辑器内显示 Markdown 内联图片和图片文件 | 图片无法由 Neovim 核心渲染；只在支持 Kitty 图形协议的终端启用，其他终端自动跳过。 |
 | [kanagawa.nvim](https://github.com/rebelot/kanagawa.nvim) | 启动时 | 提供 Kanagawa Wave 配色 | 长时间阅读与写作需要低对比度、护眼的配色；`options.lua` 仍保留内置配色兜底。 |
 | [lazy.nvim](https://github.com/folke/lazy.nvim) | 启动时 | 安装插件、解析依赖、延迟加载并维护锁文件 | 可重复安装插件需要一个足够小的管理器；它也避免了自己维护 clone/update 脚本。 |
-| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | 仅执行 `:Leet` 时 | 刷题面板：浏览、运行、提交题目 | 国内站点需要能对接 `leetcode.cn` 且带官方提交接口的客户端，现有插件都不提供；只在 `:Leet` 时加载，并复用 Snacks picker，日常编辑零成本。 |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | `:Leet` 时 | 刷题面板：题单、浏览、运行、提交题目 | 国内站点需要能对接 `leetcode.cn` 且带官方提交接口的客户端，现有插件都不提供；按命令加载，并复用 Snacks picker，日常编辑零成本。 |
 | [LuaSnip](https://github.com/L3MON4D3/LuaSnip) | 仅 `markdown` | 展开 Markdown 中的 TeX 公式片段 | 公式片段需要可维护的 snippet 引擎；只对 markdown 文件加载，不影响其他语言。 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | 启动时 | 将 nvim-lspconfig 的服务器名映射到 Mason 软件包 | 七种语言服务器只需要维护一份声明，不必重复维护软件包名映射。 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 启动时 | 将语言服务器安装到 Neovim 数据目录 | 否则七个服务器要分别处理系统包、npm、Go、Java 和发布压缩包。Mason 只管理开发工具，不管理普通插件。 |
@@ -367,6 +368,7 @@ snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因
 | --- | --- |
 | `:Leet` | 打开面板（未登录时即登录页） |
 | `:Leet list` | 选题目，可带 `status=`、`difficulty=` |
+| `:Leet lists` | 打开“题库 → 题单”：Hot100、自定义题号与在线题单 |
 | `:Leet daily` | 打开每日一题 |
 | `:Leet run` | 用当前测试用例运行本题 |
 | `:Leet submit` | 提交本题 |
@@ -379,6 +381,22 @@ snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因
 登录与请求头由插件负责；本配置不保存任何 Cookie。执行 `:Leet` 后把 Cookie 粘进输入框，
 它会被写到 `~/.cache/nvim/leetcode/cookie_cn`。`cn` 后缀很关键：未启用 `cn.enabled`
 时同一输入框写的是 `cookie`，两个站点的会话不通用。该缓存目录不入快照。
+
+执行 `:Leet` 登录后，在“题库 / Problems”页面按 `l` 进入题单。
+`h` 打开 Hot100；`n` 按题号创建；`f` 导入题号文本文件；`u` 导入在线链接；
+`r` 刷新已导入的在线题单；`x` 删除本地题单；`q` 返回题库。
+支持国内站 `/problem-list/<slug>/`、`/studyplan/<slug>/` 和旧式 `/favorite/<slug>/`。
+私有题单复用当前登录权限，GraphQL 请求异步分页，不抓网页，也不另外保存 Cookie。
+来源链接随题单保存，刷新成功替换题号并保留本地名称，失败保留旧列表。
+自定义题单保存于 `~/.local/share/nvim/leetcode/problem_lists.json`，按站点分开；
+同名保存会替换，内置 Hot100 不可覆盖或删除。
+按网页题号 `frontend_id` 匹配原插件缓存，不使用内部数据库 `id`。
+缺少缓存的题号仍显示并标记“暂无法打开”，选中时提示更新缓存，其他题目正常打开。
+Hot100 静态题号保存在 `lua/config/leetcode_hot100.lua`；可导入
+[官方学习计划](https://leetcode.cn/studyplan/top-100-liked/) 得到可刷新的在线版本。
+不修改插件安装目录、不同步网页学习计划进度；所用接口是网页内部 API，不保证长期稳定。
+旧的独立 `:LeetHot100` 已整合为插件内题单入口。
+
 
 需要 `curl` 在 `PATH` 中（已在 `packages/required-extra.txt`）；所有 API 请求走 plenary
 的 curl 封装。
