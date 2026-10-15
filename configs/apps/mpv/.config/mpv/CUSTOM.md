@@ -28,6 +28,7 @@
 │   └── inputevent.lua    #   命名输入事件
 └── script-opts/          # 脚本配置
     ├── uosc.conf         #   UI 参数
+    ├── autoload.conf     #   播放列表扩展名过滤 (仅视频)
     ├── memo.conf         #   播放历史参数
     ├── evafast.conf      #   快进参数
     ├── thumbfast.conf    #   缩略图参数
@@ -233,9 +234,9 @@
 |------|---|------|------|
 | `timeline_style` | line | line | 线型 (bar = 条型) |
 | `timeline_size` | 56 | 40 | 展开时厚度 (px) |
-| `timeline_persistency` | paused | — | 暂停时始终展开 |
+| `timeline_persistency` | (空) | — | 空 = 任何状态都不常驻；暂停时画面干净，鼠标移入才展开 |
 | `timeline_step` | 5 | 5 | 滚轮快进步长 (秒) |
-| `progress` | windowed | windowed | 窗口模式显示细线 |
+| `progress` | never | windowed | never = 不显示常驻细线，暂停截图无残留 |
 | `progress_size` | 2 | 2 | 细线厚度 (px) |
 
 ### 控制栏
@@ -270,6 +271,18 @@
 ---
 
 ## 5. script-opts/ — 脚本配置
+
+### autoload.conf — 播放列表过滤
+
+| 参数 | 值 | 说明 |
+|------|---|------|
+| `videos` | yes | 只把视频扩展名加入播放列表 |
+| `audio` | no | 排除 `.mka` 及一切音频；BDRip 每集旁的提取音轨不再插进选集 |
+| `images` | no | 排除封面/缩略图 (`.jpg` 等) |
+| `directory_mode` | ignore | 不递归、不把 `CDs/` `Scans/` `SPs/` 等子目录当作条目 |
+
+> 效果：打开剧集目录里的任意一集，播放列表 = 该目录下的 `.mkv`/`.mp4` 剧集，
+> PgUp/PgDn 只会按集数走。uosc 侧的 `load_types=video` 与之保持一致。
 
 ### memo.conf — 播放历史
 
@@ -324,6 +337,15 @@ A: 确保字幕文件与视频同目录，文件名包含相同数字 (如 `01`)
 
 **Q: 进度条太细/太粗?**
 A: 改 `uosc.conf` 中 `timeline_size`(展开) 和 `progress_size`(细线)。
+
+**Q: 暂停后想截图，但进度条/顶栏弹出来挡画面?**
+A: 已默认关闭常驻：`timeline_persistency=`(空) + `progress=never`，暂停后画面完全干净，
+鼠标移到屏幕下方/上方才会显示对应元素。若想要暂停时常显进度条，把
+`timeline_persistency` 设回 `paused`。
+
+**Q: 播放列表里混进 `.mka`，影响选集?**
+A: 由 `autoload.conf` 控制，已设 `audio=no`/`images=no`/`directory_mode=ignore`。
+`.mka` 仍会被 `mpv.conf` 的 `audio-file-auto=fuzzy` 当作外挂音轨自动挂载，只是不再进列表。
 
 **Q: 播放历史为空?**
 A: 检查 `memo.conf` 中 `history_path` 是否设为 `~~/memo-history.log`。
