@@ -13,3 +13,5 @@
 	helper = !/usr/bin/gh auth git-credential
 [core]
 	editor = nvim
+[http]
+	proxy = http://127.0.0.1:7897
