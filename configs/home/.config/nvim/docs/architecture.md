@@ -16,7 +16,10 @@
     │   ├── statusline.lua      # 状态栏字符数片段（按 changedtick 缓存）
     │   ├── keymaps.lua         # 全局快捷键和 Tab/snippet 调度
     │   ├── autocmds.lua        # 自动命令、fcitx5、光标恢复
-    │   ├── leetcode_hot100.lua  # 官方 Hot100 题号、题单检索与打开
+    │   ├── leetcode_hot100.lua  # 官方 Hot100 网页题号
+    │   ├── leetcode_lists.lua   # 题库内 Hot100 入口、题单界面与选题
+    │   ├── leetcode_list_store.lua  # 按站点保存自定义题单
+    │   ├── leetcode_list_import.lua # 国内站题单/学习计划导入
     │   └── lazy.lua            # lazy.nvim 引导与插件导入
     ├── plugins/
     │   ├── theme.lua           # Kanagawa Wave 与括号逐层配色
@@ -64,7 +67,7 @@ options → keymaps → autocmds → lazy.nvim → plugin specs
 | [nvim-lspconfig](https://github.com/neovim/nvim-lspconfig) | LSP server 配置来源 | 按需 |
 | [mason.nvim](https://github.com/mason-org/mason.nvim) | 外部语言服务器管理 | LSP 依赖 |
 | [mason-lspconfig.nvim](https://github.com/mason-org/mason-lspconfig.nvim) | Mason 与 Neovim LSP 对接 | LSP 依赖 |
-| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | leetcode.cn 刷题面板：题单、浏览、运行、提交题目 | `:Leet` 时加载 |
+| [leetcode.nvim](https://github.com/kawre/leetcode.nvim) | leetcode.cn 刷题面板：浏览、运行、提交题目 | `:Leet` 时加载 |
 | [plenary.nvim](https://github.com/nvim-lua/plenary.nvim) | 刷题与测试的通用工具库 | 上层插件依赖 |
 | [nui.nvim](https://github.com/MunifTanjim/nui.nvim) | leetcode.nvim 的弹窗/布局/输入框组件 | leetcode.nvim 依赖 |
 | [neotest](https://github.com/nvim-neotest/neotest) | 运行测试、状态标记、结果树、失败输出 | `<leader>T…` / `:NeotestJava` |

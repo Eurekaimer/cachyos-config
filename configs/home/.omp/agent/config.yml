@@ -1,6 +1,6 @@
 modelRoles:
-  smol: deepseek/deepseek-v4-flash:high
-  default: commandcode/deepseek/deepseek-v4.1-flash:max
+  smol: openai-codex/gpt-6.1-sol:high
+  default: openai-codex/gpt-6.1-sol:max
 symbolPreset: ascii
 theme:
   dark: dark-terminal

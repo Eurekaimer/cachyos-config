@@ -261,6 +261,14 @@ function M.setup()
     for _, group in ipairs(page:contents()) do
       if group.class and group.class.name == "LeetMenuButtons" then
         local buttons = group:contents()
+        local hot100 = { name = "Hot100", ids = require("config.leetcode_hot100") }
+        table.insert(buttons, #buttons, require("leetcode-ui.lines.button.menu")(
+          ("Hot100 (%d)"):format(#hot100.ids), {
+            icon = "",
+            sc = "h",
+            on_press = function() M.open(hot100) end,
+          }
+        ))
         table.insert(buttons, #buttons, require("leetcode-ui.lines.button.menu")("题单", {
           icon = "",
           sc = "l",

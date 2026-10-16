@@ -1,21 +1,18 @@
 #!/usr/bin/env bash
 set -Eeuo pipefail
 
+# Switch language groups silently; keep desktop notifications for actual events.
 current_group=$(fcitx5-remote -q)
 case "$current_group" in
     Default)
         next_group=Japanese
-        label=日英
         ;;
     Japanese)
         next_group=Default
-        label=中英
         ;;
     *)
         next_group=Default
-        label=中英
         ;;
 esac
 
 fcitx5-remote -g "$next_group"
-notify-send -a Fcitx5 -u low "输入语言锁" "当前模式：$label"

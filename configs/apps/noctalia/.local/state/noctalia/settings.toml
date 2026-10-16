@@ -61,3 +61,9 @@ screen_time_enabled = true
 
 [theme]
 shell_mode = "light"
+
+[wallpaper.last]
+path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+
+[wallpaper.monitors.DP-3]
+path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
