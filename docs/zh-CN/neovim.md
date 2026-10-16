@@ -36,7 +36,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 | `lua/plugins/markdown.lua` | Markdown 编辑器内渲染与内联图片 |
 | `lua/plugins/java.lua` | nvim-jdtls：Java 语言服务器与 JDT 扩展命令 |
 | `lua/plugins/leetcode.lua` | leetcode.nvim：leetcode.cn 刷题面板 |
-| `lua/config/leetcode_lists.lua` / `leetcode_hot100.lua` | 题库内题单入口 / 官方 Hot100 网页题号 |
+| `lua/config/leetcode_{hot100,lists,list_store,list_import}.lua` | 内置 Hot100、题库题单入口、持久化与在线导入 |
 | `lua/plugins/lsp.lua` | Mason、LSP、原生补全、诊断和代码导航 |
 | `lua/snippets/markdown.lua` | Markdown 专用 TeX 公式与 Obsidian callout 片段 |
 
@@ -357,6 +357,7 @@ Java 还启用了 on-type formatting：jdtls 声明 `;`、换行和 `}` 为触�
 | `cn.enabled` | `true` | 使用 `leetcode.cn` 而不是 `leetcode.com`。 |
 | `cn.translator` | `true` | 插件自身界面文案显示为中文。 |
 | `cn.translate_problems` | `true` | 题目标题与描述使用中文。 |
+| `description.position` / `description.width` | `left` / `50%` | 左侧题目描述、右侧代码；全屏及终端尺寸变化后重新等分。 |
 
 `picker.provider` 保持未设置，由插件自行解析第一个可用 provider；其顺序为
 snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因此不再安装
@@ -368,7 +369,7 @@ snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因
 | --- | --- |
 | `:Leet` | 打开面板（未登录时即登录页） |
 | `:Leet list` | 选题目，可带 `status=`、`difficulty=` |
-| `:Leet lists` | 打开“题库 → 题单”：Hot100、自定义题号与在线题单 |
+| `:Leet lists` | 打开题库内题单管理页，包含内置 Hot100 |
 | `:Leet daily` | 打开每日一题 |
 | `:Leet run` | 用当前测试用例运行本题 |
 | `:Leet submit` | 提交本题 |
@@ -382,21 +383,15 @@ snacks-picker、fzf-lua、telescope、mini-picker，本配置已有 Snacks，因
 它会被写到 `~/.cache/nvim/leetcode/cookie_cn`。`cn` 后缀很关键：未启用 `cn.enabled`
 时同一输入框写的是 `cookie`，两个站点的会话不通用。该缓存目录不入快照。
 
-执行 `:Leet` 登录后，在“题库 / Problems”页面按 `l` 进入题单。
-`h` 打开 Hot100；`n` 按题号创建；`f` 导入题号文本文件；`u` 导入在线链接；
-`r` 刷新已导入的在线题单；`x` 删除本地题单；`q` 返回题库。
-支持国内站 `/problem-list/<slug>/`、`/studyplan/<slug>/` 和旧式 `/favorite/<slug>/`。
-私有题单复用当前登录权限，GraphQL 请求异步分页，不抓网页，也不另外保存 Cookie。
-来源链接随题单保存，刷新成功替换题号并保留本地名称，失败保留旧列表。
-自定义题单保存于 `~/.local/share/nvim/leetcode/problem_lists.json`，按站点分开；
-同名保存会替换，内置 Hot100 不可覆盖或删除。
-按网页题号 `frontend_id` 匹配原插件缓存，不使用内部数据库 `id`。
-缺少缓存的题号仍显示并标记“暂无法打开”，选中时提示更新缓存，其他题目正常打开。
-Hot100 静态题号保存在 `lua/config/leetcode_hot100.lua`；可导入
-[官方学习计划](https://leetcode.cn/studyplan/top-100-liked/) 得到可刷新的在线版本。
-不修改插件安装目录、不同步网页学习计划进度；所用接口是网页内部 API，不保证长期稳定。
-旧的独立 `:LeetHot100` 已整合为插件内题单入口。
+登录后，主菜单按 `p` 进入「题库 / Problems」，按 `h` 直接打开 **Hot100 (100)**；
+按 `l` 进入题单管理页，可新建、导入、刷新或删除自定义题单。Hot100 网页题号
+内置于 `lua/config/leetcode_hot100.lua`，按缓存的 `frontend_id` 匹配，不使用内部 ID；
+不需要用户手工导入。缺少缓存的题目会保留并提示更新缓存。
 
+`lua/plugins/leetcode.lua` 在题目打开和 `VimResized` 后重新计算题目/代码两侧宽度，
+解决 NUI 固定初始列宽导致全屏后比例偏移的问题；两侧最多相差一列，不改变其他编辑窗口。
+题单持久化与在线导入边界见
+[随配置发布的刷题说明](../../configs/apps/nvim/.config/nvim/docs/leetcode.md)。
 
 需要 `curl` 在 `PATH` 中（已在 `packages/required-extra.txt`）；所有 API 请求走 plenary
 的 curl 封装。

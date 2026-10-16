@@ -39,6 +39,7 @@ Addon 查询应输出 `mozc`，三个组查询结果应依次为 `Default`、`Ja
 + Thunar 仍保留安装，但不绑定 `Super+E`。
 + 图片默认用 imv 打开。
 + Markdown 使用仓库中的 `neovim-markdown.desktop` 启动器。
++ EPUB（`application/epub+zip`）默认用 Foliate（`com.github.johnfactotum.Foliate.desktop`），不使用 Readest；PDF 仍用 Sioyek。默认关联保存在 `configs/apps/mimeapps/.config/mimeapps.list` 的 `[Default Applications]`，并生成到 `configs/home/`。
 + 壁纸从 `configs/home/Pictures/Wallpapers/` 恢复。
 
 二进制 dconf 数据库不会直接复制；`dconf dump` 的文本结果保存为 `configs/dconf/user.ini`，由用户恢复脚本载入，便于跨机器审阅与恢复。

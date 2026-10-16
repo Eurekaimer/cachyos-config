@@ -1,7 +1,7 @@
 # cachyos-config
 
 [![CachyOS](https://img.shields.io/badge/CachyOS-rolling-1793D1?logo=archlinux&logoColor=white)](https://cachyos.org/)
-![Snapshot](https://img.shields.io/badge/snapshot-2026--09--11-2dba4e)
+![Snapshot](https://img.shields.io/badge/snapshot-2026--10--15-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
 [![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)

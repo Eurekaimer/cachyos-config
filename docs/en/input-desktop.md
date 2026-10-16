@@ -39,6 +39,7 @@ Desktop application intent is explicit:
 + Thunar remains installed but is not the `Super+E` target.
 + Images open with imv.
 + Markdown uses the captured `neovim-markdown.desktop` launcher.
++ EPUB (`application/epub+zip`) opens with Foliate (`com.github.johnfactotum.Foliate.desktop`), not Readest; PDFs continue to use Sioyek. The explicit default lives in `[Default Applications]` in `configs/apps/mimeapps/.config/mimeapps.list` and is mirrored into `configs/home/`.
 + Wallpapers are restored from `configs/home/Pictures/Wallpapers/`.
 
 The dconf database is exported to `configs/dconf/user.ini` and loaded by the user restore script. This text export is portable and reviewable; the binary `~/.config/dconf/user` file is not copied.

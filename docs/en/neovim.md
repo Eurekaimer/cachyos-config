@@ -42,7 +42,7 @@ manager itself.
 | `lua/plugins/markdown.lua` | In-editor Markdown rendering and inline images |
 | `lua/plugins/java.lua` | nvim-jdtls: the Java language server and JDT extension commands |
 | `lua/plugins/leetcode.lua` | leetcode.nvim: the leetcode.cn practice dashboard |
-| `lua/config/leetcode_lists.lua` / `leetcode_hot100.lua` | In-plugin list UI / official Hot100 frontend numbers |
+| `lua/config/leetcode_{hot100,lists,list_store,list_import}.lua` | Built-in Hot100, in-plugin list UI, persistence, and online imports |
 | `lua/plugins/lsp.lua` | Mason, LSP servers, native completion, diagnostics, and code navigation |
 | `lua/snippets/markdown.lua` | Markdown-only TeX formula and Obsidian callout snippets |
 
@@ -394,6 +394,7 @@ endpoint. It is command-lazy: nothing loads until `:Leet` runs.
 | `cn.enabled` | `true` | Uses `leetcode.cn` instead of `leetcode.com`. |
 | `cn.translator` | `true` | Translates the plugin's own UI strings to Chinese. |
 | `cn.translate_problems` | `true` | Translates problem titles and descriptions. |
+| `description.position` / `description.width` | `left` / `50%` | Description on the left, code on the right; rebalanced after fullscreen and terminal resizing. |
 
 `picker.provider` is left unset, so leetcode.nvim resolves the first available
 provider on its own; its order is snacks-picker, fzf-lua, telescope,
@@ -406,7 +407,7 @@ from that one plugin. Commands used day to day:
 | --- | --- |
 | `:Leet` | Open the dashboard (also the sign-in page when no cookie is stored) |
 | `:Leet list` | Pick a problem; accepts `status=` and `difficulty=` |
-| `:Leet lists` | Open Problems → Lists: Hot100, custom IDs, and imported online lists |
+| `:Leet lists` | Open the in-plugin list manager, including built-in Hot100 |
 | `:Leet daily` | Open today's question |
 | `:Leet run` | Run the current question against the shown testcases |
 | `:Leet submit` | Submit the current question |
@@ -423,24 +424,17 @@ no cookie: run `:Leet` and paste it into the prompt, which writes it to
 `cn.enabled` the same prompt writes `cookie`, and the two endpoints do not share
 sessions. That cache directory is not in the snapshot.
 
-After signing in with `:Leet`, press `l` on the Problems page to enter Lists.
-Use `h` for Hot100, `n` to paste frontend IDs, `f` to import a text file,
-`u` to import a CN problem-list or study-plan URL, `r` to refresh an imported
-online list, `x` to delete a local list, and `q` to return.
-Online imports use authenticated, asynchronous GraphQL pagination, not scraping;
-private lists need account access. Original URLs are retained for refresh.
-Successful refresh replaces IDs while keeping the local name; failure keeps old data.
-User lists live in `~/.local/share/nvim/leetcode/problem_lists.json`, separated
-by domain. Saving the same name replaces it; built-in Hot100 is protected.
-Lookup uses frontend numbers rather than internal IDs. Missing cached questions
-remain visible as unavailable; selecting one prompts a cache update, while other
-questions open normally through the plugin.
-`lua/config/leetcode_hot100.lua` retains the static official Hot100 IDs;
-import the [official plan](https://leetcode.cn/studyplan/top-100-liked/) for an online version.
-No installed plugin files or credentials are copied; website plan progress is not synced.
-These CN web-internal APIs are not guaranteed stable. The old standalone
-`:LeetHot100` entry has been replaced by the in-plugin list page.
+After signing in, press `p` on the main menu to open Problems, then `h` for
+**Hot100 (100)** or `l` for the list manager. Custom lists can be created,
+imported, refreshed, or deleted. Hot100 is built into `lua/config/leetcode_hot100.lua`;
+it matches cached frontend question numbers, not internal IDs, and needs no manual import.
+Questions missing from the cache remain visible with an update-cache prompt.
 
+`lua/plugins/leetcode.lua` rebalances the description and editor on question entry
+and `VimResized`. This corrects NUI's fixed initial column width after fullscreen
+changes; the two sides differ by at most one column without changing global split options.
+Persistence and online-import boundaries are documented in the
+[shipped LeetCode guide](../../configs/apps/nvim/.config/nvim/docs/leetcode.md).
 
 Requires `curl` on `PATH` (already in `packages/required-extra.txt`); every API
 call goes through plenary's curl wrapper.
