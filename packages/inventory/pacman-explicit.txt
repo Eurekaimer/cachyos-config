@@ -122,6 +122,7 @@ linux-cachyos-lts-headers
 linux-cachyos-lts-nvidia-open
 linux-cachyos-nvidia-open
 linux-firmware
+llama-cpp
 logrotate
 lsb-release
 lsscsi
@@ -181,6 +182,7 @@ pv
 pyright
 python
 python-defusedxml
+python-mutagen
 python-packaging
 qbittorrent
 qemu-desktop
@@ -211,9 +213,13 @@ sysfsutils
 tealdeer
 texinfo
 texlive-basic
+texlive-binextra
+texlive-fontsrecommended
 texlive-langchinese
 texlive-latexrecommended
+texlive-xetex
 thunar
+timew
 ttf-bitstream-vera
 ttf-dejavu
 ttf-fantasque-nerd
@@ -243,4 +249,5 @@ xdg-user-dirs
 xfsprogs
 xl2tpd
 yazi
+yt-dlp
 zotero
