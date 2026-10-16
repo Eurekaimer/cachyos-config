@@ -56,6 +56,7 @@ GUI 改动保存后应先采集再发布；恢复只部署已保存快照，不�
 **在当前机器上发布**（配置、软件包或服务有任何改动后）：
 
 ```bash
+./scripts/sync-status.sh # 查看自上次同步以来的变化（clean/dirty/pending）
 ./scripts/capture.sh     # 按 manifests 白名单重建快照
 ./scripts/audit.sh       # 有密钥或隐私路径泄漏则拒绝发布
 
@@ -63,6 +64,10 @@ git add -A
 git commit -m "sync: refresh snapshot"
 git push
 ```
+
+`sync-status.sh` 读取本机记录 `~/.local/state/cachyos-config/sync-record.txt`，
+日常同步只需查看变化部分，不必逐条重扫全部纳管路径；`--files`/`--paths` 给出清单，
+`./scripts/sync-configs.sh --check` 用于确认实时 `$HOME` 仍与快照一致。
 
 免密推送配置见 [Git 免密推送（GitHub）](docs/zh-CN/git-authentication.md)。
 

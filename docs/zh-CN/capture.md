@@ -5,6 +5,7 @@
 每当纳管配置、软件包、工具链或已启用服务发生变化时，以桌面用户身份执行：
 
 ```bash
+./scripts/sync-status.sh          # 查看自上次同步以来的变化
 ./scripts/capture.sh
 ./scripts/audit.sh
 
@@ -30,6 +31,41 @@ git push
 缺失的可选路径会显示警告；受保护的系统文件通过 `sudo` 复制，无法使用 `sudo` 时不可读文件会显示警告并跳过。采集后应人工检查 `configs/`、`packages/` 和 `state/`，并且只有审计通过后才可发布。采集不会读写磁盘 UUID、`/etc/machine-id`、`/etc/fstab` 或 `/etc/hostname`；后两者仅由单独的 hardware 层处理。
 
 不要手工修改自动生成的软件清单或状态文件。新增纳管项时应修改对应 manifest，重新采集并检查结果。
+
+## 增量同步记录
+
+对齐本机与仓库不必手动逐路径比对。每次 `capture.sh`、用户配置恢复和完整恢复都会写入一份本机记录：
+
+```
+~/.local/state/cachyos-config/sync-record.txt
+```
+
+其中保存该机器上次对齐的提交、纳管目录的内容哈希，以及 `$HOME` 路径清单的哈希。`scripts/sync-status.sh` 据此只报告变化部分：
+
+```bash
+./scripts/sync-status.sh           # 状态 + 待处理文件数
+./scripts/sync-status.sh --files   # 变化的仓库内文件
+./scripts/sync-status.sh --paths   # 对应的纳管 $HOME 路径
+```
+
+| 状态 | 含义 | 处理 |
+| --- | --- | --- |
+| `clean` | 仓库仍等于本机上次对齐的快照 | 无需操作 |
+| `dirty` | 本机存在未提交的纳管改动 | 运行 `./scripts/capture.sh` 后提交 |
+| `pending` | 上次同步后有新提交 | 用 `./scripts/restore-all.sh`（或定向恢复）应用 |
+| `rewritten` | 记录的提交不是 HEAD 的祖先 | 重新完整审核快照 |
+
+退出码：`0` 已对齐，`1` 有待处理工作，`2` 历史被改写。
+
+该记录回答的是「仓库是否变化」，因此无需全量重新扫描。它本身不能证明实时 `$HOME` 在之后没有被改动；需要时再单独确认：
+
+```bash
+./scripts/sync-configs.sh --check   # $HOME 与 app 层比对（含消毒）
+```
+
+`--check` 会按 capture 的同一套消毒规则，把每条声明路径与 `configs/apps/<app>/` 比对，
+因此快照有意丢弃的运行态不会误报为差异。它不修改任何文件，存在差异时退出码为 `1`。
+记录属于单机状态，绝不提交——`scripts/audit.sh` 会拒绝仓库内出现 `sync-record.txt`。
 
 ## Timewarrior（timew，含 totals 扩展）
 

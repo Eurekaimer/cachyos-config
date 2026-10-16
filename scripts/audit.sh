@@ -108,6 +108,12 @@ if find "$REPO_ROOT/configs/home/.config/koreader" -type f \
     fail "KOReader backup file found in portable snapshot"
 fi
 
+# The sync record is per-machine state kept outside the repository; a copy
+# inside it would publish one machine's sync position to every other machine.
+if find "$REPO_ROOT" -path "$REPO_ROOT/.git" -prune -o -name 'sync-record.txt*' -print -quit 2>/dev/null | grep -q .; then
+    fail "sync-record.txt must stay in ~/.local/state/cachyos-config, never in the repository"
+fi
+
 log "Checking secret-shaped content"
 secret_pattern="BEGIN (OPENSSH|RSA|EC|DSA) PRIVATE KEY|AKIA[0-9A-Z]{16}|Authorization:[[:space:]]*Bearer|(^|[^[:alnum:]])(password|passwd|api[_-]?key|access[_-]?token|client[_-]?secret)[[:space:]]*[:=][[:space:]]*[\"']?[^[:space:]\"']{8,}"
 # Vendored uosc (mpv) ships its own public OpenSubtitles API key as a built-in

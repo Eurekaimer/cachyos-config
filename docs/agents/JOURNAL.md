@@ -668,3 +668,28 @@ output "eDP-1" {
 - 生成快照的全新 `:Leet` 启动验证通过，确认左右配置与全屏重排回调加载。
   临时答案确认仍是未修改的插件默认模板后，才关闭验证终端并清理答案、
   截图、日志和 RPC socket；用户原有做题文件未被改写。完整 `scripts/audit.sh` 通过。
+
+## 26. 增量同步记录与 $HOME 一致性校验（2026-10-16）
+
+- 需求：持续同步时不必每次全量检索，改为记录上次同步版本，只查看最新 commit 的
+  scope 即可发现变化。新增 `scripts/lib/sync-record.sh` 与 `scripts/sync-status.sh`。
+- 记录写入 `~/.local/state/cachyos-config/sync-record.txt`（单机状态，绝不提交；
+  `scripts/audit.sh` 新增检查，仓库内出现 `sync-record.txt` 即失败）。字段：
+  `revision`、`tree_hash`（纳管目录内容哈希）、`paths_hash`（声明路径哈希）。
+  内容哈希取自工作树而非 index/HEAD，因此「先 capture 再 commit」仍是 clean，
+  而 `git pull` 会变成 pending。
+- 接入点：`capture.sh`（快照完成后写入）、`restore-user.sh`、`restore-all.sh`
+  （完整恢复后写入基线）。`sync-status.sh` 输出 clean/dirty/pending/rewritten，
+  退出码 0/1/2；`--files`/`--paths` 给出变化文件与对应纳管路径。
+- 新增 `scripts/sync-configs.sh --check`：按同一套 sanitize 规则比较 `$HOME` 与
+  `configs/apps/<app>/`，不修改文件，有差异时退出码 1；避免把有意丢弃的运行态
+  误报为差异。
+- 验证（隔离克隆中实测）：无记录时提示建立基线；capture-then-commit 保持 clean；
+  提交后落到新 revision 仍 clean；新提交落地后为 pending 并列出变化文件与路径；
+  重写历史时为 rewritten 且退出码 2。`--check` 正向通过、注入 kitty 漂移后报出
+  并以 1 退出，恢复后再次通过。`shellcheck -x` 无新增告警。
+- 本机一致性：`sync-configs.sh --check` 通过；期间发现的漂移（fcitx5 组顺序、
+  mpv `autoload.conf`、新增壁纸 `touko.webp`、`.gitconfig` 代理项）已由本次
+  capture 收进快照。
+- 采集偏差（延续历史记录）：`etc/libvirt/qemu/networks/default.xml` 在无免密 sudo
+  的会话中不可读，脚本保留旧快照并报警；未创建临时提权文件。

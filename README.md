@@ -62,13 +62,20 @@ saved snapshot without backfilling retired JSON settings. See
 **Publish from the current machine** after any config, package, or service change:
 
 ```bash
-./scripts/capture.sh     # rebuild the snapshot from the allowlists
-./scripts/audit.sh       # refuse to publish if secrets or private paths leaked
+./scripts/sync-status.sh  # what moved since the last recorded sync (clean/dirty/pending)
+./scripts/capture.sh      # rebuild the snapshot from the allowlists
+./scripts/audit.sh        # refuse to publish if secrets or private paths leaked
 
 git add -A
 git commit -m "sync: refresh snapshot"
 git push
 ```
+
+`sync-status.sh` reads the per-machine record at
+`~/.local/state/cachyos-config/sync-record.txt`, so routine syncs inspect only
+what changed instead of re-diffing every managed path. Use
+`--files`/`--paths` for the list, and `./scripts/sync-configs.sh --check` to
+verify the live `$HOME` still matches the snapshot.
 
 Passwordless push setup: [Git authentication](docs/en/git-authentication.md).
 

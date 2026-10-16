@@ -4,6 +4,8 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/sync-record.sh
+source "$SCRIPT_DIR/lib/sync-record.sh"
 
 require_non_root_user
 
@@ -130,4 +132,8 @@ log "Stage 6/7: post-restore tweaks"
 "$SCRIPT_DIR/post-restore-tweaks.sh" "${tweaks_args[@]}"
 
 log "Full restore complete"
+if (( ! dry_run )); then
+    write_sync_record "direction=restore" "mode=restore-all"
+    log "Sync record updated: $(sync_record_file)"
+fi
 (( dry_run )) || warn "Reboot to activate kernel/initramfs, login shell, and all enabled services."

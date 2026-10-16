@@ -4,6 +4,8 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/sync-record.sh
+source "$SCRIPT_DIR/lib/sync-record.sh"
 
 require_non_root_user
 require_command pacman
@@ -214,6 +216,8 @@ command -v niri >/dev/null 2>&1 && niri --version >"$state_root/niri-version.txt
 command -v omp >/dev/null 2>&1 && omp --version >"$state_root/agent-version.txt" || true
 
 capture_complete=1
+write_sync_record "direction=capture" "mode=to-snapshot"
 log "Snapshot complete: $REPO_ROOT"
+log "Sync record updated: $(sync_record_file)"
 warn "Deliberately excluded: passwords, SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections, cookies, logs, caches, and .omp runtime state."
 log "Next: ./scripts/audit.sh, then 'git add -A && git commit && git push' to sync other machines."

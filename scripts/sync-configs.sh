@@ -24,7 +24,7 @@ home_root="$REPO_ROOT/configs/home"
 
 usage() {
     cat <<'EOF'
-Usage: scripts/sync-configs.sh (--to-snapshot|--to-home) [--dry-run] [--no-sanitize]
+Usage: scripts/sync-configs.sh (--to-snapshot|--to-home|--check) [--dry-run] [--no-sanitize]
 
 Keeps the application layer and this machine in step.
 
@@ -35,6 +35,12 @@ Keeps the application layer and this machine in step.
 
 --to-home
     Copy every declared path from configs/apps/<app>/ back into $HOME.
+
+--check
+    Compare every declared path in $HOME against configs/apps/<app>/, after
+    running the same sanitizer a capture would. Prints one line per declared
+    path that capture would change, so a full manual diff is not needed.
+    Nothing is modified; exit status is 1 when differences exist.
 
 A path that is missing at the source keeps its previous snapshot copy with a
 warning, matching capture.sh. Files that configs/apps/<app>/ holds but its
@@ -52,6 +58,7 @@ while (($#)); do
     case "$1" in
         --to-snapshot) direction=snapshot ;;
         --to-home) direction=to-home ;;
+        --check) direction=check ;;
         --dry-run) DRY_RUN=1 ;;
         --no-sanitize) SANITIZE=0 ;;
         -h|--help)
@@ -122,6 +129,44 @@ rebuild_home_tree() {
         run mkdir -p -- "$(dirname -- "$destination")"
         run cp -a -- "$source" "$destination"
     done < <(apps_manifest "$REPO_ROOT")
+}
+
+# --- check direction -------------------------------------------------------
+# Compare each declared path in $HOME against the application tree, applying the
+# same sanitizer a capture would, then diffing. This is the "$HOME vs snapshot"
+# question: a full manual review is not needed, and there are no false
+# positives from runtime state the snapshot intentionally drops.
+check_apps() {
+    local app path source snapshot stage rc=0
+    stage=$(mktemp -d)
+    while IFS=$'\t' read -r app path; do
+        [[ -n "$app" ]] || continue
+        source="$HOME/$path"
+        snapshot="$apps_root/$app/$path"
+        if [[ ! -e "$source" && ! -L "$source" ]]; then
+            warn "Missing on this machine: $path"
+            rc=1
+            continue
+        fi
+        if [[ ! -e "$snapshot" && ! -L "$snapshot" ]]; then
+            warn "Not in the snapshot yet: $path"
+            rc=1
+            continue
+        fi
+        rm -rf -- "$stage/tree"
+        mkdir -p -- "$stage/tree/$(dirname -- "$path")"
+        cp -a -- "$source" "$stage/tree/$path"
+        if (( SANITIZE )); then
+            sanitize_tree "$stage/tree"
+        fi
+        if ! diff -r --brief "$stage/tree/$path" "$snapshot" >"$stage/diff" 2>&1; then
+            printf '%s\n' "$path"
+            sed -e 's/^/    /' "$stage/diff"
+            rc=1
+        fi
+    done < <(apps_manifest "$REPO_ROOT")
+    rm -rf -- "$stage"
+    return "$rc"
 }
 
 # --- home direction --------------------------------------------------------
@@ -196,5 +241,13 @@ case "$direction" in
         log "Restoring the application layer into $HOME"
         restore_apps_to_home
         log "Application layer restored"
+        ;;
+    check)
+        log "Comparing \$HOME against the application layer (sanitized)"
+        if check_apps; then
+            log "\$HOME matches the snapshot"
+        else
+            die "\$HOME differs from the snapshot; run scripts/capture.sh to refresh it"
+        fi
         ;;
 esac

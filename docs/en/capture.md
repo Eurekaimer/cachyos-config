@@ -5,6 +5,7 @@
 Run the capture as the desktop user whenever managed configuration, packages, toolchains, or enabled services change:
 
 ```bash
+./scripts/sync-status.sh          # what moved since the last sync
 ./scripts/capture.sh
 ./scripts/audit.sh
 
@@ -32,6 +33,48 @@ Before the snapshot is considered publishable, capture strips credentials and ru
 Expected missing paths are reported as warnings. Readable system files are copied directly; protected files are copied through `sudo`, and unreadable ones without `sudo` access are reported as warnings and skipped. After capture, inspect `configs/`, `packages/`, and `state/`, then require a clean audit before publishing. The capture never reads or writes disk UUIDs, `/etc/machine-id`, `/etc/fstab`, or `/etc/hostname`; the last two are handled by the separate hardware layer only.
 
 Do not edit generated files by hand. `configs/home/`, `manifests/home-paths.txt`, `packages/inventory/`, `packages/services/` and `packages/toolchains/` are all produced by tooling. To manage a new path, add it to the owning `configs/apps/<app>/paths` file (creating a new application directory when none fits), then run `scripts/sync-configs.sh --to-snapshot` and verify with `scripts/audit.sh`.
+
+## Incremental sync record
+
+Reconciling a machine does not require diffing every managed path by hand. Each
+capture, user restore, and full restore writes a local record:
+
+```
+~/.local/state/cachyos-config/sync-record.txt
+```
+
+It stores the revision that machine last reconciled with, a content hash of the
+managed trees, and the hash of the declared `$HOME` paths. `scripts/sync-status.sh`
+reads it to report only what moved:
+
+```bash
+./scripts/sync-status.sh           # state + pending-file count
+./scripts/sync-status.sh --files   # repository-relative files that changed
+./scripts/sync-status.sh --paths   # the managed $HOME paths they belong to
+```
+
+| State | Meaning | Action |
+| --- | --- | --- |
+| `clean` | The repository still equals the snapshot this machine last reconciled with | Nothing to do |
+| `dirty` | Uncommitted managed changes exist here | `./scripts/capture.sh`, then commit |
+| `pending` | Commits landed since the last sync | Apply with `./scripts/restore-all.sh` (or a targeted restore) |
+| `rewritten` | The recorded revision is not an ancestor of HEAD | Review the whole snapshot again |
+
+Exit codes: `0` clean, `1` pending work, `2` history rewritten.
+
+This answers "has the repository moved?", which is what makes a full rescan
+unnecessary. It does not by itself prove the live `$HOME` was not edited
+afterwards; ask that question only when needed:
+
+```bash
+./scripts/sync-configs.sh --check   # $HOME vs the application layer, sanitized
+```
+
+`--check` compares every declared path against `configs/apps/<app>/` after
+running the same sanitizer a capture would, so runtime state the snapshot
+intentionally drops never shows as a difference. It changes nothing and exits
+`1` when a path would change. The record is per-machine state and is never
+committed — `scripts/audit.sh` rejects a `sync-record.txt` inside the repository.
 
 ## Timewarrior (timew, including totals)
 

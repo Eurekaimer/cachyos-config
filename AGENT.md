@@ -165,6 +165,20 @@ Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`�
 仓库使用**复制快照，不是软链接或自动同步**：`configs/apps/noctalia/` 为源，
 `configs/home/` 为生成副本，`restore-user.sh` 复制部署。GUI 修改保存后运行
 `./scripts/capture.sh` 更新快照，再 `./scripts/audit.sh` 检查后发布。
+
+维护一套最新配置时，不要每次全量比对：每次 capture / 用户恢复 / 完整恢复都会写入
+`~/.local/state/cachyos-config/sync-record.txt`（本机状态，绝不提交）。Agent 直接读它：
+
+```bash
+./scripts/sync-status.sh           # clean/dirty/pending/rewritten + 待处理文件数（0/1/2 退出码）
+./scripts/sync-status.sh --files   # 变化的仓库文件（只是清单，不是全量扫描）
+./scripts/sync-status.sh --paths   # 对应纳管 $HOME 路径
+./scripts/sync-configs.sh --check  # 仅在需要确认实时 $HOME 是否被改动时使用
+```
+
+`clean` 表示仓库等于本机上次对齐的快照（提交只搬 revision，不改内容，故仍然 clean）；
+`pending` 表示上次同步后落了新提交；`dirty` 表示本机有未提交的纳管改动；
+`rewritten` 表示记录提交不是 HEAD 祖先，必须重新完整审核。
 不要将 GUI 覆盖简单并入 `config.toml`，也不要回填历史 `settings.json`、
 `colors.json`、`colorschemes/`、旧 `config.toml`，否则会回滚当前配置。
 不要卸载已安装旧软件包，也不要改动 CachyOS meta 包。

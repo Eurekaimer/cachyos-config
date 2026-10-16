@@ -4,6 +4,8 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/restore.sh
 source "$SCRIPT_DIR/lib/restore.sh"
+# shellcheck source=scripts/lib/sync-record.sh
+source "$SCRIPT_DIR/lib/sync-record.sh"
 
 require_non_root_user
 
@@ -57,4 +59,9 @@ if (( ! skip_dconf )) && [[ -s "$REPO_ROOT/configs/dconf/user.ini" ]]; then
 fi
 
 (( BACKUP_ENABLED )) && log "Previous user configuration backup: $backup_root"
-log "User configuration restored"
+if (( ! DRY_RUN )); then
+    write_sync_record "direction=restore" "mode=to-home" "restored_home=$target_home"
+    log "User configuration restored; sync record updated: $(sync_record_file)"
+else
+    log "User configuration restored"
+fi
