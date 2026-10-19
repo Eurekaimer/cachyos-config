@@ -4,9 +4,11 @@
 # Installed by scripts/install-packages.sh together with the selected profile.
 7zip            # KOReader dictionary packs (docs/en/koreader.md)
 curl            # KOReader dictionary packs, Neovim leetcode plugin
+imagemagick     # configs/apps/niri/.local/bin/niri-screenshot-window
 jq              # configs/apps/niri/.local/bin/niri-stack-column
 fd              # Neovim Snacks picker file search (docs/en/neovim.md)
 npm             # modules/bili-live-hime (Tauri build)
-python          # scripts/sync-timewarrior.sh
+python          # scripts/sync-timewarrior.sh, niri-screenshot-window
 timew           # scripts/sync-timewarrior.sh
 tree-sitter-cli # nvim-treesitter v1 parser builds (docs/en/neovim.md)
+wl-clipboard    # niri-screenshot-window (wl-copy)

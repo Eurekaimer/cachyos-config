@@ -19,6 +19,18 @@ Niri 是本工作站的 Wayland 合成器和窗口管理器，快照位于 `conf
 运行 `scripts/module.sh install sioyek-ecdict` 后此键位生效；Sioyek 内部的选词查询
 使用不带修饰键的 `s`。
 
+## 窗口截图
+
+`Alt+Print` 和 `Ctrl+Shift+3` 调用 `~/.local/bin/niri-screenshot-window`。
+脚本为窗口截图补上 Shorin 深色底（`#1e1e2e`），将不透明 PNG 保存到
+`~/Pictures/Screenshots/`，并把同一张 PNG 放入剪贴板；不改变终端平时的
+透明度或应用配色。`Print`、`Ctrl+Print` 仍使用 Niri 原生区域/全屏截图。
+
+脚本归属 `configs/apps/niri/paths`，采集时生成 `configs/home/` 中的副本。
+Python、ImageMagick 和 `wl-clipboard` 已声明在 `packages/required-extra.txt`，
+恢复时会同时覆盖脚本与运行依赖。
+
+
 修改后执行：
 
 ```bash

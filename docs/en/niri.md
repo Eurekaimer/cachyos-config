@@ -20,6 +20,20 @@ Helper scripts are captured in `configs/home/.local/bin/`; the curated Chinese s
 running `scripts/module.sh install sioyek-ecdict`; selected-text lookup inside Sioyek
 uses the unmodified `s` key.
 
+## Window screenshots
+
+`Alt+Print` and `Ctrl+Shift+3` call `~/.local/bin/niri-screenshot-window`.
+It flattens the captured window onto the Shorin dark background (`#1e1e2e`),
+saves an opaque PNG in `~/Pictures/Screenshots/`, and copies the same PNG to
+the clipboard. The terminal's live transparency and application colors stay
+unchanged. `Print` and `Ctrl+Print` retain Niri's native region/screen capture.
+
+The helper is owned by `configs/apps/niri/paths`; capture generates its copy in
+`configs/home/`. Python, ImageMagick and `wl-clipboard` are declared in
+`packages/required-extra.txt`, so a restore includes both the command and its
+runtime dependencies.
+
+
 Validate and reload after a change:
 
 ```bash

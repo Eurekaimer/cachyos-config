@@ -126,12 +126,14 @@ binds {
     Mod+W                               hotkey-overlay-title="切换列标签页布局" { toggle-column-tabbed-display; }
 
     // ─── Screenshots ───
+    // Window captures flatten transparency onto Kitty's dark background.
+    // The helper saves to ~/Pictures/Screenshots and copies the same PNG.
     Print                               hotkey-overlay-title="截取选定区域并保存" { screenshot; }
     CTRL+Print                          hotkey-overlay-title="截取整个屏幕并保存" { screenshot-screen; }
-    ALT+Print                           hotkey-overlay-title="截取当前窗口并保存" { screenshot-window; }
+    ALT+Print                           hotkey-overlay-title="截取当前窗口并保存（实色背景）" { spawn "/home/eurekaimer/.local/bin/niri-screenshot-window"; }
     CTRL+Shift+1                        hotkey-overlay-title=null { screenshot; }
     CTRL+Shift+2                        hotkey-overlay-title=null { screenshot-screen; }
-    CTRL+Shift+3                        hotkey-overlay-title=null { screenshot-window; }
+    CTRL+Shift+3                        hotkey-overlay-title=null { spawn "/home/eurekaimer/.local/bin/niri-screenshot-window"; }
 
     // ─── Emergency Escape Key ───
     // Use this when a fullscreen app blocks your keybinds.

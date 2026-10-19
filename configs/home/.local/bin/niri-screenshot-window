@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Capture a Niri window with an opaque background, without changing its opacity."""
+
+from datetime import datetime
+import os
+from pathlib import Path
+import subprocess
+import tempfile
+import time
+
+
+# Match Kitty's Shorin background; do not change the live terminal's opacity.
+BACKGROUND = "#1e1e2e"
+PNG_END = b"\x00\x00\x00\x00IEND\xaeB`\x82"
+
+
+def main():
+    directory = Path.home() / "Pictures" / "Screenshots"
+    directory.mkdir(parents=True, exist_ok=True)
+    prefix = datetime.now().strftime("Screenshot_%Y-%m-%d_%H-%M-%S_")
+    fd, filename = tempfile.mkstemp(prefix=prefix, suffix=".png", dir=directory)
+    os.close(fd)
+    path = Path(filename)
+
+    subprocess.run(
+        ["niri", "msg", "action", "screenshot-window", "--path", str(path)],
+        check=True,
+    )
+
+    # Niri acknowledges the action before its PNG writer finishes. Wait for
+    # the IEND chunk, not just file existence or a partially written header.
+    deadline = time.monotonic() + 10
+    while True:
+        with path.open("rb") as image:
+            if image.seek(0, os.SEEK_END) >= len(PNG_END):
+                image.seek(-len(PNG_END), os.SEEK_END)
+                if image.read() == PNG_END:
+                    break
+        if time.monotonic() >= deadline:
+            raise TimeoutError(f"Niri did not finish the screenshot: {path}")
+        time.sleep(0.025)
+
+    # Publish atomically so the native screenshot notification still opens
+    # this same path. Preserve the original screenshot if conversion fails.
+    with tempfile.TemporaryDirectory(prefix=".opaque-", dir=directory) as temporary:
+        converted = Path(temporary) / "window.png"
+        subprocess.run(
+            ["magick", str(path), "-background", BACKGROUND,
+             "-alpha", "remove", "-alpha", "off", str(converted)],
+            check=True,
+        )
+        converted.replace(path)
+
+    with path.open("rb") as image:
+        subprocess.run(["wl-copy", "--type", "image/png"], stdin=image, check=True)
+    print(path)
+
+
+if __name__ == "__main__":
+    main()

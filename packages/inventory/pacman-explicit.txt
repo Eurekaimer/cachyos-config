@@ -91,7 +91,7 @@ imv
 inetutils
 intel-lpmd
 intel-ucode
-intellij-idea-community-edition
+intellij-idea-oss
 iwd
 jdk-openjdk
 jdk21-openjdk
@@ -228,7 +228,6 @@ ttf-meslo-nerd
 ttf-opensans
 ufw
 ufw-extras
-umu-launcher
 unrar
 unzip
 usb_modeswitch

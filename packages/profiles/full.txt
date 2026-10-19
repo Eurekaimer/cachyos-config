@@ -291,7 +291,6 @@ swtpm
 virt-manager
 virt-viewer
 virtio-win
-waydroid-nvidia-bin
 
 # [18-host-extras] 本机专用：代理、下载、硬件检测、CachyOS 便利包
 bind

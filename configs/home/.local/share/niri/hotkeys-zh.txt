@@ -42,7 +42,7 @@ Super + Tab                   切回上一个工作区
 ──────────────────────────────────────────────────────────────
 Print                         截取选定区域
 Ctrl + Print                  截取整个屏幕
-Alt + Print                   截取当前窗口
+Alt + Print                   截取当前窗口（实色背景）
 Super + Escape                解除应用快捷键拦截
 Super + Shift + P             关闭显示器电源
 Ctrl + Alt + Delete           退出 Niri

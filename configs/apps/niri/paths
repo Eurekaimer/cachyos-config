@@ -1,4 +1,5 @@
 .config/niri
 .local/bin/niri-hotkeys-zh
+.local/bin/niri-screenshot-window
 .local/bin/niri-stack-column
 .local/share/niri/hotkeys-zh.txt

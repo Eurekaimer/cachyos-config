@@ -35,6 +35,7 @@
 .gitconfig
 .local/bin/fcitx5-toggle-japanese
 .local/bin/niri-hotkeys-zh
+.local/bin/niri-screenshot-window
 .local/bin/niri-stack-column
 .local/bin/sioyek
 .local/share/applications/neovim-markdown.desktop

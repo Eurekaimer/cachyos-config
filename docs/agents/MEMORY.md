@@ -23,6 +23,12 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **`packages/inventory/`, `packages/services/`, `packages/toolchains/` are
   capture output.** Only `packages/profiles/` and `packages/required-extra.txt`
   are installer inputs.
+- **The sync baseline is per machine, not per application.** Read
+  `~/.local/state/cachyos-config/sync-record.txt` first; it records a revision
+  plus managed-content/path hashes and must never be committed. A clean
+  `scripts/sync-status.sh` does not prove the live home is unchanged; use
+  `scripts/sync-configs.sh --check` for that. Component reconciliation history
+  belongs in `JOURNAL.md`, not invented per-app revision fields.
 - **`niri`, `noctalia`, `zsh`, `nodejs` must be listed explicitly in every
   profile.** Dependency-installed packages may not appear in `pacman -Qqen`.
 - **The desktop shell is native `/usr/bin/noctalia`**, observed as
@@ -64,7 +70,7 @@ means upstream code that must stay untouched.
 | micro | `.config/micro/settings.json`, `.config/micro/colorschemes/` | settings | vendored colorschemes | `syntax/` was deliberately deleted — never restore it |
 | mimeapps | `.config/mimeapps.list` | yes | — | — |
 | mpv | `.config/mpv/` | `mpv.conf`, `input.conf`, `profiles.conf`, `script-opts/*.conf`, `scripts/memo.lua` | `scripts/uosc/` + `fonts/` + `scripts/{autoload,evafast,inputevent,thumbfast}.lua` + `script-opts/uosc.conf`'s upstream defaults | `memo.lua` is ours; `script-opts/uosc.conf` is locally tuned; the playback cache and `memo-history.log` are runtime state |
-| niri | `.config/niri/`, `.local/bin/niri-hotkeys-zh`, `.local/bin/niri-stack-column`, `.local/share/niri/hotkeys-zh.txt` | all | — | `cfg/display.kdl` output scaling is machine-specific and re-applied by `post-restore-tweaks.sh`. The `jq`-based `niri-stack-column` is why `jq` is in `required-extra.txt` |
+| niri | `.config/niri/`, `.local/bin/niri-hotkeys-zh`, `.local/bin/niri-screenshot-window`, `.local/bin/niri-stack-column`, `.local/share/niri/hotkeys-zh.txt` | all | — | `cfg/display.kdl` output scaling is machine-specific and re-applied by `post-restore-tweaks.sh`. `niri-stack-column` requires `jq`; opaque window screenshots require Python, ImageMagick and `wl-clipboard`, all in `required-extra.txt`. Niri writes PNGs asynchronously; the screenshot helper waits for IEND before conversion |
 | noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; history/cache/private state are excluded. No backup backfill |
 | nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; requires `fd` (Snacks picker), `tree-sitter-cli` (parser builds) and `curl` |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |

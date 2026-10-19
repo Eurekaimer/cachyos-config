@@ -693,3 +693,55 @@ output "eDP-1" {
   capture 收进快照。
 - 采集偏差（延续历史记录）：`etc/libvirt/qemu/networks/default.xml` 在无免密 sudo
   的会话中不可读，脚本保留旧快照并报警；未创建临时提权文件。
+
+## 27. 本机领先配置采集与不透明窗口截图（2026-10-19）
+
+- 先读取 `AGENT.md`、`MEMORY.md`、本日志及本机
+  `~/.local/state/cachyos-config/sync-record.txt`。初始工作树干净，
+  HEAD 与本机记录均为 `381a8e53c1cfd7d89fadf307891cf5ee187885bc`；
+  无基线之后的仓库侧新内容需要合并。本机记录是全局 revision 与内容/路径哈希，
+  并非逐部件的独立同步 commit；`sync-status.sh` 的 clean 不代表实时 HOME 未变化。
+- 本次仅执行本机 → 仓库采集，不反向覆盖当前 HOME，不执行 Git 提交或推送。
+  下表 commit 是采集前该部件最近的仓库版本，不包含本次尚未提交的新内容：
+
+| 部件 | 采集前最近提交 | 本次处理 |
+|---|---|---|
+| Niri | `e80532a` | 纳管 `niri-screenshot-window`，同步 Alt+Print / Ctrl+Shift+3、快捷键中文手册 |
+| Kitty | `89548a7` | 已与本机一致；保留原透明度和配色，不改终端主题 |
+| ani-rss | `2071a6f` | 按现有采集范围刷新下载进度；凭据仍脱敏 |
+| Fcitx5 | `2071a6f` | 同步 profile 序列化顺序及通知 ID 顺序，不改变有效输入法组顺序 |
+| KOReader | `a4fc99e` | 同步已保存窗口设置和电池统计；阅读历史、最近文件、数据库与词典不进入快照 |
+| Noctalia | `a4fc99e` | GUI 覆盖 `config_version` 从 14 到 15；实际外观偏好保持不变 |
+| OMP | `a4fc99e` | 默认模型推理级别 max → xhigh，采集 security-reviewer / task 模型覆盖 |
+| 软件包、服务及工具链清单 | `1cd5243` | 刷新本机清单；IDE 包记录改为 intellij-idea-oss，移除已卸载的 umu-launcher、waydroid-nvidia-bin 记录及 waydroid-container 启用记录 |
+| 系统镜像参考 | `7b1fa77` | 采集本机新 mirrorlist；不向系统部署 |
+| dconf | `a5cd3f5` | 按现有隐私过滤规则重新导出，不向当前会话加载 |
+| 机器参考状态 | `381a8e5` | 刷新内核版本、采集时间和硬件参考输出 |
+
+- 先在 `configs/apps/niri/paths` 声明新脚本，再运行现有 `scripts/capture.sh`；
+  `configs/apps/` 是源，`configs/home/` 和 `manifests/home-paths.txt` 均由脚本生成，
+  未手改生成树。截图目录仍为 `~/Pictures/Screenshots/`，保存与剪贴板使用同一张
+  不透明 PNG；`Print`、`Ctrl+Print` 和平时终端透明度不变。
+- `required-extra.txt` 补齐 ImageMagick、wl-clipboard，复用 Python 依赖；
+  中英文 Niri 文档及 `MEMORY.md` 已更新。没有复制任意家目录、应用二进制、
+  登录凭据或未纳管运行态。
+- 完整审计首次仅因 full profile 的 `waydroid-nvidia-bin` 无法解析而失败。
+  本机已卸载该包，故从安装输入移除此过期项；保留现存 wd-venus 用户单元、
+  UFW 配置及可选使用说明，中英文 Waydroid 文档改为历史/手动安装说明。
+  未运行软件卸载、安装或服务启停。
+- 验证：`sync-configs.sh --check` 通过；隔离 HOME 中真实
+  `restore-user.sh --skip-dconf --no-backup` 成功，截图快捷键绝对路径改写正确，
+  脚本保留可执行权限；恢复后的 Niri 配置验证通过，真实截图为 1884×2022、
+  opaque=True、无 alpha 通道，文件与剪贴板 SHA-256 一致，已查看实际图像。
+  初次 smoke 的 stdout 捕获超时，当时脚本已退出且 PNG 完整；随后直接核验
+  该实际产物与剪贴板通过，未以模拟截图替代。
+- 恢复后的 Noctalia 配置有效，保留既有 `dock.monitors` 弃用警告；
+  不为消警告改动用户布局。真实 full profile 安装器 dry-run 通过，
+  确认包含截图三项依赖、不再请求 waydroid-nvidia-bin，未执行实际安装。
+  修正后的完整 `scripts/audit.sh` 通过全部检查。
+- 采集偏差：`etc/libvirt/qemu/networks/default.xml` 对当前用户不可读，
+  无免密 sudo，脚本保留旧快照并报警；未创建临时提权文件。
+  隔离恢复 HOME 和截图产物已清理；最终重新计算本机 sync record 的内容哈希，
+  `sync-status.sh` 报告与 `381a8e53` 基线一致。revision 仍指向既有 HEAD，
+  本次新内容保存在尚未提交的工作树中，记录本身不进入仓库。
+

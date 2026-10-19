@@ -471,10 +471,10 @@ return {
     ["readtimer"] = {},
     ["scroll_method"] = "classic",
     ["sdl_window"] = {
-        ["height"] = 2160,
+        ["height"] = 2022,
         ["left"] = 0,
         ["top"] = 0,
-        ["width"] = 3840,
+        ["width"] = 1884,
     },
     ["show_filter"] = {},
     ["statistics"] = {

@@ -2,11 +2,15 @@
 
 [简体中文](../zh-CN/waydroid.md)
 
-This workstation runs an Android container on Wayland through
-`waydroid-nvidia-bin`, wired to the NVIDIA GPU: the package ships the
-Venus/Virtio-GPU guest drivers and a patched surfaceflinger, `wd-venus.service`
-(a user unit) runs the virgl render server, and a udev rule grants `uaccess` on
-`/dev/udmabuf`.
+This page documents the previous NVIDIA/Venus Android-container setup.
+As of the 2026-10-19 capture, Waydroid is no longer installed on this workstation:
+neither `waydroid-nvidia-bin` nor `waydroid-container.service` is restored
+automatically. The remaining `wd-venus.service` and UFW configuration are kept.
+
+That setup used `waydroid-nvidia-bin` for Venus/Virtio-GPU guest drivers and a
+patched surfaceflinger, `wd-venus.service` for the virgl render server, and a
+udev rule granting `uaccess` on `/dev/udmabuf`. Commands below require an
+explicitly installed, supported Waydroid/NVIDIA package.
 
 ```mermaid
 flowchart LR
@@ -20,9 +24,9 @@ flowchart LR
 
 | Item | Location | Restore behavior |
 | --- | --- | --- |
-| Package | `waydroid-nvidia-bin` | Listed in `packages/inventory/aur-explicit.txt`; `install-packages.sh` installs it |
-| System service | `waydroid-container.service` | Listed in `packages/services/system.txt`; `restore-services.sh` re-enables it |
-| User service | `wd-venus.service` | Listed in `packages/services/user.txt`; same restore path |
+| Package | `waydroid-nvidia-bin` | Removed from the captured inventory and `full` install profile; not installed automatically |
+| System service | `waydroid-container.service` | Absent from the captured enabled-service list; not enabled automatically |
+| User service | `wd-venus.service` | Still listed in `packages/services/user.txt`; `restore-services.sh` re-enables it when the unit exists |
 | UFW rules | DHCP/DNS and forwarding rules for `waydroid0` | Restored with `configs/system/portable/etc/ufw/` |
 | Container data | `/var/lib/waydroid/` (rootfs, images, `waydroid.cfg`, `waydroid.prop`, `nv/`; ~2.5 GB) | Not allowlisted — machine-local; re-initialize after a restore |
 
@@ -40,13 +44,13 @@ No kernel configuration is needed: the CachyOS kernel has
 | Launch one app | `waydroid app launch <package>` |
 | Stop the session | `waydroid session stop` |
 
-`Vendor type` in `waydroid status` names the image source (`MAINLINE` here), and
-the desktop launcher entry is called `Waydroid`.
+In the previous setup, `Vendor type` in `waydroid status` was `MAINLINE`
+(the image source), and the desktop launcher entry was called `Waydroid`.
 
 ## Re-initialize after a restore
 
-The container data is not snapshotted, so on a new machine (or after a
-reinstall) run these in order:
+After explicitly installing a supported Waydroid/NVIDIA package on the target,
+initialize its machine-local container data in this order:
 
 ```bash
 sudo waydroid init                      # downloads and initializes the Android image (several GB; proxy needed on restricted networks)

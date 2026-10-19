@@ -16,7 +16,6 @@ ttf-lxgw-wenkai
 ttf-lxgw-wenkai-mono-nerd
 virtio-win
 visual-studio-code-bin
-waydroid-nvidia-bin
 wechat-bin
 yay-bin
 zoom
