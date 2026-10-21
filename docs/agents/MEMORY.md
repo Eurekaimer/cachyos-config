@@ -74,7 +74,7 @@ means upstream code that must stay untouched.
 | noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; history/cache/private state are excluded. No backup backfill |
 | nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; requires `fd` (Snacks picker), `tree-sitter-cli` (parser builds) and `curl` |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |
-| omp | `.omp/agent/config.yml` | yes | everything else in `.omp/` | Only the secret-free frontend preferences file is portable; `audit.sh` rejects any other `.omp` content |
+| omp | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/` | all three | everything else in `.omp/` | Only secret-free configuration is portable: `models.yml` must reference API keys by env var, custom themes stay JSON; `audit.sh` rejects any other `.omp` content |
 | qt | `.config/QtProject.conf` | yes | — | `history`, `lastVisited`, `qtVersion` lines leak paths and are deleted |
 | shell | `.zshrc`, `.bashrc`, `.bash_profile`, `.bash_logout` | all | — | Values of `*KEY*`/`*TOKEN*`/`*SECRET*`/`*PASSWORD*` exports are blanked; variable names stay so a restore reproduces the structure |
 | sioyek | `.local/bin/sioyek` | wrapper script | — | The ECDICT plugin integration itself is a module (`modules/sioyek-ecdict`) |

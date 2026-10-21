@@ -745,3 +745,27 @@ output "eDP-1" {
   `sync-status.sh` 报告与 `381a8e53` 基线一致。revision 仍指向既有 HEAD，
   本次新内容保存在尚未提交的工作树中，记录本身不进入仓库。
 
+## 28. OMP 状态栏/主题与 Kitty 透明度（2026-10-21）
+
+- 需求：降低状态栏图标占用、保留上下文/token/tok-s/耗时/当前时间/花费，并让
+  半透明壁纸下的文字可读；采集到仓库后以英文提交并推送。
+- Kitty：`background_opacity` 0.35 → 0.70。0.35 时白色正文在壁纸亮部仅约
+  2.9–4.5:1；0.70 时正文中位约 6.7:1，壁纸仍保留 30% 可见度。
+- OMP：新增 `~/.omp/agent/themes/shorin.json`（Catppuccin Mocha 基底、透明状态栏、
+  深色工具面板、语义色分离）；状态栏改为无图标文字段：
+  `model, mode, context_pct, token_in, token_out, token_rate, time_spent, time, cost`
+  （左侧）与 `path, git`（右侧，窄屏优先让位）。`models.yml` 用
+  `modelOverrides` 把显示名缩短为 `DS 4.1 Fast`；主题把状态图标覆盖为
+  `in/out/ctx` 文字标签或空串，避免 Nerd Font 图标占据宽度。
+- 仓库策略扩展：`.omp/agent/config.yml` 之外，新增纳管
+  `.omp/agent/models.yml` 与 `.omp/agent/themes/`（仅 JSON）。`audit.sh`
+  的 `.omp` 白名单与文档同步更新；密钥扫描继续拦截明文，仅放行指向全大写
+  环境变量名的 `apiKey` 写法。
+- 采集：先声明 `configs/apps/omp/paths`，再运行
+  `scripts/sync-configs.sh --to-snapshot`；未手改 `configs/home/` 与
+  `manifests/home-paths.txt`。`sync-configs.sh --check` 通过，除 kitty/omp
+  外无其他应用漂移。
+- 验证：主题 JSON 已通过 omp theme loader；`omp models --json` 返回
+  `name: DS 4.1 Fast`；`scripts/audit.sh` 通过。未执行反向恢复，未改动当前
+  HOME 的其他配置。
+

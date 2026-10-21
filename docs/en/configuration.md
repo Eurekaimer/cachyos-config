@@ -38,7 +38,7 @@ dconf database.
 | Noctalia | `configs/apps/noctalia/` | native `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb/` |
 | Neovim | `configs/apps/nvim/` | `.config/nvim/`, Markdown desktop entry |
 | OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/` (no `service.json`) |
-| OMP | `configs/apps/omp/` | `.omp/agent/config.yml` |
+| OMP | `configs/apps/omp/` | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/*.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
 | Shell | `configs/apps/shell/` | `.zshrc`, `.bashrc`, `.bash_profile`, `.bash_logout` |
 | Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
@@ -79,7 +79,7 @@ paths it owns; that list is what both the capture and the restore use. See
 | Niri helpers | `~/.local/bin/niri-hotkeys-zh`, `~/.local/bin/niri-stack-column`, hotkey text | `configs/home/.local/bin/`, `configs/home/.local/share/niri/` |
 | Noctalia | `~/.config/noctalia/`, `~/.local/state/noctalia/settings.toml`, `~/.local/share/noctalia/plugins/storage-gb/` | Matching paths under `configs/home/`; saved GUI overrides take precedence over base config; histories/caches/private state excluded |
 | OBS Studio | `~/.config/obs-studio/` (`global.ini`, `user.ini`, `basic/scenes/`, `basic/profiles/`, `plugin_manager/modules.json`) | `configs/home/.config/obs-studio/`; `service.json` (stream key) is deleted before publishing; logs and profiler data stay out |
-| OMP (Oh My Pi frontend prefs) | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml` (frontend prefs only; runtime state stays out) |
+| OMP (Oh My Pi config) | `~/.omp/agent/config.yml`, `~/.omp/agent/models.yml`, `~/.omp/agent/themes/*.json` | Matching paths under `configs/home/.omp/agent/`; runtime state stays out, and `models.yml` keys must be env-var references |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
@@ -186,6 +186,6 @@ SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections,
 `~/.omp` runtime state (agent.db, logs, install-id, sessions), cookies, login
 databases, histories, logs, and caches must use a password manager or encrypted
 backup instead. They are not recovery inputs for this public repository.
-The single `.omp` exception is `agent/config.yml` (secret-free frontend
-preferences), which is a managed config; any other `.omp` content is rejected by
-`audit.sh`.
+The portable `.omp` set is limited to `agent/config.yml`, `agent/models.yml`
+(API keys referenced by environment variable, never literals), and
+`agent/themes/*.json`. Any other `.omp` content is rejected by `audit.sh`.

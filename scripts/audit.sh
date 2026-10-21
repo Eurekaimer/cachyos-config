@@ -77,10 +77,13 @@ if find "$REPO_ROOT/configs" -path '*/io.github.clash-verge-rev*' ! -type d \
     ! -path "$clash_authored" ! -path "$clash_generated" -print -quit | grep -q .; then
     fail "Forbidden snapshot path found: Clash Verge private/runtime data"
 fi
-# .omp holds runtime state (agent db, logs, install-id, sessions) and stays forbidden,
-# except the agent's secret-free frontend preferences file, which is a managed config.
+# .omp holds runtime state (agent db, logs, install-id, sessions) and stays forbidden.
+# The portable set is secret-free configuration: frontend preferences, model/provider
+# metadata (API keys must be env-var references), and custom theme JSON.
 if find "$REPO_ROOT/configs" -path '*/.omp/*' ! -type d \
-    ! -path '*/.omp/agent/config.yml' -print -quit | grep -q .; then
+    ! -path '*/.omp/agent/config.yml' \
+    ! -path '*/.omp/agent/models.yml' \
+    ! -path '*/.omp/agent/themes/*.json' -print -quit | grep -q .; then
     fail "Forbidden snapshot path found: .omp"
 fi
 
@@ -124,7 +127,8 @@ while IFS= read -r match; do
     [[ -n "$match" ]] || continue
     fail "Potential secret: ${match#"$REPO_ROOT/"}"
 done < <(grep -RInE -i --exclude='audit.sh' --exclude='PolkitWindow.qml' --exclude-dir='.git' --exclude-dir='.venv' --exclude-dir='__pycache__' --binary-files=without-match "$secret_pattern" "$REPO_ROOT" \
-    | grep -vF -- "$uosc_public_key" || true)
+    | grep -vF -- "$uosc_public_key" \
+    | grep -viE '^[^:]+:[0-9]+:[[:space:]]*api[_-]?key:[[:space:]]*[A-Z][A-Z0-9_]{7,}[[:space:]]*$' || true)
 
 log "Checking escaping symlinks"
 while IFS= read -r -d '' link; do

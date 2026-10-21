@@ -1,21 +1,30 @@
 modelRoles:
   smol: openai-codex/gpt-6.1-sol:high
-  default: openai-codex/gpt-6.1-sol:xhigh
-symbolPreset: ascii
+  default: commandcode/deepseek/deepseek-v4.1-flash-fast:max
+symbolPreset: nerd
 theme:
-  dark: dark-terminal
+  dark: shorin
+  light: pearl
 setupVersion: 2
 dev:
   autoqaConsent: granted
 display:
   showTokenUsage: true
+  shimmer: disabled
+  pinnedAgents: full
+  subagentLivePreview: true
 defaultThinkingLevel: auto
 composer:
-  shape: box
+  shape: claude
+  tokenRate: true
 codexResets:
   autoRedeem: "no"
 tui:
   codexResetFireworks: true
+  resizeScrollback: rebuild
+  textSizing: true
+  mouse: false
+  tight: false
 task:
   agentModelOverrides:
     reviewer: commandcode/deepseek/deepseek-v4.1-flash
@@ -23,3 +32,48 @@ task:
     sonic: commandcode/deepseek/deepseek-v4.1-flash
     security-reviewer: commandcode/deepseek/deepseek-v4.1-flash-fast
     task: commandcode/deepseek/deepseek-v4.1-flash-fast
+colorBlindMode: false
+statusLine:
+  preset: custom
+  separator: none
+  leftSegments:
+    - model
+    - mode
+    - context_pct
+    - token_in
+    - token_out
+    - token_rate
+    - time_spent
+    - time
+    - cost
+  rightSegments:
+    - path
+    - git
+  segmentOptions:
+    model:
+      showThinkingLevel: false
+    path:
+      abbreviate: true
+      maxLength: 20
+      stripWorkPrefix: true
+    git:
+      showBranch: true
+      showStaged: false
+      showUnstaged: true
+      showUntracked: false
+    time:
+      format: 24h
+      showSeconds: false
+  compactThinkingLevel: false
+  transparent: true
+  contextLine: "off"
+terminal:
+  showProgress: false
+images:
+  blockImages: true
+readLineNumbers: true
+read:
+  renderMarkdown: true
+  toolResultPreview: true
+plan:
+  defaultOnStartup: true

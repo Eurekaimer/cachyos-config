@@ -35,7 +35,7 @@
 | Noctalia | `configs/apps/noctalia/` | 原生 `.config/noctalia/`、`.local/state/noctalia/settings.toml`、`.local/share/noctalia/plugins/storage-gb/` |
 | Neovim | `configs/apps/nvim/` | `.config/nvim/`、Markdown 桌面项 |
 | OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/`（不含 `service.json`） |
-| OMP | `configs/apps/omp/` | `.omp/agent/config.yml` |
+| OMP | `configs/apps/omp/` | `.omp/agent/config.yml`、`.omp/agent/models.yml`、`.omp/agent/themes/*.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
 | Shell | `configs/apps/shell/` | `.zshrc`、`.bashrc`、`.bash_profile`、`.bash_logout` |
 | Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
@@ -75,7 +75,7 @@
 | Niri helpers（辅助脚本） | `~/.local/bin/niri-hotkeys-zh`、`~/.local/bin/niri-stack-column`、快捷键文本 | `configs/home/.local/bin/`、`configs/home/.local/share/niri/` |
 | Noctalia | `~/.config/noctalia/`、`~/.local/state/noctalia/settings.toml`、`~/.local/share/noctalia/plugins/storage-gb/` | `configs/home/` 下对应路径；GUI 覆盖优先于底层配置，历史/缓存/私有状态不纳管 |
 | OBS Studio | `~/.config/obs-studio/`（`global.ini`、`user.ini`、`basic/scenes/`、`basic/profiles/`、`plugin_manager/modules.json`） | `configs/home/.config/obs-studio/`；`service.json`（推流密钥）发布前删除，日志与 profiler 数据不入快照 |
-| OMP（Oh My Pi 前端偏好） | `~/.omp/agent/config.yml` | `configs/home/.omp/agent/config.yml`（仅前端偏好，运行态不入） |
+| OMP（Oh My Pi 配置） | `~/.omp/agent/config.yml`、`~/.omp/agent/models.yml`、`~/.omp/agent/themes/*.json` | `configs/home/.omp/agent/` 下对应路径；运行态不入，`models.yml` 的密钥必须是环境变量引用 |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`；最近路径元数据会被移除 |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
@@ -175,5 +175,6 @@
 SSH/GPG 密钥、浏览器目录、Clash profiles、NetworkManager connections、
 `~/.omp` 运行状态（agent.db、logs、install-id、sessions）、Cookie、登录数据库、
 历史、日志和缓存必须通过密码管理器或加密备份单独迁移，不是本公开仓库的恢复输入。
-`~/.omp` 中唯一的例外是 `agent/config.yml`（无密钥的前端偏好），它作为托管配置入库；
-其余任何 `.omp` 内容均被 `audit.sh` 拒绝。
+`~/.omp` 中可入库的仅限 `agent/config.yml`、`agent/models.yml`（API 密钥只写
+环境变量名，绝不写明文）和 `agent/themes/*.json`；其余任何 `.omp` 内容均被
+`audit.sh` 拒绝。

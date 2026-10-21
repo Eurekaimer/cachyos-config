@@ -1,1 +1,3 @@
 .omp/agent/config.yml
+.omp/agent/models.yml
+.omp/agent/themes

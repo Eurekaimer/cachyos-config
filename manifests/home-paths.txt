@@ -45,6 +45,8 @@
 .local/share/noctalia/plugins/storage-gb
 .local/state/noctalia/settings.toml
 .omp/agent/config.yml
+.omp/agent/models.yml
+.omp/agent/themes
 .zshrc
 Pictures/Wallpapers
 Projects/ASS/config/ani.v2.json
