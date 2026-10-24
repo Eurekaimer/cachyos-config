@@ -1,0 +1,11 @@
+{
+  "lastChangelogVersion": "1.4.0",
+  "defaultProvider": "command-code",
+  "defaultModel": "deepseek/deepseek-v4.1-flash-fast",
+  "packages": [
+    "npm:@commandcode/pi-commandcode-provider"
+  ],
+  "modelThinkingLevels": {
+    "command-code/deepseek/deepseek-v4.1-flash-fast": "high"
+  }
+}

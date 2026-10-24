@@ -86,6 +86,16 @@ if find "$REPO_ROOT/configs" -path '*/.omp/*' ! -type d \
     ! -path '*/.omp/agent/themes/*.json' -print -quit | grep -q .; then
     fail "Forbidden snapshot path found: .omp"
 fi
+# .pi (the pi coding agent) holds auth.json (live OAuth tokens and API keys),
+# per-session transcripts, and an installed dependency tree; none are portable.
+# The allowlist is the secret-free configuration set: provider/model preferences,
+# the model catalog, and the dependency declaration (never node_modules).
+if find "$REPO_ROOT/configs" -path '*/.pi/*' ! -type d \
+    ! -path '*/.pi/agent/settings.json' \
+    ! -path '*/.pi/agent/models-store.json' \
+    ! -path '*/.pi/agent/npm/package.json' -print -quit | grep -q .; then
+    fail "Forbidden snapshot path found: .pi"
+fi
 
 for runtime_path in \
     configs/home/.timewarrior \

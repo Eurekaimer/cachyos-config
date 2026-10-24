@@ -769,3 +769,32 @@ output "eDP-1" {
   `name: DS 4.1 Fast`；`scripts/audit.sh` 通过。未执行反向恢复，未改动当前
   HOME 的其他配置。
 
+
+## 29. pi 应用层、`.zshenv` 纳管与本机配置刷新（2026-10-24）
+
+- 新增应用层 `configs/apps/pi/`，仅纳管三份无凭据配置：
+  `.pi/agent/settings.json`、`.pi/agent/models-store.json`、
+  `.pi/agent/npm/package.json`。`agent/auth.json`（含在线 OAuth 访问/刷新令牌
+  与 `command-code` API Key）、`agent/sessions/` 会话记录、
+  `agent/npm/node_modules/` 一律排除。
+- `scripts/lib/sanitize.sh`：`sanitize_credentials` 增加 pi 段——删除
+  `auth.json`，用 python3 从 `settings.json` 剥掉 `deviceId`（机器标识，
+  与 Qt 的 `history`/`lastVisited` 同类），保留 provider/model/thinking 层级；
+  `sanitize_runtime_state` 额外删除 `agent/sessions` 与 `npm/node_modules`，
+  即使将来把目录整体写进 `paths` 也不会入库。
+- `scripts/lib/sanitize.sh`：Shell rc 清空名单由 `.zshrc`/`.bashrc`/
+  `.bash_profile` 扩到含 `.zshenv`。本机 `~/.zshenv` 里有明文
+  `BAILIAN_API_KEY`，不扩名单就会随 `.zshenv` 新纳管项直接公开；扩名单后
+  采集结果为 `export BAILIAN_API_KEY=''`，变量名保留。
+- `configs/apps/shell/paths` 增加 `.zshenv`；`scripts/audit.sh` 增加 `.pi`
+  白名单断言（仅上述三份文件允许），与既有 `.omp` 白名单同构。
+- 采集：`./scripts/capture.sh` 全量刷新本机配置，共 23 个文件变化
+  （ani-rss、fcitx5 `profile`/`notifications.conf`、omp `config.yml`/
+  `models.yml`、`packages/toolchains/bun.txt`、`state/*` 等）。
+  `etc/libvirt/qemu/networks/default.xml` 因本会话无 `sudo` 保留旧快照
+  （脚本既定行为），其余系统层照常刷新。
+- 验证：`scripts/audit.sh` 通过（0 失败）；`manifests/home-paths.txt` 由
+  `sync-configs.sh --to-snapshot` 重新生成，新增 4 条（`.zshenv` 与 pi 三份）；
+  `configs/home/` 为生成副本，未手改。文档同步更新
+  `docs/{en,zh-CN}/{configuration,security,capture,kitty-shell}.md` 与
+  `docs/agents/MEMORY.md` 应用表。

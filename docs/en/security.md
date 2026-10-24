@@ -2,7 +2,7 @@
 
 [简体中文](../zh-CN/security.md)
 
-This is a public recovery snapshot, not a secrets backup. The capture excludes passwords, SSH/GPG keys, cloud credentials, browser profiles, cookies, Clash profiles and subscriptions, NetworkManager connections, logs, caches, and `.omp` runtime state.
+This is a public recovery snapshot, not a secrets backup. The capture excludes passwords, SSH/GPG keys, cloud credentials, browser profiles, cookies, Clash profiles and subscriptions, NetworkManager connections, logs, caches, `.omp` runtime state, and `.pi` credentials (`agent/auth.json`, session transcripts, `npm/node_modules/`).
 
 The sole Clash exception is the credential-free global `profiles/Script.js`
 under `.local/share/io.github.clash-verge-rev.clash-verge-rev/`. Only this exact

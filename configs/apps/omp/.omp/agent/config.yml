@@ -37,7 +37,7 @@ statusLine:
   preset: custom
   separator: none
   leftSegments:
-    - model
+    - pi
     - mode
     - context_pct
     - token_in
@@ -47,11 +47,13 @@ statusLine:
     - time
     - cost
   rightSegments:
+    - usage
     - path
     - git
+    - model
   segmentOptions:
     model:
-      showThinkingLevel: false
+      showThinkingLevel: true
     path:
       abbreviate: true
       maxLength: 20

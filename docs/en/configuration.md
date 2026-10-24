@@ -39,8 +39,9 @@ dconf database.
 | Neovim | `configs/apps/nvim/` | `.config/nvim/`, Markdown desktop entry |
 | OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/` (no `service.json`) |
 | OMP | `configs/apps/omp/` | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/*.json` |
+| Pi (pi coding agent) | `configs/apps/pi/` | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
-| Shell | `configs/apps/shell/` | `.zshrc`, `.bashrc`, `.bash_profile`, `.bash_logout` |
+| Shell | `configs/apps/shell/` | `.zshrc`, `.zshenv`, `.bashrc`, `.bash_profile`, `.bash_logout` |
 | Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
 | Starship | `configs/apps/starship/` | `.config/starship.toml` |
 | Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
@@ -80,12 +81,13 @@ paths it owns; that list is what both the capture and the restore use. See
 | Noctalia | `~/.config/noctalia/`, `~/.local/state/noctalia/settings.toml`, `~/.local/share/noctalia/plugins/storage-gb/` | Matching paths under `configs/home/`; saved GUI overrides take precedence over base config; histories/caches/private state excluded |
 | OBS Studio | `~/.config/obs-studio/` (`global.ini`, `user.ini`, `basic/scenes/`, `basic/profiles/`, `plugin_manager/modules.json`) | `configs/home/.config/obs-studio/`; `service.json` (stream key) is deleted before publishing; logs and profiler data stay out |
 | OMP (Oh My Pi config) | `~/.omp/agent/config.yml`, `~/.omp/agent/models.yml`, `~/.omp/agent/themes/*.json` | Matching paths under `configs/home/.omp/agent/`; runtime state stays out, and `models.yml` keys must be env-var references |
+| Pi (pi coding agent) | `~/.pi/agent/settings.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/npm/package.json` | Matching paths under `configs/home/.pi/agent/`; `auth.json`, session transcripts and `node_modules/` are excluded, and `deviceId` is stripped from `settings.json` |
 | Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
 | Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
 | XDG user directories | `~/.config/user-dirs.dirs`, `~/.config/user-dirs.locale` | `configs/home/.config/` |
-| Zsh | `~/.zshrc` | `configs/home/.zshrc` |
+| Zsh | `~/.zshrc`, `~/.zshenv` | `configs/home/.zshrc`, `configs/home/.zshenv`; credential export values are blanked |
 
 Restore this layer with:
 
@@ -189,3 +191,8 @@ backup instead. They are not recovery inputs for this public repository.
 The portable `.omp` set is limited to `agent/config.yml`, `agent/models.yml`
 (API keys referenced by environment variable, never literals), and
 `agent/themes/*.json`. Any other `.omp` content is rejected by `audit.sh`.
+Likewise the portable `.pi` set is `agent/settings.json`,
+`agent/models-store.json` and `agent/npm/package.json`; `agent/auth.json`
+(live OAuth tokens and API keys), `agent/sessions/` and `agent/npm/node_modules/`
+are excluded, `deviceId` is stripped from `settings.json`, and any other `.pi`
+content is rejected by `audit.sh`.

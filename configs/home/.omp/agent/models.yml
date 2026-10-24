@@ -6,9 +6,98 @@ providers:
     authHeader: true
     models:
       - id: deepseek/deepseek-v4-flash
-        name: DeepSeek V4 Flash (Command Code)
+        name: commandcode/deepseek-v4-flash
         contextWindow: 1000000
         maxTokens: 65536
     modelOverrides:
       deepseek/deepseek-v4.1-flash-fast:
-        name: DS 4.1 Fast
+        name: commandcode/deepseek-v4.1-flash-fast
+      deepseek/deepseek-v4.1-flash:
+        name: commandcode/deepseek-v4.1-flash
+
+  bailian:
+    baseUrl: https://ws-d594ut3219a2203b.cn-beijing.maas.aliyuncs.com/compatible-mode/v1
+    api: openai-completions
+    apiKey: BAILIAN_API_KEY
+    models:
+      - id: qwen3.8-max
+        name: bailian/qwen3.8-max
+        contextWindow: 1000000
+        maxTokens: 131072
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, medium, xhigh]
+          defaultLevel: xhigh
+        input: [text, image]
+        tokenizer: qwen3
+      - id: qwen3.8-flash
+        name: bailian/qwen3.8-flash
+        contextWindow: 1000000
+        maxTokens: 131072
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [minimal, low, medium, high]
+        input: [text, image]
+        tokenizer: qwen3
+      - id: qwen3.7-plus
+        name: bailian/qwen3.7-plus
+        contextWindow: 1000000
+        maxTokens: 131072
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [minimal, low, medium, high]
+        input: [text, image]
+        tokenizer: qwen3
+      - id: qwen3-coder-flash
+        name: bailian/qwen3-coder-flash
+        contextWindow: 262144
+        maxTokens: 65536
+        reasoning: false
+        input: [text]
+        tokenizer: qwen3
+      - id: deepseek-v4-pro
+        name: bailian/deepseek-v4-pro
+        contextWindow: 1000000
+        maxTokens: 384000
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, high, max]
+        input: [text]
+        tokenizer: deepseek-v3
+      - id: deepseek-v4.1-flash
+        name: bailian/deepseek-v4.1-flash
+        contextWindow: 262144
+        maxTokens: 65536
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, medium, high]
+        input: [text]
+        tokenizer: deepseek-v3
+      - id: kimi-k3
+        name: bailian/kimi-k3
+        contextWindow: 1048576
+        maxTokens: 131072
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, high, max]
+          defaultLevel: max
+          requiresEffort: true
+        input: [text, image]
+        tokenizer: kimi-k2
+      - id: glm-5.3
+        name: bailian/glm-5.3
+        contextWindow: 1000000
+        maxTokens: 131072
+        reasoning: true
+        thinking:
+          mode: effort
+          efforts: [low, high, max]
+          defaultLevel: max
+        input: [text]
+        tokenizer: glm5

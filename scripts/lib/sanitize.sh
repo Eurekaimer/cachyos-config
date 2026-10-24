@@ -49,6 +49,13 @@ sanitize_runtime_state() {
 
     # Wallpaper metadata written by the desktop's comment tool.
     rm -rf -- "$root/Pictures/Wallpapers/.comments"
+
+    # pi keeps per-session transcripts (prompts, file contents, tool output) and
+    # an installed dependency tree. History is not a recovery input and vendored
+    # node_modules must never enter the repository, so both are pruned even if a
+    # paths file ever declares the surrounding directory.
+    rm -rf -- "$root/.pi/agent/sessions"
+    rm -rf -- "$root/.pi/agent/npm/node_modules"
 }
 
 # Remove credentials and machine-identifying values while keeping the structure.
@@ -66,7 +73,9 @@ sanitize_credentials() {
     # Shell rc files export credentials for CLI tools (agent API keys, tokens).
     # Blank the values while keeping the variable names, so a restore reproduces
     # the structure and the user re-adds the secret from the password manager.
-    for rc_file in .zshrc .bashrc .bash_profile; do
+    # .zshenv is in this list because it is read by every zsh invocation and is
+    # where this machine exports agent API keys.
+    for rc_file in .zshrc .zshenv .bashrc .bash_profile; do
         rc_path="$root/$rc_file"
         [[ -f "$rc_path" ]] || continue
         sed -i -E \
@@ -94,6 +103,28 @@ sanitize_credentials() {
     # Keep the public snapshot useful without publishing the account email.
     if [[ -f "$root/.gitconfig" ]]; then
         git config --file "$root/.gitconfig" --unset-all user.email || true
+    fi
+
+    # pi (the pi coding agent) stores provider credentials in auth.json and a
+    # per-machine identifier in settings.json. Neither is a recovery input:
+    # drop auth.json (it holds live OAuth tokens and API keys) and strip only
+    # the deviceId key, keeping providers, models and thinking levels.
+    local pi_dir="$root/.pi/agent"
+    rm -f -- "$pi_dir/auth.json"
+    local pi_settings="$pi_dir/settings.json"
+    if [[ -f "$pi_settings" ]] && command -v python3 >/dev/null 2>&1; then
+        python3 - "$pi_settings" <<'PY'
+import json
+import sys
+
+path = sys.argv[1]
+with open(path, encoding="utf-8") as handle:
+    settings = json.load(handle)
+settings.pop("deviceId", None)
+with open(path, "w", encoding="utf-8") as handle:
+    json.dump(settings, handle, indent=2, ensure_ascii=False)
+    handle.write("\n")
+PY
     fi
 }
 

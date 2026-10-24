@@ -47,6 +47,10 @@
 .omp/agent/config.yml
 .omp/agent/models.yml
 .omp/agent/themes
+.pi/agent/models-store.json
+.pi/agent/npm/package.json
+.pi/agent/settings.json
+.zshenv
 .zshrc
 Pictures/Wallpapers
 Projects/ASS/config/ani.v2.json

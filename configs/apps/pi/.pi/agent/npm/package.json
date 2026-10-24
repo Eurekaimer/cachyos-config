@@ -1,0 +1,7 @@
+{
+  "name": "pi-extensions",
+  "private": true,
+  "dependencies": {
+    "@commandcode/pi-commandcode-provider": "^0.3.0"
+  }
+}

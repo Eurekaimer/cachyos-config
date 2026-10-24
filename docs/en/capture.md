@@ -23,9 +23,11 @@ Before the snapshot is considered publishable, capture strips credentials and ru
 | Content | Handling |
 | --- | --- |
 | Git user email | Removed |
-| Exported shell-rc variables (`.zshrc`, `.bashrc`, `.bash_profile`) whose names contain `KEY`/`TOKEN`/`SECRET`/`PASSWORD` | Value blanked, name kept; re-add from the password manager after a restore |
+| Exported shell-rc variables (`.zshrc`, `.zshenv`, `.bashrc`, `.bash_profile`) whose names contain `KEY`/`TOKEN`/`SECRET`/`PASSWORD` | Value blanked, name kept; re-add from the password manager after a restore |
 | OBS `basic/profiles/*/service.json` (stream key) | Deleted |
 | AniRSS downloader password/API key/login password/instance UUID | Blanked |
+| pi `agent/auth.json` (OAuth tokens, API keys), `agent/sessions/`, `agent/npm/node_modules/` | Deleted |
+| pi `deviceId` in `agent/settings.json` | Key removed |
 | KOReader cache, history, `lookup_history.lua`, `wikipedia_history.lua`, statistics databases, reader recent files | Deleted |
 | MPV playback history and cache, recent paths from Qt and desktop file choosers, gThumb recent files | Removed |
 | Application metadata under the wallpaper directory | Deleted |

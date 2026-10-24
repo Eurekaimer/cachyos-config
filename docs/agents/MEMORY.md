@@ -75,8 +75,9 @@ means upstream code that must stay untouched.
 | nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; requires `fd` (Snacks picker), `tree-sitter-cli` (parser builds) and `curl` |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |
 | omp | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/` | all three | everything else in `.omp/` | Only secret-free configuration is portable: `models.yml` must reference API keys by env var, custom themes stay JSON; `audit.sh` rejects any other `.omp` content |
+| pi | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` | all three | `auth.json`, `agent/sessions/`, `npm/node_modules/` | `auth.json` holds live OAuth tokens and an API key and is deleted by `sanitize.sh`; `deviceId` is stripped from `settings.json` as a machine identifier; the npm tree is a declaration only, never vendored; `audit.sh` rejects any other `.pi` content |
 | qt | `.config/QtProject.conf` | yes | — | `history`, `lastVisited`, `qtVersion` lines leak paths and are deleted |
-| shell | `.zshrc`, `.bashrc`, `.bash_profile`, `.bash_logout` | all | — | Values of `*KEY*`/`*TOKEN*`/`*SECRET*`/`*PASSWORD*` exports are blanked; variable names stay so a restore reproduces the structure |
+| shell | `.zshrc`, `.zshenv`, `.bashrc`, `.bash_profile`, `.bash_logout` | all | — | Values of `*KEY*`/`*TOKEN*`/`*SECRET*`/`*PASSWORD*` exports are blanked; variable names stay so a restore reproduces the structure. `.zshenv` is captured because every zsh invocation reads it and it is where agent API keys are exported |
 | sioyek | `.local/bin/sioyek` | wrapper script | — | The ECDICT plugin integration itself is a module (`modules/sioyek-ecdict`) |
 | starship | `.config/starship.toml` | yes | — | — |
 | thunar | `.config/Thunar/uca.xml` | yes | — | — |

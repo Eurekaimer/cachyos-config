@@ -21,9 +21,11 @@ git push
 | 内容 | 处理 |
 | --- | --- |
 | Git 用户邮箱 | 移除 |
-| Shell rc（`.zshrc`、`.bashrc`、`.bash_profile`）中名字含 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的导出变量 | 值置空，变量名保留；恢复后从密码管理器补回 |
+| Shell rc（`.zshrc`、`.zshenv`、`.bashrc`、`.bash_profile`）中名字含 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的导出变量 | 值置空，变量名保留；恢复后从密码管理器补回 |
 | OBS `basic/profiles/*/service.json`（推流密钥） | 删除 |
 | AniRSS 下载器密码/API Key/登录密码/实例 UUID | 置空 |
+| pi `agent/auth.json`（OAuth 令牌、API 密钥）、`agent/sessions/`、`agent/npm/node_modules/` | 删除 |
+| pi `agent/settings.json` 中的 `deviceId` | 移除该键 |
 | KOReader 缓存、历史、`lookup_history.lua`、`wikipedia_history.lua`、统计数据库、阅读器最近文件 | 删除 |
 | MPV 播放历史与缓存、Qt 与桌面文件选择器的最近路径、gThumb 最近文件 | 移除 |
 | 壁纸目录中的应用元数据 | 删除 |
