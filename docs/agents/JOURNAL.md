@@ -798,3 +798,36 @@ output "eDP-1" {
   `configs/home/` 为生成副本，未手改。文档同步更新
   `docs/{en,zh-CN}/{configuration,security,capture,kitty-shell}.md` 与
   `docs/agents/MEMORY.md` 应用表。
+
+## 30. Yazi：`y` 同步文件到 Wayland 剪贴板 + 配置改为预设增量（2026-10-29）
+
+- 需求：在 Yazi 里按 `y` 除了内部 yank，还要把选中/悬停文件以
+  `text/uri-list` 写入系统剪贴板，微信/浏览器里 `Ctrl+V` 直接粘贴文件；
+  实现按 Yazi 文档，并尽量简化 `~/.config/yazi/`。
+- `keymap.toml` 由 390 行全量 `[mgr] keymap` 拷贝改为仅
+  `[[mgr.prepend_keymap]]` 一条：`on = "y"`，
+  `run = [ 'shell -- for path in %s; do echo "file://$path"; done | wl-copy -t text/uri-list', "yank" ]`
+  （文档 “Copy selected files to the system clipboard while yanking” 的
+  Wayland 版本）。默认键位全部回归 preset。
+- 顺带删除两条失效的偏离：旧 `s`/`S` 指向 `plugin fd`/`plugin rg`，而
+  Yazi 26.9.1 的 preset 插件目录已无 `fd.lua`/`rg.lua`（默认键位是
+  `search --via=fd|rg`）；恢复默认后 `s` 实测弹出 “Search via fd”。
+- `yazi.toml` 由 293 行全量拷贝改为只保留偏离：`[mgr]` ratio/sort_by/
+  linemode、`[preview] wrap`、`[input]` 80 宽、4 个自定义 opener +
+  `[open] prepend_rules`、dirsize 改用 `[plugin] append_fetchers`。
+  旧拷贝里 `error/*` 预览/spotter 规则引用了不存在的 `error` 插件
+  （26.9.1 preset 只有 `null`），本次不再保留，回归默认 `null/*`。
+- 删除 0 字节的 `theme.toml` 与临时 `scripts/yazi-uri-copy.py`（最终未采用
+  自写编码脚本，按文档用 `wl-copy` + `for` 管道）。
+- 验证：直接执行同一管道，`wl-paste -t text/uri-list` 得到
+  `file:///tmp/微信 图片 1.png` / `file:///tmp/plain.png` 两行，属主类型
+  `text/uri-list`；真实 TUI 中按 `y` 后剪贴板为 `file:///tmp/ytest/a.txt`，
+  随后 `p` 仍能把文件粘进子目录（内部 yank 保留）；`O` 菜单同时显示
+  自定义 markdown opener；`yazi.log` 无 ERROR/WARN。
+- 未验证：微信/Chrome 里实际 `Ctrl+V` 的 GUI 行为（本会话无可自动化的
+  图形输入），文件名含 `#`/`?` 会被截断的已知限制已写入
+  `docs/{en,zh-CN}/yazi.md`。
+- 采集：`./scripts/sync-configs.sh --to-snapshot`；`scripts/audit.sh` 通过；
+  `docs/agents/MEMORY.md` 的 yazi 行与中英文 `yazi.md` 同步更新。同次采集还
+  带上了本机既有漂移：`ani-rss` 追番进度、fcitx5 `profile` 分组顺序与
+  `notifications.conf` 隐藏项顺序，均非本次改动。

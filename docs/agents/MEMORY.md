@@ -85,7 +85,7 @@ means upstream code that must stay untouched.
 | wallpapers | `Pictures/Wallpapers/` | images | — | `.comments/` metadata is runtime state; `sync-sddm-theme.sh` copies one into the SDDM theme |
 | wechat | `.local/share/applications/wechat.desktop` | yes | — | — |
 | xdg-user-dirs | `.config/user-dirs.dirs`, `.config/user-dirs.locale` | both | — | `migrate-home-dirs-zh.sh` must run before `restore-user.sh` on old installs |
-| yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `theme.toml` | — | — |
+| yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `init.lua`, `plugins/dirsize.yazi/` | — | Both TOMLs hold only overrides over the shipped presets (`prepend_*`/`append_*`), never full copies. `y` also writes `text/uri-list` to the Wayland clipboard through `wl-copy` (`wl-clipboard`) |
 
 ## Common traps and how they are handled
 

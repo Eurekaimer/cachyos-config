@@ -88,7 +88,7 @@ like the built-in folder spotter (`<Tab>`) does. Three files cooperate:
 | --- | --- |
 | `plugins/dirsize.yazi/main.lua` | fetcher: measures directories and emits `FilesOp::Size` |
 | `init.lua` | plugin setup, the `size` linemode override, and the status-bar child |
-| `yazi.toml` | `[plugin] fetchers` rule `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
+| `yazi.toml` | `[plugin] append_fetchers` rule `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
 
 The `size` linemode prints a size only, so the column stays aligned, and a
 directory whose size has not been measured yet stays blank instead of showing
@@ -124,6 +124,25 @@ the old syntax makes opening fail silently:
    map.
 3. **File placeholders are `%s1` (first file) / `%s` (spread)**; `$@` and `$n`
    are deprecated.
+
+## Copy files to the system clipboard
+
+`y` still yanks inside Yazi and also puts the hovered or selected files on the
+Wayland clipboard as `text/uri-list`, so `Ctrl+V` in WeChat, Chrome and other
+GUI apps pastes them as files:
+
+```toml
+[[mgr.prepend_keymap]]
+on   = "y"
+run  = [ 'shell -- for path in %s; do echo "file://$path"; done | wl-copy -t text/uri-list', "yank" ]
+desc = "Yank and copy files to the system clipboard"
+```
+
+The shell action runs first and reads the same selection `yank` consumes.
+`wl-copy` (package `wl-clipboard`) replaces the previous clipboard owner, so
+text copied earlier is gone after `y`. Paths are written verbatim: Chinese
+names and spaces paste fine in Chromium-based apps, while a name containing
+`#` or `?` would be truncated at that character.
 
 ## Preview
 

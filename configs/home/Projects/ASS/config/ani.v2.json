@@ -186,14 +186,14 @@
     "pinyin": "bingzhichengqiang dierji",
     "pinyinInitials": "bzcq dej",
     "enable": true,
-    "currentEpisodeNumber": 3,
+    "currentEpisodeNumber": 4,
     "totalEpisodeNumber": 0,
     "themoviedbName": "冰之城墙",
     "type": "mikan",
     "bgmUrl": "https://bgm.tv/subject/665390",
     "customDownloadPath": false,
     "customDownloadPathTemplate": "/Media/冰之城墙 第二季/Season 2",
-    "score": 7.3,
+    "score": 7.4,
     "customEpisode": false,
     "customEpisodeStr": "(.*|\\[.*])(( - |Vol |[Ee][Pp]?)\\d+(\\.5)?( ?\\(\\d+\\))?|【\\d+(\\.5)?】|\\[\\d+(\\.5)?( ?\\(\\d+\\))?( ?[vV]\\d)?( ?END)?( ?完)?( ?FIN)?]|第\\d+(\\.5)?[话話集]( - END)?|^\\[TOC].* \\d+|^六四位元字幕组.*★\\d+(\\.5)?★)",
     "customEpisodeGroupIndex": 2,
@@ -228,7 +228,7 @@
     "customRenameTemplate": "[${subgroup}] ${title} S${seasonFormat}E${episodeFormat}",
     "customPriorityKeywordsEnable": false,
     "customPriorityKeywords": [],
-    "lastDownloadTime": 1792167596926,
+    "lastDownloadTime": 1793198529036,
     "customUploadEnable": false,
     "customUploadPathTarget": "",
     "message": true,
@@ -239,7 +239,7 @@
     "customTags": []
   },
   {
-    "sort": 4,
+    "sort": 3,
     "id": "d6bac0b3-bd55-4d27-a2fc-ec67892dda18",
     "mikanTitle": "",
     "url": "https://mikanani.me/RSS/Bangumi?bangumiId=4059&subgroupid=1262",
@@ -265,7 +265,7 @@
     "pinyin": "fxzhanshijiuliumei",
     "pinyinInitials": "fxzsjlm",
     "enable": true,
-    "currentEpisodeNumber": 2,
+    "currentEpisodeNumber": 3,
     "totalEpisodeNumber": 12,
     "themoviedbName": "",
     "type": "mikan",
@@ -292,7 +292,7 @@
     "customRenameTemplate": "[${subgroup}] ${title} S${seasonFormat}E${episodeFormat}",
     "customPriorityKeywordsEnable": false,
     "customPriorityKeywords": [],
-    "lastDownloadTime": 1792163917787,
+    "lastDownloadTime": 1793198543453,
     "customUploadEnable": false,
     "customUploadPathTarget": "",
     "message": true,
@@ -303,7 +303,7 @@
     "customTags": []
   },
   {
-    "sort": 5,
+    "sort": 4,
     "id": "83067287-21f4-4d9b-bbd5-b9e8a08b4610",
     "mikanTitle": "",
     "url": "https://mikanani.me/RSS/Bangumi?bangumiId=4009&subgroupid=1236",
@@ -383,7 +383,7 @@
     "customTags": []
   },
   {
-    "sort": 6,
+    "sort": 5,
     "id": "db69b39a-4935-4ec8-8f57-fd95d26e656b",
     "mikanTitle": "",
     "url": "https://anibt.net/rss/anime.xml?bgmId=572613&groupSlug=lolihouse",
@@ -462,7 +462,7 @@
     "customTags": []
   },
   {
-    "sort": 7,
+    "sort": 6,
     "id": "6857b0f7-37bc-4baf-9731-163a31285bd5",
     "mikanTitle": "",
     "url": "https://mikanani.me/RSS/Bangumi?bangumiId=4006&subgroupid=1256",

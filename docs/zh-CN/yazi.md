@@ -67,7 +67,7 @@ chrome = [
 | --- | --- |
 | `plugins/dirsize.yazi/main.lua` | fetcher：测量目录并发出 `FilesOp::Size` |
 | `init.lua` | 插件 setup、`size` linemode 覆写、状态栏子项 |
-| `yazi.toml` | `[plugin] fetchers` 规则 `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
+| `yazi.toml` | `[plugin] append_fetchers` 规则 `{ url = "*/", run = "dirsize", prio = "low", group = "size" }` |
 
 `size` linemode 只输出大小，列保持右对齐；尚未测出大小的目录留空，不再回退成数量。悬停目录的条目数追加在状态栏文件名之后：`2 items`、`1 item` 或 `empty`。
 
@@ -88,6 +88,23 @@ AUR 包即使没有版本更新，也可能因依赖 ABI 变化而需要重新�
 1. **opener 定义并入 `yazi.toml` 的 `[opener]` 段**，独立的 `openers.toml` 不再被读取。
 2. **opener 的值必须是数组**：`name = [{ run = …, desc = … }]`，而不是对象形式。
 3. **文件占位符改用 `%s1`（第 1 个文件）/ `%s`（spread 展开）**；`$@`、`$n` 已废弃。
+
+## 复制文件到系统剪贴板
+
+`y` 在保留 Yazi 内部 yank 的同时，把悬停或选中的文件以 `text/uri-list`
+写入 Wayland 剪贴板，于是微信、Chrome 等图形程序里按 `Ctrl+V` 会直接粘贴成文件：
+
+```toml
+[[mgr.prepend_keymap]]
+on   = "y"
+run  = [ 'shell -- for path in %s; do echo "file://$path"; done | wl-copy -t text/uri-list', "yank" ]
+desc = "Yank and copy files to the system clipboard"
+```
+
+shell 动作先执行，读到的选择与随后 `yank` 消耗的一致。`wl-copy`
+（`wl-clipboard` 包）会替换原来的剪贴板属主，因此按 `y` 之前复制的文本会被清掉。
+路径按原样写入：中文名和空格在 Chromium 系程序中可以正常粘贴，但文件名含
+`#` 或 `?` 时会被截断。
 
 ## 预览
 
