@@ -167,6 +167,7 @@ os-prober
 pacman-contrib
 paru
 pavucontrol
+pdfarranger
 perl
 pipewire-alsa
 pipewire-pulse

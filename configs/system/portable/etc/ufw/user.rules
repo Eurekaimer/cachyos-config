@@ -29,6 +29,9 @@
 ### tuple ### route:allow any any 0.0.0.0/0 any 192.168.240.0/24 in_waydroid0
 -A ufw-user-forward -i waydroid0 -s 192.168.240.0/24 -j ACCEPT
 
+### tuple ### allow tcp 7897 0.0.0.0/0 any 172.18.0.0/16 in comment=7171626f742070726f78792072656c6179
+-A ufw-user-input -p tcp --dport 7897 -s 172.18.0.0/16 -j ACCEPT
+
 ### END RULES ###
 
 ### LOGGING ###
