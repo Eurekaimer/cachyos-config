@@ -10,12 +10,12 @@
 nvim
 ```
 
-首次启动会安装插件、已配置的语言服务器与 Treesitter 解析器，需要网络连接；等待安装完成后重启，再打开代码文件。
+首次启动会安装插件、Mason 管理的语言服务器与 Treesitter 解析器，需要网络连接；等待安装完成后重启，再打开代码文件。
 
 - 基础环境：Neovim **>= 0.12**、Git、真彩色终端；图标建议使用 Nerd Font。
 - 文件查找/全文搜索：安装 `fd`、`ripgrep`。
 - 系统剪贴板：`wl-copy` 或 `xclip`；中文输入法自动切换：`fcitx5-remote`。
-- 可选功能依赖：图片需要 Kitty、ImageMagick 与 curl；Java 需要 JDK 21+；外部格式化需要 `clang-format`；Git 界面需要 LazyGit；刷题需要 curl。
+- 可选功能依赖：C/C++ LSP 需要 `clangd`（Arch 的 `clang` 包）；图片需要 Kitty、ImageMagick 与 curl；Java 需要 JDK 21+；外部格式化需要 `clang-format`；Git 界面需要 LazyGit；刷题需要 curl。
 - 测试：Python 项目测试依赖、Go 工具链、Rust `cargo-nextest`；Java 使用 jdtls 与 JUnit runner，见[测试说明](docs/languages.md#测试neotest)。
 
 ## 常用入口

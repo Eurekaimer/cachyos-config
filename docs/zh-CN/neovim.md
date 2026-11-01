@@ -98,7 +98,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 
 | 依赖 | 状态 | 用途 |
 | --- | --- | --- |
-| `clang-format`（`clang` 包） | 显式软件包 | `<leader>cF` 格式化 C/C++/Java 等语言 |
+| `clangd` / `clang-format`（`clang` 包） | 必需额外依赖 | C/C++ LSP，以及 `<leader>cF` 格式化 C 系与 Java 文件 |
 | `fd` | 必需额外依赖 | Snacks picker 快速查找文件 |
 | `jdk-openjdk` / `jdk21-openjdk` | 显式软件包 | eclipse.jdt.ls 需要 Java 21+ 运行时 |
 | `lazygit` | 显式软件包 | `Space gg` Git 界面 |
@@ -121,7 +121,7 @@ Neovim 0.12 内置能力，避免为了很小的功能长期维护额外插件�
 
 1. `config/lazy.lua` 在 lazy.nvim 不存在时自动克隆它。
 2. lazy.nvim 根据 `lazy-lock.json` 安装固定版本。
-3. Mason 安装配置声明的语言服务器。
+3. Mason 安装其管理的语言服务器；`clangd` 由系统 `clang` 包提供。
 4. nvim-treesitter 下载并编译缺失的解析器。
 
 常用状态命令：
@@ -284,12 +284,17 @@ caution、attention、cite），展开后光标停在已带 `> ` 的正文行。
 | 语言 | nvim-lspconfig 名称 | Mason 软件包 |
 | --- | --- | --- |
 | Bash | `bashls` | `bash-language-server` |
+| C / C++ / Objective-C / CUDA | `clangd` | —（系统 `clang` 包） |
 | Go | `gopls` | `gopls` |
 | Java | `jdtls`（由 nvim-jdtls 启动） | `jdtls` |
 | JavaScript / TypeScript | `ts_ls` | `typescript-language-server` |
 | Lua | `lua_ls` | `lua-language-server` |
 | Python | `pyright` | `pyright` |
 | Rust | `rust_analyzer` | `rust-analyzer` |
+
+`clangd` 使用 `PATH` 中的可执行文件，不由 Mason 安装。项目可提供
+`compile_commands.json` 或 `compile_flags.txt` 以指定编译选项和头文件路径；
+缺少时使用默认参数。
 
 LSP 快捷键是 buffer-local，只有语言服务器成功连接后才出现：
 

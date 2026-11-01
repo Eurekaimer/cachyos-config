@@ -906,3 +906,16 @@ output "eDP-1" {
   `user.txt` 从 8 行降为 6 行（去掉 `sioyek-ecdict.service` 与已不存在的
   `niri-cs2-capslock-guard.service`），其余 6 个包提供的 socket/service 保留；
   `bash -n` 与 `audit.sh` 均通过。
+
+## 32. Neovim：启用系统 clangd 并同步快照（2026-11-01）
+
+- `lsp.lua` 启用系统 `clangd`，沿用 nvim-lspconfig 的默认 C/C++ 配置；Mason
+  不重复安装。`clang` 加入 `packages/required-extra.txt`，确保恢复时安装它。
+- 同步了 Neovim 的 `README.md`、`docs/languages.md` 与 LSP 配置，并更新仓库的
+  中英文 Neovim 文档和应用层记忆。
+- 在隔离副本中运行 `sync-configs.sh --to-snapshot` 生成应用层和恢复快照的
+  Neovim 文件；本机其他应用的配置漂移未纳入本次同步。远端已有的提交通过
+  fast-forward 合入仓库，未将远端其他配置回写本机。
+- 无界面 Neovim 实测 C/C++ 客户端附加、错误诊断、修正后清除诊断、定义跳转、
+  悬停和补全；`compile_commands.json` 中的自定义头文件路径可用，Pyright 仍可附加。
+  仓库快照也通过 C 文件诊断冒烟检查。未手动验证交互界面。

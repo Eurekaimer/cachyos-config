@@ -4,16 +4,21 @@
 
 ## LSP
 
-Mason 确保以下服务器已安装并由 Neovim 0.12 原生接口启用：
+Mason 确保下表中除 `clangd` 之外的服务器已安装；所有服务器均由 Neovim 0.12 原生接口启用：
 
 | Server | 语言 |
 |---|---|
 | `bashls` | Bash |
+| `clangd` | C / C++ / Objective-C / CUDA |
 | `gopls` | Go |
 | `lua_ls` | Lua |
 | `pyright` | Python |
 | `rust_analyzer` | Rust |
 | `ts_ls` | JavaScript / TypeScript |
+
+`clangd` 需自行安装并加入 `PATH`，不由 Mason 安装；Arch 系统可安装 `clang` 包。
+项目可提供 `compile_commands.json` 或 `compile_flags.txt`，让 clangd 使用项目的编译选项
+解析头文件；缺少时使用默认参数。
 
 Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim runtime library。支持 completion 的 server 会自动启用 Neovim 原生补全。
 

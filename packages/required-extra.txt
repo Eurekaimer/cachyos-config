@@ -3,6 +3,7 @@
 #
 # Installed by scripts/install-packages.sh together with the selected profile.
 7zip            # KOReader dictionary packs (docs/en/koreader.md)
+clang           # Neovim clangd C/C++ LSP and clang-format (docs/en/neovim.md)
 curl            # KOReader dictionary packs, Neovim leetcode plugin
 imagemagick     # configs/apps/niri/.local/bin/niri-screenshot-window
 jq              # configs/apps/niri/.local/bin/niri-stack-column

@@ -106,7 +106,7 @@ The first column is alphabetized. Required extras are recorded in
 
 | Requirement | Status | Used by |
 | --- | --- | --- |
-| `clang-format` (`clang` package) | Explicit package | `Space cF` formatting for C/C++/Java and other C-family files |
+| `clangd` / `clang-format` (`clang` package) | Required extra | C/C++ LSP and `Space cF` formatting for C-family/Java files |
 | `fd` | Required extra | Fast file discovery in Snacks picker |
 | `jdk-openjdk` / `jdk21-openjdk` | Explicit packages | eclipse.jdt.ls needs a Java 21+ runtime |
 | `lazygit` | Explicit package | `Space gg` Git interface |
@@ -129,7 +129,7 @@ On the first Neovim launch:
 
 1. `config/lazy.lua` clones lazy.nvim if it is missing.
 2. lazy.nvim installs the revisions in `lazy-lock.json`.
-3. Mason installs the configured language servers.
+3. Mason installs its configured language servers; the system `clang` package provides `clangd`.
 4. nvim-treesitter downloads and compiles missing parsers.
 
 Useful status commands:
@@ -312,12 +312,17 @@ Configured servers are alphabetized by language:
 | Language | nvim-lspconfig name | Mason package |
 | --- | --- | --- |
 | Bash | `bashls` | `bash-language-server` |
+| C / C++ / Objective-C / CUDA | `clangd` | — (system `clang` package) |
 | Go | `gopls` | `gopls` |
 | Java | `jdtls` (started by nvim-jdtls) | `jdtls` |
 | JavaScript / TypeScript | `ts_ls` | `typescript-language-server` |
 | Lua | `lua_ls` | `lua-language-server` |
 | Python | `pyright` | `pyright` |
 | Rust | `rust_analyzer` | `rust-analyzer` |
+
+`clangd` is enabled using the executable on `PATH`, not installed by Mason.
+Provide `compile_commands.json` or `compile_flags.txt` for project-specific
+compile options and include paths; otherwise clangd uses default arguments.
 
 LSP mappings are buffer-local and appear only after a server attaches:
 

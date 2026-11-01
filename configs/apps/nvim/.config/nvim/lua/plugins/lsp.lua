@@ -1,4 +1,4 @@
--- Mason installs servers; Neovim 0.12 provides LSP configuration and completion.
+-- Mason installs managed servers; Neovim 0.12 provides LSP configuration and completion.
 local servers = {
   "bashls",
   "gopls",
@@ -7,6 +7,9 @@ local servers = {
   "rust_analyzer",
   "ts_ls",
 }
+
+-- clangd is provided by the system rather than installed again by Mason.
+local system_servers = { "clangd" }
 
 -- Mason installs these, but nvim-jdtls starts the Java server itself so that its
 -- JDT-specific commands and code-action extensions are available (plugins/java.lua).
@@ -129,7 +132,8 @@ return {
         automatic_enable = false,
       })
 
-      for _, server in ipairs(servers) do
+      local all_servers = vim.list_extend(vim.deepcopy(servers), system_servers)
+      for _, server in ipairs(all_servers) do
         local config = {}
         if server == "lua_ls" then
           config.settings = {
