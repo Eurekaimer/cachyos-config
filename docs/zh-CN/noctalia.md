@@ -35,3 +35,32 @@ Niri 的 `Super+Shift+L` 转发到 `noctalia msg session lock`。
 `colors.json`、旧 QML 插件/配色目录或旧 `config.toml`。
 Stage 6 不再回填 Noctalia 配置。profile 显式请求原生 `noctalia`，
 不再请求旧 `noctalia-shell`/`noctalia-qs`；已安装系统包与 CachyOS meta 包不改动。
+
+## 壁纸与过渡特效
+
+壁纸统一使用 `Pictures/Wallpapers/project_mifeng.png`（`[wallpaper.default].path`
+与 `[wallpaper.last].path` 一致），开屏过渡与锁屏过渡都固定为单一 `fade`：
+
+```toml
+[wallpaper]
+transition = ["fade"]
+transition_duration = 1500
+edge_smoothness = 0.05
+transition_on_startup = true   # 登录后开屏过渡
+
+[lockscreen]
+transition = ["fade"]
+transition_duration = 1500
+edge_smoothness = 0.3
+```
+
+`transition` 是**候选池**，写多个值时每次随机挑一个；要固定一种就只保留
+一个值（`transition = []` 关闭动画）。`[wallpaper]` 与 `[lockscreen]` 的
+过渡配置互不影响，锁屏有自己的池、时长与边缘羽化，必须分别设置。
+可用效果：`fade`、`disc`、`stripes`、`wipe`、`honeycomb`、`zoom`
+（锁屏另支持 `diamond`、`golden`、`melt`、`pixel`、`vortex`）。
+
+`settings.toml` 的 `config_version` 必须与已安装的 `noctalia` 包一致：
+2026-11-01 的 `noctalia 5.4.1` 只接受 `config_version = 14`，写成 `15`
+会弹出 “Config Error: version 15 is newer than version 14”。从旧快照恢复 `settings.toml` 后要核对文件首行的版本号。
+

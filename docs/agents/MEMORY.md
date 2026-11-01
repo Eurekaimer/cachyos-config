@@ -32,9 +32,21 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **`niri`, `noctalia`, `zsh`, `nodejs` must be listed explicitly in every
   profile.** Dependency-installed packages may not appear in `pacman -Qqen`.
 - **The desktop shell is native `/usr/bin/noctalia`**, observed as
-  `v5.2.1 (5.2.1-1-dirty)` on 2026-10-10. Use `noctalia msg`, not QuickShell IPC.
+  `v5.2.1 (5.2.1-1-dirty)` on 2026-10-10 and `v5.4.1 (5.4.1-1-dirty)` on
+  2026-11-01. Use `noctalia msg`, not QuickShell IPC.
   Profiles do not explicitly install `noctalia-shell` or `noctalia-qs`; leave
   the CachyOS meta package and existing system packages alone.
+- **`~/.local/state/noctalia/settings.toml` must open with a `config_version`
+  the installed package accepts.** `noctalia 5.4.1` accepts `14` and rejects
+  `15` with “Config Error: version 15 is newer than version 14”; a snapshot
+  captured under an older binary can therefore break a restore. Check the first
+  line after restoring it.
+- **Wallpaper and transitions are declarative.** `[wallpaper.default].path` and
+  `[wallpaper.last].path` are both
+  `Pictures/Wallpapers/project_mifeng.png`. `transition` is a candidate pool,
+  so a single entry pins the effect: `[wallpaper]` and `[lockscreen]` each hold
+  `transition = ["fade"]`; the lock screen has its own duration and edge
+  smoothness and does not inherit from `[wallpaper]`.
 - **TeX Live is exactly four packages**: `texlive-basic texlive-latex
   texlive-latexrecommended texlive-langchinese`. `xelatex` and its
   `xelatex.ini` format definition ship in `texlive-basic`; `texlive-xetex`
@@ -47,6 +59,13 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **Module state is declared, not guessed.** A module's `installed-check` file
   lists the absolute paths (with `$HOME`) that must exist after install;
   `scripts/module.sh list` reports `unknown` when the file is missing.
+- **`modules/campus-login` installs `~/.local/bin/campus-login`** on THIS
+  workstation (`./scripts/module.sh install campus-login`; `installed-check`
+  is `$HOME/.local/bin/campus-login`). It launches a throwaway Chrome profile
+  with every proxy variable cleared and `--proxy-server=direct://` to reach the
+  Nankai captive portal. It cannot bypass Clash TUN mode, which intercepts at
+  the network layer. The network itself needs web authentication before any
+  node works; see `docs/zh-CN/user-scripts.md` § campus-login.
 
 ## Per-application configuration notes
 
@@ -111,10 +130,14 @@ means upstream code that must stay untouched.
 - **`pacman -Qm` output changes when models are added.** The old capture deleted
   `llama-cpp`/`ollama` by name; that special case is gone — a profile decides
   whether a model runtime is installed.
-- **A service snapshot is not an install list.** `touchpad-boot-recovery.service`
-  was removed from `packages/services/system.txt`: the unit only exists after
-  the module installs it, and `restore-services.sh` would warn on every machine
-  that never ran the module.
+- **A service snapshot is not an install list.** `capture.sh` records only
+  enabled units whose `FragmentPath` belongs to an installed package
+  (`pacman -Qo`), for both buses. Module-installed and hand-written units
+  (`sioyek-ecdict.service`, `touchpad-boot-recovery.service`, one-off
+  experiments such as `tp-ab-*.service`) are excluded: they exist only after
+  their installer runs, and recording them would make `restore-services.sh`
+  warn on every machine that never ran it. The module's own `install.sh`
+  enables its unit.
 - **`koreader-bin` overwrites the patched Lua files on upgrade.** The module
   must be re-run after every upgrade; `scripts/install-packages.sh` does it
   automatically whenever the package is present.

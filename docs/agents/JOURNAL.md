@@ -831,3 +831,78 @@ output "eDP-1" {
   `docs/agents/MEMORY.md` 的 yazi 行与中英文 `yazi.md` 同步更新。同次采集还
   带上了本机既有漂移：`ani-rss` 追番进度、fcitx5 `profile` 分组顺序与
   `notifications.conf` 隐藏项顺序，均非本次改动。
+
+## 31. campus-login 注册、校园网未认证实测与仓库同步（2026-11-01）
+
+- 需求：注册校园网认证终端命令；实测 NKU_WLAN 下 Clash 不可用；并说明以后
+  连上校园网如何触发网关认证。用户随后要求把仓库内容同步到本机并更新记忆。
+- 模块：`./scripts/module.sh install campus-login` 已在本机安装
+  `~/.local/bin/campus-login`（备份旧版本到 module-backups），
+  `module.sh list` 报 `installed`；zsh 登录 shell 中可解析到该命令。
+- 实测（热点「不登校」基线，Clash 规则模式、TUN 关闭、mixed-port 7897）：
+  Google `generate_204` 经代理 HTTP 204，GitHub 经代理 HTTP 200。
+- 实测（NKU_WLAN，10.4.243.10/18，网关 10.4.192.1，DHCP DNS 202.113.16.41）：
+  认证页 `https://netauth.nankai.edu.cn/` 直连 HTTP 200；普通 HTTP 探测被
+  302 到认证页；`https://www.baidu.com/` 返回网关证书 `Web secure CA`，
+  证书校验失败；经 Clash 访问 Google/GitHub 均为 TLS EOF 失败。结论是
+  **未认证拦截**，不是 DNS 或分流配置错误；`NKU_WLAN` 的连接属性保持
+  `ipv4.method auto`、不忽略自动 DNS/路由，无需手工劫持 DNS。
+- 过程偏差：第一次切网测试用独立定时任务回退到热点；第二次切网直接执行
+  `nmcli` 且未加回退，导致会话在校园网下断网，由用户提醒后手工执行
+  `nmcli connection up id '不登校'` 恢复。此后不再主动切网，认证由用户
+  本人在直连窗口中完成；用户确认校园网已认证可用。
+- 同步：`scripts/sync-status.sh` 初次运行因无本机 sync-record 退出 1（非错误）；
+  `scripts/restore-user.sh` 成功回灌仓库快照并写入 sync-record。
+  期间发现回灌会用快照中的 7 部覆盖本机 11 部追番数据
+  （`Projects/ASS/config/ani.v2.json` 属于运行数据而非配置），已从
+  `backups/20261101-110002/` 取回原始文件；KOReader 字典 271MB、
+  `data/tessdata` 与 caches 属运行数据，回灌后按既有保留逻辑仍在备份中。
+- 采集：`./scripts/capture.sh` 成功；`scripts/audit.sh` 首轮失败于
+  `packages/profiles/full.txt` 的两个不可解析条目——`github-desktop-bin`
+  改为仓库/本机实际名 `github-desktop`，`peazip-qt-bin` 在 AUR 与仓库均
+  不存在且从未安装，删除该行。修复后 audit 通过。
+- 文档：`docs/{en,zh-CN}/user-scripts.md` 增补“认证前为什么只有认证页能开”
+  与手动触发 302 的直连 Chrome 命令；`MEMORY.md` 增加 campus-login 不变量。
+- 未验证：认证后在同一校园网下的 Clash 出口与速度（用户在本次会话中自行
+  完成认证，未复测）；日常 Chrome 退出 Clash 后的国内站点直连也未改动。
+
+### 31.1 壁纸回填、过渡固定与 `config_version` 冲突（同日追加）
+
+- 用户要求恢复 mifeng 壁纸，并把开屏（启动）与锁屏特效固定为一种。
+  核查 `noctalia msg wallpaper-get` = `project_mifeng.png`，
+  `[wallpaper.default]` 与 `[wallpaper.last]` 均指向该文件；截图与壁纸
+  cover-crop 的灰度相关系数 0.9608，确认实际在渲染而不是配置残留。
+- 过渡原本是候选池 `["fade","disc","stripes","wipe","honeycomb"]`，每轮随机。
+  改为 `transition = ["fade"]`：`[wallpaper]` 保持 `edge_smoothness 0.05` 与
+  `transition_on_startup true`；`[lockscreen]` 新增
+  `transition = ["fade"]`、`transition_duration = 1500`、
+  `edge_smoothness = 0.3`（此前完全没有显式锁屏过渡项）。
+  `noctalia msg config-reload` 后日志无 WRN/ERR。
+- 同步后弹出 “Config Error version 15 is newer than version 14”：快照里的
+  `settings.toml` 带着 `config_version = 15`（来自 2026-10-19 采集），而本机
+  `noctalia 5.4.1` 只接受 14。已把首行改回 14，并从
+  `backups/20261101-110002/` 取回被快照丢掉的笔记本锁屏登录框
+  （`lockscreen-login-box@eDP-1`，`widget_order` 恢复为 eDP-1 + DP-3）。
+  reload 后 config 正常加载，壁纸仍为 mifeng。
+- 文档：中英文 `noctalia.md` 增补壁纸/过渡固定写法、候选池语义、可用效果
+  列表与 `config_version` 必须匹配已装包的约束。
+- 未验证：真实锁屏与登录开屏动画的实际观感（需按 Super+Shift+L 锁屏观察），
+  只确认了配置加载与壁纸渲染。
+
+### 31.2 服务快照过滤为软件包提供的单元（同日追加）
+
+- 提交前复核发现 `packages/services/system.txt` 被写入了
+  `touchpad-boot-recovery.service`、`tp-ab-collect.timer`、
+  `tp-ab-precollect.service` 三个非软件包单元（`pacman -Qo` 均不属任何包），
+  `user.txt` 也带上了模块安装的 `sioyek-ecdict.service`。这与
+  `MEMORY.md` 既有不变量“服务快照不是安装清单”直接冲突：未装该模块的机器
+  执行 `restore-services.sh` 会每次告警。
+- 根因在 `scripts/capture.sh`：原先无条件记录所有 enabled 单元。改为
+  `capture_package_owned_units <system|user>`，只保留 `FragmentPath` 属于
+  已安装包的单元；系统总线与用户总线必须分别用 `systemctl show` 与
+  `systemctl --user show` 取路径（首版漏了作用域参数，把 `user.txt`
+  清空成 0 行，已立即修正）。
+- 验证：重跑 `capture.sh` 后 `system.txt` 仍为 30 行且不含上述三个单元，
+  `user.txt` 从 8 行降为 6 行（去掉 `sioyek-ecdict.service` 与已不存在的
+  `niri-cs2-capslock-guard.service`），其余 6 个包提供的 socket/service 保留；
+  `bash -n` 与 `audit.sh` 均通过。

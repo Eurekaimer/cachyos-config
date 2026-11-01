@@ -197,8 +197,29 @@ else
     : >"$packages_root/toolchains/bun.txt"
 fi
 
-systemctl list-unit-files --state=enabled --no-legend | awk '$1 !~ /@\./ {print $1}' | LC_ALL=C sort -u >"$packages_root/services/system.txt"
-systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}' | LC_ALL=C sort -u >"$packages_root/services/user.txt"
+# A service snapshot is not an install list. Only units provided by an installed
+# package belong here: module- and hand-installed units (touchpad-boot-recovery,
+# one-off experiments) exist only after their installer runs and would make
+# restore-services.sh warn on every machine that never ran it.
+capture_package_owned_units() {
+    local scope=$1 unit path
+    while IFS= read -r unit; do
+        [[ -n "$unit" ]] || continue
+        if [[ "$scope" == user ]]; then
+            path=$(systemctl --user show -p FragmentPath --value "$unit" 2>/dev/null)
+        else
+            path=$(systemctl show -p FragmentPath --value "$unit" 2>/dev/null)
+        fi
+        [[ -n "$path" ]] || continue
+        pacman -Qo "$path" >/dev/null 2>&1 || continue
+        printf '%s\n' "$unit"
+    done
+}
+
+capture_package_owned_units system < <(systemctl list-unit-files --state=enabled --no-legend | awk '$1 !~ /@\./ {print $1}') \
+    | LC_ALL=C sort -u >"$packages_root/services/system.txt"
+capture_package_owned_units user < <(systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}') \
+    | LC_ALL=C sort -u >"$packages_root/services/user.txt"
 
 printf '%s\n' "$captured_home" >"$state_root/captured-home.txt"
 printf '%s\n' "${USER:?}" >"$state_root/captured-user.txt"

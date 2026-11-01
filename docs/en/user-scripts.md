@@ -51,6 +51,33 @@ Requires `google-chrome-stable`, `google-chrome`, or `chromium`. If the portal
 is still unreachable afterwards, check that Clash TUN mode is off: TUN
 captures traffic at the network layer, which Chrome flags cannot bypass.
 
+### Why only the portal loads before authentication
+
+The campus gateway intercepts all traffic until the account is authenticated.
+Plain HTTP requests are answered with a 302 to
+`https://netauth.nankai.edu.cn/?wlanuserip=<local IP>&wlanacname=…`, while a
+TLS connection to `https://www.baidu.com/` receives the gateway's own
+certificate (`Web secure CA`); verification fails and the network looks dead.
+That is authentication interception, not a DNS or proxy misconfiguration.
+`NKU_WLAN` keeps `ipv4.method auto` with automatic DNS and routes, so the
+gateway and resolvers come from DHCP and need no manual DNS override.
+
+When the automatic popup does not appear, trigger the redirect in the same
+direct-only window by opening any HTTP URL:
+
+```bash
+google-chrome-stable \
+  --user-data-dir=/tmp/chrome-campus-login \
+  --no-first-run --disable-extensions \
+  --proxy-server='direct://' --proxy-bypass-list='*' \
+  'http://connectivitycheck.gstatic.com/generate_204'
+```
+
+Measured on that campus network on 2026-11-01: the HTTP URL returned a 302 to
+the portal and the portal itself returned HTTPS 200. Restore normal Clash
+proxy/TUN use after authenticating; never accept the certificate warning the
+interception produces.
+
 ## docker-ass
 
 Wrapper around `docker compose -f ~/Projects/ASS/docker-compose.yml` (override

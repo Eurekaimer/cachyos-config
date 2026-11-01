@@ -168,7 +168,7 @@ vulkan-icd-loader
 google-chrome
 
 # [10-editor] 编辑器：Neovim 主力，其余为补充
-github-desktop-bin
+github-desktop
 intellij-idea-community-edition
 kate
 meld
@@ -241,7 +241,6 @@ go-musicfox
 koreader-bin
 obs-studio
 obsidian
-peazip-qt-bin
 picgo-appimage
 qbittorrent
 readest

@@ -46,6 +46,29 @@
 需要 `google-chrome-stable`、`google-chrome` 或 `chromium`。若打开后仍连不上，
 检查 Clash 是否开着 TUN 模式：TUN 在网络层劫持流量，Chrome 参数无法绕过。
 
+### 认证前为什么只有认证页能开
+
+未认证时校园网关拦截全部流量：普通 HTTP 请求会被 302 到
+`https://netauth.nankai.edu.cn/?wlanuserip=<本机IP>&wlanacname=…`，而对
+`https://www.baidu.com/` 的 TLS 连接会返回网关自己的证书
+（`Web secure CA`），证书校验失败，看起来就像“断网”。这属于认证拦截，
+不是 DNS 或代理配置问题。`NKU_WLAN` 的连接配置保持 `ipv4.method auto`、
+不忽略自动 DNS 与自动路由，网关和 DNS 都由 DHCP 下发，无需手工改 DNS。
+
+自动弹窗没有出现时，用同一个直连窗口访问任意 HTTP 地址即可触发跳转：
+
+```bash
+google-chrome-stable \
+  --user-data-dir=/tmp/chrome-campus-login \
+  --no-first-run --disable-extensions \
+  --proxy-server='direct://' --proxy-bypass-list='*' \
+  'http://connectivitycheck.gstatic.com/generate_204'
+```
+
+2026-11-01 在该校园网实测：该 HTTP 地址返回 302 到认证页，认证页本身
+HTTPS 200。认证完成后再恢复 Clash 的正常代理/TUN 使用；认证前不要忽略
+浏览器证书警告。
+
 ## docker-ass
 
 `docker compose -f ~/Projects/ASS/docker-compose.yml`（可用
