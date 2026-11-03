@@ -1,0 +1,2 @@
+$HOME/.local/bin/cpu-temp-filter
+$HOME/.config/systemd/user/cpu-temp-filter.service

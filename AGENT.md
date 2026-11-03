@@ -166,6 +166,22 @@ Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`�
 `configs/home/` 为生成副本，`restore-user.sh` 复制部署。GUI 修改保存后运行
 `./scripts/capture.sh` 更新快照，再 `./scripts/audit.sh` 检查后发布。
 
+状态栏 CPU 温度取 `config.toml` 里 `[system.monitor].cpu_temp_sensor_path`
+（指向 `/run/user/1000/cpu-temp/temp1_input`），该文件由可选模块
+`modules/cpu-temp-filter` 发布——本机 `coretemp` 的 `Package id 0` 会间歇输出
+100 °C 的 Tjmax 哨兵值，直接显示会 54/100 乱跳。Noctalia 在配置了该路径时**没有**
+自动探测兜底，所以恢复后必须先装模块，否则温度统计显示为不可用：
+
+```bash
+./scripts/module.sh install cpu-temp-filter   # 装脚本 + user unit，daemon-reload 并 enable --now
+noctalia msg config-get system.monitor.cpu_temp_sensor_path
+cat "$XDG_RUNTIME_DIR/cpu-temp/temp1_input"   # 微度，例如 44098
+```
+
+uid 不是 1000 的机器要把 `config.toml` 里那一行改成自己的
+`$XDG_RUNTIME_DIR/cpu-temp/temp1_input` 再 `noctalia msg config-reload`。
+该模块只做读数的过滤与平滑，不引入任何按温度降频的逻辑。
+
 维护一套最新配置时，不要每次全量比对：每次 capture / 用户恢复 / 完整恢复都会写入
 `~/.local/state/cachyos-config/sync-record.txt`（本机状态，绝不提交）。Agent 直接读它：
 

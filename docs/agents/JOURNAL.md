@@ -951,3 +951,35 @@ output "eDP-1" {
   最终粘贴行为需人工按一次 `ctrl-v` 确认。
 - 验证：`sync-configs.sh --to-snapshot` 重新生成 `configs/apps/zed/`、
   `configs/home/.config/zed/` 与 `manifests/home-paths.txt`；`audit.sh` 通过。
+
+## 2026-11-03：状态栏 CPU 温度去抖（新增 modules/cpu-temp-filter）
+
+- 现象：Noctalia 状态栏 `cpu-temperature` 在 `100` 与 `54` 之间乱跳。根因是本机
+  `coretemp`（工程样片 `Genuine Intel(R) 0000`，14 个核心传感器）双稳态：单个核心与
+  `Package id 0` 在真实 45–60 °C 与 Tjmax 哨兵 `100.0 °C` 之间反复翻转，同期其他核心
+  仍 45–77 °C、整机利用率个位数；而 `cpu_temp_sensor.cpp` 里 `coretemp` 的
+  `Package id` 优先级最高，默认就取这个坏值。内核侧是坏读数，用户态无法修正，
+  故新增常驻过滤器把平滑结果发布成伪 hwmon 输入文件。
+- 新增 `modules/cpu-temp-filter/`：payload `cpu-temp-filter`（python3）+
+  `cpu-temp-filter.service`（`RuntimeDirectory=cpu-temp`、`%h` 路径、
+  `Restart=always`、`WantedBy=graphical-session.target`），含 install/uninstall/
+  installed-check/README。不在 `configs/apps` 里，因为 `packages/services/user.txt`
+  只收 pacman 拥有的 unit，自写 unit 会被下次 capture 抹掉。
+- 采集：`configs/apps/noctalia/.config/noctalia/config.toml` 追加 `[system.monitor]`
+  （`cpu_temp_sensor_path=/run/user/1000/cpu-temp/temp1_input`、`cpu_poll_seconds=2.0`、
+  阈值 75/95）。路径文件名必须是 `temp*_input`，否则 Noctalia 直接报
+  `not a temp*_input file`；配了该键就**没有**自动探测兜底。
+- 过滤器判据（实测定的，不是猜的）：`Package id` 项排除；`die_wide` = 跨核中位数 ≥88 °C
+  且 ≥80% 核心 ≥90 °C 时才相信接近 Tjmax 的读数，否则剔掉 ≥95 °C；再取「共识中位数
+  +15 °C」以内的最大核心值，过 3 s 中值窗与 EMA(α=0.08) 后每秒原子写入。
+- 验证：空闲时 `raw core max=100000` 而过滤值稳定在 45.5–57.9 °C，1 s 步长最大 2584
+  微度；20 线程满载从 64.6 → 91.2 °C 平滑跟随，同期 `scaling_cur_freq` 恒在
+  3.00–3.19 GHz，无温度降频；`cooling_device*/cur_state` 全 0、`thermal_zone1` 两个 trip
+  均 `-274000`、EPP/power profile 仍是 performance。`inotify` 抓到 Noctalia 每 2.0 s
+  读一次发布文件，顶栏 OCR 出的数字与文件值一致（47/49/52 对 47649/49055/52287）。
+- 本机已按模块方式重装：脚本与 unit 现在由 `modules/cpu-temp-filter/` 投放，
+  `configs/home` 与 `configs/apps/noctalia` 同源同步。capture 顺带发现 omp 默认模型与
+  zed `cli_default_open_behavior` 两处与本任务无关的本机改动，已 revert 保持提交范围单一。
+- 已知取舍：单核满载而 die 仍凉时按 die 共识显示，偏低约 20 °C；12/14 核同时报 Tjmax
+  会被当作真过热（与真实过热不可区分，本机未出现）。`sensors`/btop 直读 hwmon 的工具
+  仍会看到 100 °C，属另一条链路，本次不处理。

@@ -1,0 +1,108 @@
+#!/usr/bin/python3
+"""Filtered CPU temperature for the Noctalia bar.
+
+coretemp on this machine is bistable: single cores and the package flip between
+a sane 45-60 C band and the 100.0 C Tjmax sentinel while the rest of the die
+stays cool, so the bar flipped between 54 and 100.  This daemon judges the die
+as a whole, drops reads that only a couple of cores back, then medians and
+exponentially smooths the surviving core maximum and publishes it as a fake
+hwmon temp input file that Noctalia reads.
+"""
+
+import os
+import sys
+import time
+from collections import deque
+from pathlib import Path
+
+HWMON = Path("/sys/class/hwmon")
+OUT_DIR = Path(os.environ.get("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")) / "cpu-temp"
+TICK = 0.25          # seconds between sensor scans
+WRITE_EVERY = 1.0    # seconds between published values
+WINDOW = 12          # median window: 3 s at TICK
+ALPHA = 0.08         # EMA per sample, about 3 s time constant
+HOT = 90000          # a core this hot counts towards "the whole die is hot"
+SENTINEL = 95000     # at or above this a read is Tjmax junk unless the whole die is hot
+SUSPECT_OK = 88000   # cross-core median required before near-Tjmax reads are believed
+DIE_WIDE = 0.8       # share of cores at HOT that makes a hot die believable
+SPREAD = 15000       # hottest core is reported at most this far above the die consensus
+
+
+def core_temps():
+    values = []
+    for hwmon in sorted(HWMON.iterdir()):
+        try:
+            if (hwmon / "name").read_text().strip() != "coretemp":
+                continue
+            for entry in sorted(hwmon.glob("temp*_input")):
+                label_file = entry.with_name(entry.name.replace("_input", "_label"))
+                label = label_file.read_text().strip() if label_file.exists() else ""
+                try:
+                    raw = int(entry.read_text().strip())
+                except ValueError:
+                    continue
+                if raw <= 0 or label.startswith("Package id"):
+                    continue
+                values.append(raw)
+        except OSError:
+            continue
+    return values
+
+
+def robust_max(values):
+    # This coretemp is bistable: single cores flip between a sane low band and
+    # the 100 C Tjmax sentinel (or a 30 C jump above their own median) while the
+    # rest of the die stays cool, so no per-reading test separates junk from a
+    # genuinely hot core -- the junk band is only ~30 C above the real one.
+    # What separates them is the die: real heat moves most cores at once, junk
+    # hits a couple.  So judge the die first, then report the hottest core no
+    # more than SPREAD above the cross-core consensus.
+    if len(values) < 3:
+        return None
+    ordered = sorted(values)
+    median = ordered[len(ordered) // 2]
+    hot_share = sum(1 for value in values if value >= HOT) / len(values)
+    die_wide = median >= SUSPECT_OK and hot_share >= DIE_WIDE
+    trusted = values if die_wide else [value for value in values if value < SENTINEL]
+    if len(trusted) < 3:
+        return None
+    consensus = sorted(trusted)[len(trusted) // 2]
+    ceiling = consensus + SPREAD
+    kept = [value for value in trusted if value <= ceiling]
+    return max(kept) if kept else None
+
+
+def publish(micro_celsius):
+    tmp = OUT_DIR / "temp1_input.tmp"
+    tmp.write_text(f"{micro_celsius}\n")
+    tmp.replace(OUT_DIR / "temp1_input")
+
+
+def main():
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    (OUT_DIR / "name").write_text("cpu_temp_filter\n")
+    (OUT_DIR / "temp1_label").write_text("Filtered core max\n")
+
+    window = deque(maxlen=WINDOW)
+    smoothed = None
+    last_write = 0.0
+    print("cpu-temp-filter: starting", flush=True)
+
+    while True:
+        now = time.monotonic()
+        try:
+            sample = robust_max(core_temps())
+            if sample is not None:
+                window.append(sample)
+                middle = sorted(window)[len(window) // 2]
+                smoothed = float(middle) if smoothed is None else smoothed + ALPHA * (middle - smoothed)
+            if smoothed is not None and now - last_write >= WRITE_EVERY:
+                publish(int(round(smoothed)))
+                last_write = now
+        except Exception as exc:  # keep the daemon alive across transient sysfs hiccups
+            print(f"cpu-temp-filter: {exc}", file=sys.stderr, flush=True)
+        time.sleep(TICK)
+
+
+if __name__ == "__main__":
+    main()

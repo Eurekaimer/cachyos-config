@@ -1,0 +1,15 @@
+[Unit]
+Description=Filtered CPU temperature (coretemp Tjmax sentinel rejection) for the status bar
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.local/bin/cpu-temp-filter
+RuntimeDirectory=cpu-temp
+RuntimeDirectoryMode=0755
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

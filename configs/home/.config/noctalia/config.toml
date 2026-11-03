@@ -177,3 +177,11 @@ dnd = false
 lock_keys = false
 keyboard_layout = false
 privacy = false
+
+# coretemp 的 Package id 0 会间歇性输出 Tjmax 哨兵值（100.0C），
+# 直接显示会 54/100 乱跳。改读 cpu-temp-filter 发布的过滤值。
+[system.monitor]
+cpu_temp_sensor_path = "/run/user/1000/cpu-temp/temp1_input"
+cpu_poll_seconds = 2.0
+cpu_temp_activity_threshold = 75.0
+cpu_temp_critical_threshold = 95.0
