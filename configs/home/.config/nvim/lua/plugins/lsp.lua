@@ -1,7 +1,6 @@
 -- Mason installs managed servers; Neovim 0.12 provides LSP configuration and completion.
 local servers = {
   "bashls",
-  "clangd",
   "gopls",
   "lua_ls",
   "pyright",

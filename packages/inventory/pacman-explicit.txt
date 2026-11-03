@@ -169,6 +169,7 @@ opencl-mesa
 opencl-nvidia
 openssh
 os-prober
+otf-monaspace
 pacman-contrib
 paru
 pavucontrol
@@ -230,6 +231,7 @@ ttf-jetbrains-mono-nerd
 ttf-liberation
 ttf-meslo-nerd
 ttf-opensans
+typst
 ufw
 ufw-extras
 umu-launcher
@@ -254,5 +256,6 @@ xdg-user-dirs
 xfsprogs
 xl2tpd
 yazi
+zed
 zip
 zotero

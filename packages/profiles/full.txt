@@ -227,6 +227,7 @@ texlive-basic
 texlive-langchinese
 texlive-latex
 texlive-latexrecommended
+typst
 zotero
 
 # [13-comms] 通讯与网盘

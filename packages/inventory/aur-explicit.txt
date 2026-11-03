@@ -13,7 +13,6 @@ sioyek-git
 ttf-lxgw-wenkai
 ttf-lxgw-wenkai-mono-nerd
 virtio-win
-visual-studio-code-bin
 wechat-bin
 yay-bin
 zoom
