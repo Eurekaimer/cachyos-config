@@ -919,3 +919,34 @@ output "eDP-1" {
 - 无界面 Neovim 实测 C/C++ 客户端附加、错误诊断、修正后清除诊断、定义跳转、
   悬停和补全；`compile_commands.json` 中的自定义头文件路径可用，Pyright 仍可附加。
   仓库快照也通过 C 文件诊断冒烟检查。未手动验证交互界面。
+
+## 33. Zed：接管 UI 字体与粘贴键，纳入应用层（2026-11-03）
+
+- 新增 `configs/apps/zed/`，纳管 `.config/zed/settings.json` 与
+  `.config/zed/keymap.json`；`otf-monaspace`（extra 仓库，1.400-1）与 `zed`
+  加入 `packages/profiles/full.txt` 的 `[06-fonts]` / `[10-editor]`，
+  `install-packages.sh` 因此会装上编辑器与 UI 字体。最小档不加 Zed：该档
+  只有 Neovim，`configs/home/` 里的 Zed 配置在无 Zed 的机器上不产生副作用。
+- UI 字体为本机手工安装的 GitHub Next `Monaspace Radon` 静态族
+  （`~/.local/share/fonts/monaspace-radon/`，14 个非 Wide 字重）。安装包
+  `otf-monaspace` 覆盖同一版本，恢复机器上由 profile 提供；本机手工目录与
+  包共存，`fc-match "Monaspace Radon"` 解析到手工那份，字体族名为
+  `Monaspace Radon`，`ui_font_weight 500` 命中的是 Medium 字重。
+- 实测设置热重载：`ui_font_family` 在 Radon 与不存在的族之间切换时整屏
+  像素 RMSE 886（同状态基线噪声 150），确认 Zed 无需重启即可用上新装字体；
+  `ui_font_size` 与 `ui_font_family` 走同一条热重载路径。截图比对已用于
+  替代目视（本会话无法读图），临时探针文件全部删除。
+- `keymap.json` 修复两处 Linux 默认键冲突：vim 模式把 `ctrl-v` 绑到
+  `vim::PushLiteral`（插入模式）/`vim::ToggleVisualBlock`（普通模式），
+  `Editor && extension == md` 又把 `ctrl-shift-v` 绑到
+  `markdown::OpenPreview`，于是 Markdown 里按 `ctrl-v` 不粘贴、按
+  `ctrl-shift-v` 弹出预览。现在 `ctrl-v` 在 `Editor` 上下文统一
+  `editor::Paste`，Markdown 的 `ctrl-shift-v` 也改为粘贴；块选择保留在
+  `ctrl-q`（vim 键位自带），预览保留在 `ctrl-k v`。
+- 排查时曾把 `editor::DefinitelyNotAnAction` 写进 keymap 探测报错通道，
+  Zed 在界面上弹出 "Errors in user keymap file" 且不写 `Zed.log`；该探针已
+  整行删除。键位语义对照上游 `assets/keymaps/{default-linux,vim}.json`
+  （v1.26.2）逐条核对，但无 `wtype`/`ydotool`，无法注入按键做行为验证，
+  最终粘贴行为需人工按一次 `ctrl-v` 确认。
+- 验证：`sync-configs.sh --to-snapshot` 重新生成 `configs/apps/zed/`、
+  `configs/home/.config/zed/` 与 `manifests/home-paths.txt`；`audit.sh` 通过。

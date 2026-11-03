@@ -50,6 +50,7 @@ dconf database.
 | WeChat | `configs/apps/wechat/` | `wechat.desktop` |
 | XDG user dirs | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
+| Zed | `configs/apps/zed/` | `.config/zed/settings.json`, `.config/zed/keymap.json` |
 
 Each application directory contains a `paths` file listing the `$HOME`-relative
 paths it owns; that list is what both the capture and the restore use. See
@@ -87,6 +88,7 @@ paths it owns; that list is what both the capture and the restore use. See
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
 | XDG user directories | `~/.config/user-dirs.dirs`, `~/.config/user-dirs.locale` | `configs/home/.config/` |
+| Zed | `~/.config/zed/settings.json`, `~/.config/zed/keymap.json` | `configs/home/.config/zed/`; `Monaspace Radon` UI font comes from `otf-monaspace` in `packages/profiles/full.txt` |
 | Zsh | `~/.zshrc`, `~/.zshenv` | `configs/home/.zshrc`, `configs/home/.zshenv`; credential export values are blanked |
 
 Restore this layer with:

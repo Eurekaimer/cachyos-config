@@ -1,0 +1,4 @@
+# Zed owns its settings and keymap. themes/ stays out: it is empty and any
+# installed extension theme lives under ~/.local/share/zed.
+.config/zed/settings.json
+.config/zed/keymap.json

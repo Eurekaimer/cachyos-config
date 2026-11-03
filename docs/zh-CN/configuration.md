@@ -47,6 +47,7 @@
 | WeChat | `configs/apps/wechat/` | `wechat.desktop` |
 | XDG 用户目录 | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
+| Zed | `configs/apps/zed/` | `.config/zed/settings.json`、`.config/zed/keymap.json` |
 
 每个应用目录下的 `paths` 文件声明它拥有的、相对 `$HOME` 的路径；采集与恢复都以
 该清单为准。各应用的改动要点见 `docs/agents/MEMORY.md`，数据流见
@@ -83,6 +84,7 @@
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers（壁纸） | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
 | XDG user directories（用户目录） | `~/.config/user-dirs.dirs`、`~/.config/user-dirs.locale` | `configs/home/.config/` |
+| Zed | `~/.config/zed/settings.json`、`~/.config/zed/keymap.json` | `configs/home/.config/zed/`；UI 字体 `Monaspace Radon` 由 `packages/profiles/full.txt` 里的 `otf-monaspace` 提供 |
 | Zsh | `~/.zshrc`、`~/.zshenv` | `configs/home/.zshrc`、`configs/home/.zshenv`；导出变量里的凭据值会被清空 |
 
 用户层恢复入口：

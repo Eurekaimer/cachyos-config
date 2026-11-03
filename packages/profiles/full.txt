@@ -144,6 +144,7 @@ cantarell-fonts
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+otf-monaspace
 ttf-bitstream-vera
 ttf-dejavu
 ttf-fantasque-nerd
@@ -178,6 +179,7 @@ nano-syntax-highlighting
 neovim
 vim
 visual-studio-code-bin
+zed
 
 # [11-cli-tools] 终端 CLI、AUR helper、文件管理、媒体
 aria2
