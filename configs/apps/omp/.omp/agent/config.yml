@@ -79,3 +79,8 @@ read:
   toolResultPreview: true
 plan:
   defaultOnStartup: true
+retry:
+  fallbackChains:
+    default:
+      - openai-codex/gpt-6.1-terra
+      - commandcode/deepseek/deepseek-v4.1-flash-fast

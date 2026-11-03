@@ -61,7 +61,7 @@ enabled = true
 directory = "/home/eurekaimer/Pictures/Wallpapers"
 fill_mode = "crop"
 fill_color = "#000000"
-transition = ["fade"]
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
 transition_duration = 1500
 edge_smoothness = 0.05
 transition_on_startup = true
@@ -107,9 +107,6 @@ lock_before_suspend = true
 fingerprint = false
 blur_intensity = 0.2
 tint_intensity = 0.16
-transition = ["fade"]
-transition_duration = 1500
-edge_smoothness = 0.3
 
 [idle.behavior.lock]
 enabled = false
