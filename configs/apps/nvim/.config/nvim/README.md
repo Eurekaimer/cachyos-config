@@ -31,8 +31,8 @@ nvim
 | 跳转定义 / 悬停文档 | `gd` / `K`（LSP 附加后） |
 | 代码操作 / 重命名 | `<leader>ca` / `<leader>cr` |
 | LSP 格式化 / Conform 文件或选区格式化 | `<leader>cf` / `<leader>cF` |
-| 当前文件关键词补全或 snippet 前进 / 后退 | `<Tab>` / `<S-Tab>` |
-| 跳出 `()` / `[]` / `{}` | `<C-Tab>`（终端备用：`<M-l>`） |
+| 当前文件关键词补全或 snippet 前进 / 后退 | `<Tab>` / `<S-Tab>`（无可跳出的括号时） |
+| 跳出 `()` / `[]` / `{}` | `<S-Tab>` / `<C-Tab>` / `<M-l>` |
 | Markdown 渲染 / 图片开关 | `<leader>mr` / `<leader>mi` |
 | 最近测试 / 当前文件测试 / 结果树 | `<leader>Tn` / `<leader>Tf` / `<leader>Ts` |
 

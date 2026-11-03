@@ -16,9 +16,9 @@ Mason 确保下表中除 `clangd` 之外的服务器已安装；所有服务器�
 | `rust_analyzer` | Rust |
 | `ts_ls` | JavaScript / TypeScript |
 
-`clangd` 需自行安装并加入 `PATH`，不由 Mason 安装；Arch 系统可安装 `clang` 包。
-项目可提供 `compile_commands.json` 或 `compile_flags.txt`，让 clangd 使用项目的编译选项
-解析头文件；缺少时使用默认参数。
+`clangd` 需自行安装并加入 `PATH`，不由 Mason 安装；Arch 系统可安装 `clang` 包
+（本机为 `/usr/bin/clangd`）。项目可提供 `compile_commands.json` 或 `compile_flags.txt`，
+让 clangd 使用项目的编译选项解析头文件；缺少时使用默认参数。
 
 Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim runtime library。支持 completion 的 server 会自动启用 Neovim 原生补全。
 
@@ -30,7 +30,8 @@ Lua LSP 已识别 `vim` 和 `Snacks` 全局变量、LuaJIT runtime 及 Neovim ru
 Python 使用 Pyright 的语义补全：`imp` 提示 `import`，`import asy` 提示 `asyncio`；
 已有 `import asyncio` 和 `event_loop` 定义时，`asy`、`event_l` 分别提示模块和变量。
 `asyncio.` 的成员补全在错字导致菜单消失后，退格修正前缀会再次出现；无需重新输入 `.`。
-`<C-Space>` 仍可手动触发，`<Tab>` / `<S-Tab>` 选择，`<Enter>` 确认，`<C-e>` 取消。
+`<C-Space>` 仍可手动触发；`<Tab>` 选择下一项，`<S-Tab>` 在没有可跳出的括号时选择上一项，
+`<Enter>` 确认，`<C-e>` 取消。
 
 ### Java
 

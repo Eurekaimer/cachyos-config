@@ -90,4 +90,3 @@ if [[ -r /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.
     source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 fi
 export PATH="$HOME/.local/bin:$PATH"
-export COMMAND_CODE_API_KEY=''
