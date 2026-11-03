@@ -924,9 +924,10 @@ output "eDP-1" {
 
 - 新增 `configs/apps/zed/`，纳管 `.config/zed/settings.json` 与
   `.config/zed/keymap.json`；`otf-monaspace`（extra 仓库，1.400-1）与 `zed`
-  加入 `packages/profiles/full.txt` 的 `[06-fonts]` / `[10-editor]`，
-  `install-packages.sh` 因此会装上编辑器与 UI 字体。最小档不加 Zed：该档
-  只有 Neovim，`configs/home/` 里的 Zed 配置在无 Zed 的机器上不产生副作用。
+  分别加入两档 `packages/profiles/*.txt` 的 `[06-fonts]` / `[10-editor]`，
+  `install-packages.sh` 因此会装上编辑器与 UI 字体。两档都收录 `zed` 与
+  `otf-monaspace`；`visual-studio-code-bin` 从完整档移除，编辑器改由
+  Zed + Neovim 承担（已装在本机的 VS Code 不卸载）。
 - UI 字体为本机手工安装的 GitHub Next `Monaspace Radon` 静态族
   （`~/.local/share/fonts/monaspace-radon/`，14 个非 Wide 字重）。安装包
   `otf-monaspace` 覆盖同一版本，恢复机器上由 profile 提供；本机手工目录与

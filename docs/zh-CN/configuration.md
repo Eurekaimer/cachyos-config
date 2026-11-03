@@ -84,7 +84,7 @@
 | Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
 | Wallpapers（壁纸） | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
 | XDG user directories（用户目录） | `~/.config/user-dirs.dirs`、`~/.config/user-dirs.locale` | `configs/home/.config/` |
-| Zed | `~/.config/zed/settings.json`、`~/.config/zed/keymap.json` | `configs/home/.config/zed/`；UI 字体 `Monaspace Radon` 由 `packages/profiles/full.txt` 里的 `otf-monaspace` 提供 |
+| Zed | `~/.config/zed/settings.json`、`~/.config/zed/keymap.json` | `configs/home/.config/zed/`；UI 字体 `Monaspace Radon` 由 `packages/profiles/` 里的 `otf-monaspace` 提供 |
 | Zsh | `~/.zshrc`、`~/.zshenv` | `configs/home/.zshrc`、`configs/home/.zshenv`；导出变量里的凭据值会被清空 |
 
 用户层恢复入口：

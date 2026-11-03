@@ -105,7 +105,7 @@ means upstream code that must stay untouched.
 | wechat | `.local/share/applications/wechat.desktop` | yes | — | — |
 | xdg-user-dirs | `.config/user-dirs.dirs`, `.config/user-dirs.locale` | both | — | `migrate-home-dirs-zh.sh` must run before `restore-user.sh` on old installs |
 | yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `init.lua`, `plugins/dirsize.yazi/` | — | Both TOMLs hold only overrides over the shipped presets (`prepend_*`/`append_*`), never full copies. `y` also writes `text/uri-list` to the Wayland clipboard through `wl-copy` (`wl-clipboard`) |
-| zed | `.config/zed/settings.json`, `.config/zed/keymap.json` | both | — | `ui_font_family` is `Monaspace Radon`, provided by `otf-monaspace` in `packages/profiles/full.txt`; `ui_font_size` 22 applies to chrome only, buffers stay on `buffer_font_*`. The keymap exists to undo two Linux defaults: vim mode binds `ctrl-v` (`vim::PushLiteral` when inserting, `vim::ToggleVisualBlock` in normal mode) and `Editor && extension == md` binds `ctrl-shift-v` to `markdown::OpenPreview`, so `ctrl-v` is rebound to `editor::Paste` and the Markdown preview stays on `ctrl-k v` |
+| zed | `.config/zed/settings.json`, `.config/zed/keymap.json` | both | — | `ui_font_family` is `Monaspace Radon`, provided by `otf-monaspace` in `packages/profiles/`; `ui_font_size` 22 applies to chrome only, buffers stay on `buffer_font_*`. The keymap exists to undo two Linux defaults: vim mode binds `ctrl-v` (`vim::PushLiteral` when inserting, `vim::ToggleVisualBlock` in normal mode) and `Editor && extension == md` binds `ctrl-shift-v` to `markdown::OpenPreview`, so `ctrl-v` is rebound to `editor::Paste` and the Markdown preview stays on `ctrl-k v` |
 
 ## Common traps and how they are handled
 

@@ -132,6 +132,7 @@ cantarell-fonts
 noto-fonts
 noto-fonts-cjk
 noto-fonts-emoji
+otf-monaspace
 ttf-bitstream-vera
 ttf-dejavu
 ttf-fantasque-nerd
@@ -151,6 +152,7 @@ google-chrome
 
 # [10-editor] 编辑器：Neovim 主力，其余为补充
 neovim
+zed
 
 # [11-cli-tools] 终端 CLI、AUR helper、文件管理、媒体
 7zip
