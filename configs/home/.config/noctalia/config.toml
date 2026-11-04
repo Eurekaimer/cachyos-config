@@ -107,6 +107,7 @@ lock_before_suspend = true
 fingerprint = false
 blur_intensity = 0.2
 tint_intensity = 0.16
+transition = ["pixel"]
 
 [idle.behavior.lock]
 enabled = false

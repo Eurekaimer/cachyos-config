@@ -42,20 +42,18 @@ meta package are left untouched.
 ## Wallpaper and transition effects
 
 The wallpaper is always `Pictures/Wallpapers/project_mifeng.png`, used by both
-`[wallpaper.default].path` and `[wallpaper.last].path`. Startup and lock-screen
-transitions are pinned to a single `fade`:
+`[wallpaper.default].path` and `[wallpaper.last].path`. The wallpaper keeps a
+rotation pool, while the lock screen is pinned to `pixel`:
 
 ```toml
 [wallpaper]
-transition = ["fade"]
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
 transition_duration = 1500
 edge_smoothness = 0.05
 transition_on_startup = true   # startup fade after login
 
 [lockscreen]
-transition = ["fade"]
-transition_duration = 1500
-edge_smoothness = 0.3
+transition = ["pixel"]
 ```
 
 `transition` is a **pool**: several values mean one is picked at random each
@@ -65,6 +63,10 @@ has its own pool, duration, and edge feathering and must be configured
 separately. Available effects: `fade`, `disc`, `stripes`, `wipe`, `honeycomb`,
 `zoom` (the lock screen also accepts `diamond`, `golden`, `melt`, `pixel`,
 `vortex`).
+
+`pixel` pins only the effect: its cell size and wave origin have no config key
+and are chosen at runtime, so the pixelated geometry can still differ between
+locks. Use `fade` or `zoom` when every lock must look identical.
 
 `config_version` in `settings.toml` must match the installed package: on
 2026-11-01 `noctalia 5.4.1` accepts only `config_version = 14`; `15` raises

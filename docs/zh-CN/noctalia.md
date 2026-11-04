@@ -39,19 +39,17 @@ Stage 6 不再回填 Noctalia 配置。profile 显式请求原生 `noctalia`，
 ## 壁纸与过渡特效
 
 壁纸统一使用 `Pictures/Wallpapers/project_mifeng.png`（`[wallpaper.default].path`
-与 `[wallpaper.last].path` 一致），开屏过渡与锁屏过渡都固定为单一 `fade`：
+与 `[wallpaper.last].path` 一致），壁纸保留轮换池，锁屏过渡固定为 `pixel`：
 
 ```toml
 [wallpaper]
-transition = ["fade"]
+transition = ["fade", "disc", "stripes", "wipe", "honeycomb"]
 transition_duration = 1500
 edge_smoothness = 0.05
 transition_on_startup = true   # 登录后开屏过渡
 
 [lockscreen]
-transition = ["fade"]
-transition_duration = 1500
-edge_smoothness = 0.3
+transition = ["pixel"]
 ```
 
 `transition` 是**候选池**，写多个值时每次随机挑一个；要固定一种就只保留
@@ -59,6 +57,9 @@ edge_smoothness = 0.3
 过渡配置互不影响，锁屏有自己的池、时长与边缘羽化，必须分别设置。
 可用效果：`fade`、`disc`、`stripes`、`wipe`、`honeycomb`、`zoom`
 （锁屏另支持 `diamond`、`golden`、`melt`、`pixel`、`vortex`）。
+
+`pixel` 固定的只是效果类型：像素块大小与波源圆心没有配置项，由运行时取值，
+因此每次锁定的像素几何仍可能不同。要求每次完全一致就用 `fade` 或 `zoom`。
 
 `settings.toml` 的 `config_version` 必须与已安装的 `noctalia` 包一致：
 2026-11-01 的 `noctalia 5.4.1` 只接受 `config_version = 14`，写成 `15`
