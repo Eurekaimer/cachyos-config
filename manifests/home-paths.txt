@@ -26,6 +26,7 @@
 .config/obs-studio/global.ini
 .config/obs-studio/plugin_manager/modules.json
 .config/obs-studio/user.ini
+.config/sioyek
 .config/starship.toml
 .config/timewarrior/extensions/totals.py
 .config/timewarrior/timewarrior.cfg

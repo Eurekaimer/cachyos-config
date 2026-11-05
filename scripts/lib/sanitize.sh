@@ -40,6 +40,10 @@ sanitize_runtime_state() {
     find "$root/.config/koreader" -type f \
         \( -name '*.old' -o -name '*.bak-*' \) -delete 2>/dev/null || true
 
+    # Plugin-generated config backups are machine-local history.
+    find "$root/.config/sioyek" -maxdepth 1 -type f \
+        -name '*.sioyek-ecdict-backup-*' -delete 2>/dev/null || true
+
     # Reader settings carry the last-opened book and last directory, which are
     # recent-file runtime state just like history.lua.
     if [[ -f "$root/.config/koreader/settings.reader.lua" ]]; then
