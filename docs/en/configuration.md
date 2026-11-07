@@ -117,6 +117,13 @@ to another reviewed CachyOS installation.
 | UFW | `/etc/default/ufw`, `/etc/ufw/ufw.conf`, `user.rules`, `user6.rules` |
 | X11 keyboard | `/etc/X11/xorg.conf.d/00-keyboard.conf` |
 
+The console keymap is pinned to `KEYMAP=us`: `kbd` ships no Chinese console layout, so
+`loadkeys cn` fails with `Unable to open file: cn` and `systemd-vconsole-setup` exits 1
+(one flash of `Failed to start Virtual Console Setup` at boot). Chinese input belongs to
+fcitx5 in the GUI; `XKBLAYOUT=cn` only affects X11 and must stay. The `sd-vconsole` hook
+embeds `/etc/vconsole.conf` into the initramfs, so any edit must be followed by an
+initramfs rebuild (`update-initramfs`), otherwise the initramfs stage keeps the old value.
+
 Restore this layer with:
 
 ```bash
@@ -183,6 +190,19 @@ Capture and restore manage only this file, not the surrounding Clash directory.
 Exit Clash Verge before restoring it, then reopen the application to regenerate
 the effective configuration. Use Rule mode; Global mode bypasses these rules.
 Subscriptions and credentials must be restored separately.
+
+### Libvirt: no daemon at boot
+
+`libvirtd.service` is deliberately **absent** from `packages/services/system.txt`. Boot only
+enables `libvirtd{,-ro,-admin}.socket`, `virtlockd{,-admin}.socket` and
+`virtlogd{,-admin}.socket` for socket activation; the daemon starts on the first real client
+connection. `QEMU-win10` lives in `qemu:///session`, has no autostart
+(`~/.config/libvirt/qemu/autostart/` does not exist), and is started only by hand with
+`~/Downloads/QEMU-win10/manage.sh start`.
+
+Trade-off: the `virbr0` NAT network no longer appears at boot but comes up with the daemon
+on first system-level libvirt use; that domain uses `<interface type='user'>` and does not
+need `virbr0`. Roll back with `sudo systemctl enable --now libvirtd.service`.
 
 ## Excluded from the public repository
 

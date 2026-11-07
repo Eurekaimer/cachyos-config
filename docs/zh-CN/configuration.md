@@ -113,6 +113,12 @@
 | UFW | `/etc/default/ufw`、`/etc/ufw/ufw.conf`、`user.rules`、`user6.rules` |
 | X11 keyboard（键盘） | `/etc/X11/xorg.conf.d/00-keyboard.conf` |
 
+控制台键盘映射固定 `KEYMAP=us`：`kbd` 没有中文控制台布局，`loadkeys cn` 会
+`Unable to open file: cn` 并让 `systemd-vconsole-setup` 以 exit 1 失败（开机闪一行
+`Failed to start Virtual Console Setup`）；中文输入由 GUI 的 fcitx5 负责，`XKBLAYOUT=cn`
+只影响 X11、必须保留。`sd-vconsole` 钩子把 `/etc/vconsole.conf` 打进 initramfs，
+所以改完该文件必须重建 initramfs（`update-initramfs`），否则 initramfs 阶段仍按旧值报错。
+
 系统层恢复入口：
 
 ```bash
@@ -173,6 +179,20 @@
 采集和恢复只管理这个文件，不覆盖整个 Clash 目录。恢复前退出 Clash Verge，
 恢复后重新打开应用以生成生效配置。须使用「规则模式」，「全局模式」会绕过这些规则。
 订阅和凭据需要单独恢复。
+
+### Libvirt：守护进程不进开机
+
+`libvirtd.service` **不**纳入 `packages/services/system.txt`。开机只启用
+`libvirtd{,-ro,-admin}.socket`、`virtlockd{,-admin}.socket`、`virtlogd{,-admin}.socket`
+做按需激活，真正有客户端连接时才拉起守护进程。`QEMU-win10` 定义在 `qemu:///session`，
+无 autostart（`~/.config/libvirt/qemu/autostart/` 不存在），只能
+`~/Downloads/QEMU-win10/manage.sh start` 手动启动。
+
+代价：`virbr0` 默认 NAT 网络不再随开机出现，首次使用系统级 libvirt 时随守护进程出现；
+该域用 `<interface type='user'>`，不依赖 `virbr0`。`restore-services.sh` 只负责 enable，
+不负责 disable：目标机器若此前已 enable 过 `libvirtd.service`，恢复后需手动执行
+`sudo systemctl disable --now libvirtd.service`。回滚只需
+`sudo systemctl enable --now libvirtd.service`。
 
 ## 明确不进入公开仓库
 

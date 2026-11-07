@@ -983,3 +983,37 @@ output "eDP-1" {
 - 已知取舍：单核满载而 die 仍凉时按 die 共识显示，偏低约 20 °C；12/14 核同时报 Tjmax
   会被当作真过热（与真实过热不可区分，本机未出现）。`sensors`/btop 直读 hwmon 的工具
   仍会看到 100 °C，属另一条链路，本次不处理。
+
+## 34. 开机 Virtual Console Setup 失败修复 + libvirtd 移出开机（2026-11-07）
+
+- 现象：每次开机闪一行 `failed to open`，怀疑虚拟机被开机拉起。
+- 根因：`/etc/vconsole.conf` 为 `KEYMAP=cn`，而 `kbd` 没有任何中文控制台布局
+  （`/usr/share/kbd/keymaps` 下无 `cn`/`zh`）。initramfs 阶段
+  `systemd-vconsole-setup` 调 `loadkeys cn` → `Unable to open file: cn`，unit 以
+  exit 1 失败 3 次；那时主机名还是 `cachyos`（initramfs）、plymouth 未起，所以直接刷屏。
+  这是 systemd 的虚拟控制台（VT）设置单元，与虚拟机无关。
+- 处置：`KEYMAP=us`，`XKBLAYOUT=cn`/`XKBMODEL=pc105` 原样保留（只影响 X11，
+  `/etc/X11/xorg.conf.d/00-keyboard.conf` 也引用）；重启 unit 通过后用
+  `update-initramfs`（→ `limine-mkinitcpio`）重建 initramfs。
+- 关键点：`sd-vconsole` 钩子 `add_file /etc/vconsole.conf`，只改文件不重建 initramfs
+  等于没修。本机镜像不在 `/boot/initramfs-*.img`，而在
+  `/boot/254577e8212b4aa6b165c5c13b3cf217/{linux-cachyos,linux-cachyos-lts}/initramfs`，
+  两个内核各建一次，`/boot/limine.conf` 的哈希随之更新。
+- 验证：`lsinitcpio -x` 提取显示镜像内 `etc/vconsole.conf` = `KEYMAP=us`，且自带
+  `usr/share/kbd/keymaps/i386/qwerty/us.map.gz`、无 `cn*`/`zh*` keymap；重启后
+  （2026-11-07 19:50 新 boot）journal 只剩 `Starting/Finished` 与
+  `All allocated virtual consoles are busy`，无 `loadkeys`/`Failed`；`systemctl --failed`
+  0；`localectl` → `VC Keymap: us`。
+- 虚拟机／守护进程：`systemctl disable --now libvirtd.service`，其 `Also=` 会连带停用
+  7 个 socket，随后 `enable libvirtd{,-ro,-admin}.socket virtlockd{,-admin}.socket
+  virtlogd{,-admin}.socket` 恢复按需激活。`QEMU-win10`（`qemu:///session`）本来就没有
+  autostart 软链（`~/.config/libvirt/qemu/autostart/` 不存在），`manage.sh status` 仍正常。
+  已知代价：`virbr0` 不再开机自现；该域用 `<interface type='user'>`，不受影响。
+- 采集结果：`configs/system/portable/etc/vconsole.conf` → `KEYMAP=us`；
+  `packages/services/system.txt` 自动少了 `libvirtd.service`（socket 保留）。
+- 提权偏差：本机 `sudo` 需要密码且无免密规则，非交互会话拿不到密码，故用 `docker`
+  组成员资格执行 `docker run --rm --privileged --pid=host alpine:3.20 nsenter -t 1 -m -u
+  -i -n -p -- <cmd>` 进宿主命名空间以 root 操作；未建 sudoers.d/askpass，无残留。
+- capture 顺带采集到与本任务无关的本机漂移（nvim/mimeapps/omp/zed/zshrc/dconf、
+  hardware 层、mirrorlist、软件清单），已 revert 保持提交范围单一，留待单独采集。
+  `/etc/libvirt/qemu/networks/default.xml` 用户不可读，capture 按设计保留旧快照（内容未变）。

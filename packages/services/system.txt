@@ -12,7 +12,6 @@ fstrim.timer
 intel_lpmd.service
 libvirtd-admin.socket
 libvirtd-ro.socket
-libvirtd.service
 libvirtd.socket
 limine-snapper-sync.service
 remote-fs.target
