@@ -40,13 +40,34 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
   the installed package accepts.** `noctalia 5.4.1` accepts `14` and rejects
   `15` with “Config Error: version 15 is newer than version 14”; a snapshot
   captured under an older binary can therefore break a restore. Check the first
-  line after restoring it.
+  line after restoring it. Observed 2026-11-07: this workstation runs
+  `noctalia 5.4.0-1.1` and accepts `config_version = 16`, so a snapshot taken
+  here can be rejected by an older laptop build — the shell then falls back to
+  default bar/tray layout, which looks like "the config did not sync".
 - **Wallpaper and transitions are declarative.** `[wallpaper.default].path` and
   `[wallpaper.last].path` are both
   `Pictures/Wallpapers/project_mifeng.png`. `transition` is a candidate pool,
   so a single entry pins the effect: `[wallpaper]` and `[lockscreen]` each hold
   `transition = ["fade"]`; the lock screen has its own duration and edge
   smoothness and does not inherit from `[wallpaper]`.
+- **`/etc/vconsole.conf` must name a keymap `kbd` actually ships.** `KEYMAP=cn`
+  does not exist (`/usr/share/kbd/keymaps` has no `cn`/`zh`), so the initramfs
+  stage of `systemd-vconsole-setup` fails with `loadkeys: Unable to open file:
+  cn` three times before plymouth hides it — that is the "failed to open" line
+  seen at boot, and it is a virtual console unit, not a virtual machine. The
+  console is pinned to `us`; `XKBLAYOUT=cn` stays because it only drives X11
+  (`/etc/X11/xorg.conf.d/00-keyboard.conf` reads it too). The `sd-vconsole` hook
+  embeds the file into the initramfs, so editing it requires
+  `update-initramfs` (`limine-mkinitcpio`; images land in
+  `/boot/<machine-id>/<kernel>/initramfs`, not `/boot/initramfs-*.img`).
+- **`libvirtd.service` is deliberately not enabled.** Only the libvirt sockets
+  (`libvirtd{,-ro,-admin}.socket`, `virtlockd{,-admin}.socket`,
+  `virtlogd{,-admin}.socket`) are enabled, so the daemon starts on the first real
+  client connection. `QEMU-win10` lives in `qemu:///session`, has no autostart
+  link, and is started by hand with `manage.sh start`; `virbr0` therefore appears
+  only when system-level libvirt is first used. `restore-services.sh` only
+  enables, so a machine that already had the daemon enabled needs
+  `sudo systemctl disable --now libvirtd.service` after restoring.
 - **TeX Live is exactly four packages**: `texlive-basic texlive-latex
   texlive-latexrecommended texlive-langchinese`. `xelatex` and its
   `xelatex.ini` format definition ship in `texlive-basic`; `texlive-xetex`
