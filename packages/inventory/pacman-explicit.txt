@@ -155,7 +155,6 @@ nilfs-utils
 noctalia-qs
 noctalia-shell
 noto-fonts
-noto-fonts-cjk
 noto-fonts-emoji
 npm
 nss-mdns

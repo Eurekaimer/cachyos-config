@@ -142,7 +142,6 @@ fcitx5-qt
 awesome-terminal-fonts
 cantarell-fonts
 noto-fonts
-noto-fonts-cjk
 noto-fonts-emoji
 otf-monaspace
 ttf-bitstream-vera

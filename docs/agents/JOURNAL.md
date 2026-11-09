@@ -1017,3 +1017,11 @@ output "eDP-1" {
 - capture 顺带采集到与本任务无关的本机漂移（nvim/mimeapps/omp/zed/zshrc/dconf、
   hardware 层、mirrorlist、软件清单），已 revert 保持提交范围单一，留待单独采集。
   `/etc/libvirt/qemu/networks/default.xml` 用户不可读，capture 按设计保留旧快照（内容未变）。
+
+## 35. Steam CJK tofu fixed by font substitution to LXGW WenKai; fontconfig drift synced (2026-11-09)
+
+- Symptom: the Steam client (new CEF UI / `steamwebhelper`, launched with `-lang=zh_CN`) rendered CJK as tofu (empty boxes) on the Downloads/Updates page.
+- Root cause: `noto-fonts-cjk` had been installed and was then deliberately removed by the user, who disliked it. Steam's CEF runs inside a pressure-vessel (Flatpak-like) container that ignores system-wide fontconfig (`/etc/fonts`) and only reads the per-user `~/.config/fontconfig/fonts.conf`. The UI CSS requests `Motiva Sans, Arial, Helvetica, sans-serif`; `Arial`/`Helvetica` metric-alias to Liberation Sans (no CJK glyphs), so CJK rendered as tofu. Confirmed against the runtime's own fontconfig: `fc-match 'Arial'` -> Liberation Sans, while CEF did not fall back per-character for the primary text run.
+- Fix (no packages downloaded or installed): in `~/.config/fontconfig/fonts.conf`, map the families Steam asks for to the already-installed LXGW WenKai — `Arial`, `Helvetica`, `Motiva Sans` (+ `* fallback`), `Segoe UI`, `Tahoma`, `Verdana`, `Liberation Sans`, `DejaVu Sans`, `Noto Sans`/`Noto Sans CJK *`/`Noto Sans SC/TC/JP/KR`, `Source Han Sans/Serif *`, `PingFang *`, `Droid Sans Fallback`, `WenQuanYi *`. Set generic `sans-serif`/`sans`/`serif` -> LXGW WenKai, and `monospace` -> Monaspace Xenon (+ LXGW WenKai Mono for CJK). Verified under the Steam runtime config: `Arial`, `Motiva Sans`, and the full `Motiva Sans,Arial,Helvetica,sans-serif` stack now resolve to LXGW WenKai.
+- Repo: synced the extended `fonts.conf` to `configs/apps/fontconfig/.config/fontconfig/fonts.conf` and `configs/home/.config/fontconfig/fonts.conf` (both 749 lines). Removed the no-longer-installed `noto-fonts-cjk` from `packages/profiles/full.txt`, `packages/profiles/minimal.txt`, `packages/inventory/pacman-explicit.txt` so profile syncs no longer reinstall a package the user deliberately removed.
+- References: ValveSoftware/steam-for-linux#10422 (CEF ignores system fontconfig, honors per-user `~/.config/fontconfig`), NixOS/nixpkgs#312268 (CEF queries `Arial`, not `sans-serif`).
