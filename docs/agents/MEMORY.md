@@ -23,6 +23,20 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **`packages/inventory/`, `packages/services/`, `packages/toolchains/` are
   capture output.** Only `packages/profiles/` and `packages/required-extra.txt`
   are installer inputs.
+- **"Directly installed" is a package count; software is fewer.** `pacman -Qe`
+  reports 277 packages on 2026-11-10, yet `scripts/pkgcensus.sh` merges them
+  into 134 software entries (38 apps, 71 tools/runtimes, 25 system/desktop
+  groups) plus 6 non-pacman items (cargo 4, go 1, uv 1) for 140 total.
+  Counting packages overstates what a user calls installed software, because
+  installer-explicit packages arrive as separate units: fcitx5 is seven
+  packages, texlive is six, the nvidia stack seven. The merge table at the top
+  of the script is the only place this mapping lives; any explicitly installed
+  package missing from it is printed as a trailing section, which is the signal
+  to extend the table. `packages/inventory/software-census.txt` is capture
+  output — refresh with
+  `./scripts/pkgcensus.sh > packages/inventory/software-census.txt`. The script
+  is read-only: it prints `sudo pacman -Rns` suggestions and never removes,
+  installs, or writes outside `mktemp -d`.
 - **The sync baseline is per machine, not per application.** Read
   `~/.local/state/cachyos-config/sync-record.txt` first; it records a revision
   plus managed-content/path hashes and must never be committed. A clean
