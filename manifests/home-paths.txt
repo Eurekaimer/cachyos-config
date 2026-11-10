@@ -43,6 +43,7 @@
 .local/bin/sioyek
 .local/share/applications/neovim-markdown.desktop
 .local/share/applications/wechat.desktop
+.local/share/applications/wine.desktop
 .local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js
 .local/share/niri/hotkeys-zh.txt
 .local/share/noctalia/plugins/storage-gb

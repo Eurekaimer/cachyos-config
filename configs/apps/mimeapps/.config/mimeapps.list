@@ -37,6 +37,8 @@ x-scheme-handler/baiduyunguanjia=baidunetdisk.desktop
 text/plain=org.kde.kate.desktop
 x-scheme-handler/book=book-open.desktop
 application/epub+zip=com.github.johnfactotum.Foliate.desktop
+application/vnd.microsoft.portable-executable=wine.desktop
+application/x-ms-dos-executable=wine.desktop
 
 [Added Associations]
 text/plain=org.kde.kate.desktop;
@@ -48,3 +50,5 @@ application/comicbook+zip=com.github.johnfactotum.Foliate.desktop;
 application/vnd.comicbook+rar=com.github.johnfactotum.Foliate.desktop;
 application/x-cbr=com.github.johnfactotum.Foliate.desktop;
 application/epub+zip=rocks.koreader.KOReader.desktop;
+application/vnd.microsoft.portable-executable=wine.desktop;
+application/x-ms-dos-executable=wine.desktop;
