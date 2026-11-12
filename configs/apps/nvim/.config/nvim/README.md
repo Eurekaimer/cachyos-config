@@ -31,8 +31,8 @@ nvim
 | 跳转定义 / 悬停文档 | `gd` / `K`（LSP 附加后） |
 | 代码操作 / 重命名 | `<leader>ca` / `<leader>cr` |
 | LSP 格式化 / Conform 文件或选区格式化 | `<leader>cf` / `<leader>cF` |
-| 当前文件关键词补全或 snippet 前进 / 后退 | `<Tab>` / `<S-Tab>`（无可跳出的括号时） |
-| 跳出 `()` / `[]` / `{}` | `<S-Tab>` / `<C-Tab>` / `<M-l>` |
+| 当前文件关键词补全或 snippet 前进 / 后退 | `<Tab>` / `<S-Tab>` |
+| 跳出 `()` / `[]` / `{}` | `<C-Tab>`（终端备用：`<M-l>`） |
 | Markdown 渲染 / 图片开关 | `<leader>mr` / `<leader>mi` |
 | 最近测试 / 当前文件测试 / 结果树 | `<leader>Tn` / `<leader>Tf` / `<leader>Ts` |
 
@@ -93,8 +93,8 @@ init.lua
 - Snacks、Aerial、which-key、括号层级配色、自动保存、LuaSnip、Java 与刷题功能保留；未额外添加 Gitsigns、mini.ai 或 TODO 插件。
 - 增减功能直接编辑 `lua/plugins/` 中对应规格；删除插件时一并清理键位、依赖和文档。确认后用 `:Lazy clean` 清理不再引用的安装目录，不必清空整个 Neovim 数据目录。
 
-备份仓库：`~/Documents/GitHub/cachyos-config/`。Neovim 权威源为
-`configs/apps/nvim/.config/nvim/`，`configs/home/.config/nvim/` 是生成镜像，
-路径清单由 `configs/apps/nvim/paths` 与 `manifests/home-paths.txt` 管理。
-只同步 Neovim 时应保持两份目录一致，包括 `docs/`、`lua/`、`lazy-lock.json`
+备份仓库：`~/Documents/GitHub/cachyos-config/`。Neovim 唯一副本为
+`configs/apps/nvim/.config/nvim/`（没有生成镜像），路径清单由
+`configs/apps/nvim/paths` 与 `manifests/home-paths.txt` 管理。
+同步时保持该目录与 `~/.config/nvim/` 一致，包括 `docs/`、`lua/`、`lazy-lock.json`
 与 `maven-settings.xml`，不要包含 LeetCode Cookie 缓存。

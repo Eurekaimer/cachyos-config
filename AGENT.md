@@ -1,29 +1,23 @@
 # AGENT.md —— 全自动恢复运行手册（供 AI Agent 直接读取执行）
 
 > 目标：`git clone` 本仓库后，Agent 依照本文件按序执行脚本即可一键复原整台 CachyOS 笔记本。
-> 原则：**能用仓库脚本就不要手搓命令**；每步执行后必须验证再进下一步；任何脚本无法覆盖的偏差记入 `docs/agents/JOURNAL.md`。
+> 原则：**能用仓库脚本就不要手搓命令**；每步执行后必须验证再进下一步；任何脚本无法
+> 覆盖的偏差写进该步的提交说明。
 
-# 检测并导出代理（唯一实现：scripts/lib/proxy.sh；install-packages.sh 会自动调用）
+## 1. 前置：代理、基础工具链、子模块
+
+代理只有一个实现：`scripts/lib/proxy.sh`（`install-packages.sh` 顶部会自动调用）。
+
+```bash
 source scripts/lib/proxy.sh && setup_proxy
 git config --global http.proxy http://127.0.0.1:7897
 git config --global https.proxy http://127.0.0.1:7897
 ```
-（家目录 shell 不再内联代理检测块：代理改由 Clash Verge 与应用自身/`git config` 承担，
-仓库脚本统一走 lib，改端口只动 `PROXY_HOST` / `PROXY_PORT` 环境变量即可。）
 
 > 校验：`curl -x http://127.0.0.1:7897 -s -o /dev/null -w '%{speed_download}\n' --max-time 15 https://github.com/` 应 >100000（B/s）。
-# 检测并导出代理（install-packages.sh 顶部已内置同款检测，手工操作前也要执行）
-if (command -v ss >/dev/null 2>&1 && ss -tln 2>/dev/null | grep -q '127.0.0.1:7897') || (nc -z 127.0.0.1 7897 2>/dev/null); then
-    export http_proxy=http://127.0.0.1:7897 https_proxy=http://127.0.0.1:7897
-    export HTTP_PROXY=http://127.0.0.1:7897 HTTPS_PROXY=http://127.0.0.1:7897
-    export all_proxy=socks5h://127.0.0.1:7897 ALL_PROXY=socks5h://127.0.0.1:7897
-    export no_proxy=localhost,127.0.0.1,::1,.local
-fi
-git config --global http.proxy http://127.0.0.1:7897
-git config --global https.proxy http://127.0.0.1:7897
-```
 
-> 校验：`curl -x http://127.0.0.1:7897 -s -o /dev/null -w '%{speed_download}\n' --max-time 15 https://github.com/` 应 >100000（B/s）。
+家目录 shell 不再内联代理检测块：代理由 Clash Verge 与应用自身/`git config` 承担，
+改端口只动 `PROXY_HOST` / `PROXY_PORT` 环境变量。
 
 ```bash
 # 基础工具链（LiveCD/新系统可能缺）
@@ -31,32 +25,24 @@ sudo pacman -S --needed --noconfirm git base-devel
 
 # AUR helper：paru（仓库脚本 install-packages.sh 会自动探测 paru 并加 --noconfirm）
 git clone https://aur.archlinux.org/paru.git /tmp/paru && cd /tmp/paru && makepkg -si --noconfirm
-```
 
-检查点：
-- `command -v paru` 有输出
-- `./scripts/audit.sh` 退出码 0
-
-`restore-all.sh` 的 Stage 0 已自动执行下面的初始化，单独跑 Stage 4 前手动执行一次：
-
-```bash
+# SDDM 主题子模块；restore-all.sh 的 Stage 0 也会自动初始化
 git submodule update --init --recursive
 test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 ```
 
-```bash
-git submodule update --init --recursive
-test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
-```
+检查点：`command -v paru` 有输出；`./scripts/audit.sh` 退出码 0。
 
 排错：github.com 超时/SSL EOF 时，从任意旧克隆拷贝整个目录内容到
 `modules/sddm/sugar-candy/`（只需文件存在即可过 `sync-sddm-theme.sh` 的存在性检查）。
-字体类大文件走 §0 代理直拉（见 §6），不再有 vendor 离线包。
+字体类大文件走上面的代理直拉（见 §6），没有 vendor 离线包。
 
 ## 2. 执行顺序（两条路线）
 
 ### 路线 A：完整一键（推荐，机器不急时）
 
+| Stage | 实现 | 内容 |
+|---|---|---|
 | 0 | 内置（无独立脚本） | 前置：`ensure_sudo` 检查 + `git submodule update --init --recursive` |
 | 1 | `scripts/install-packages.sh` | 按选定 profile 安装（含原生 noctalia，不显式拉旧 qs/shell）|
 | 2 | `scripts/restore-system.sh` | 系统配置（sudo；结尾 daemon-reload/locale-gen/mkinitcpio -P）|
@@ -65,20 +51,15 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 | 5 | `scripts/restore-services.sh` | systemctl enable 系统/用户单元 |
 | 6 | `scripts/post-restore-tweaks.sh` | 关闭支持的电池充电阈值（允许充至 100%）+ eDP-1 缩放 + 可选原生 Noctalia 壁纸/fcitx5 重启；不回填旧配置 |
 
-可选参数：`--migrate-zh-dirs`（Stage 0 顺带迁移中文家目录）、`--wallpaper FILE`（Stage 6 设壁纸）、
-`--restart-fcitx5`（Stage 6 重启输入法）、`--now`、`--skip-aur`、`--no-backup`、`--dry-run`。
-| 1 | `scripts/install-packages.sh` | paru 装 pacman-explicit + aur-explicit 全量 |
-| 2 | `scripts/restore-system.sh` | 系统配置（sudo；结尾 daemon-reload/locale-gen/mkinitcpio -P）|
-| 3 | `scripts/restore-user.sh` | 家目录配置替换 + dconf |
-| 4 | `scripts/sync-sddm-theme.sh --from-snapshot` | SDDM Sugar Candy 主题 |
-| 5 | `scripts/restore-services.sh` | systemctl enable 系统/用户单元 |
+可选参数：`--wallpaper FILE`（Stage 6 设壁纸）、`--restart-fcitx5`（Stage 6 重启输入法）、
+`--now`、`--skip-aur`、`--no-backup`、`--dry-run`。
 
 ### 路线 B：最快可用桌面（用户在旁边等时，按依赖优先级拆开跑）
 
 用户指定的优先级：**浏览器/常用应用 → 中文输入法 → 前端外壳(noctalia)**。
 
 ```bash
-# B1. 应用层（含 google-chrome/linuxqq/wechat-bin/zoom，全在 aur-explicit.txt）
+# B1. 应用层（google-chrome/linuxqq/wechat-bin/zoom 等）
 ./scripts/install-packages.sh                 # 幂等，一次装完所有包
 
 # B2. 用户配置层（fcitx5 双拼/classicui、niri 键位、noctalia 配置、壁纸）
@@ -126,45 +107,47 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 3. `restore-all.sh` 尾行 `== Full restore complete`
 4. `systemctl list-unit-files | grep -Fxf packages/services/system.txt` 抽查 enabled
 5. `niri validate -c ~/.config/niri/config.kdl` 通过
-6. `docs/agents/JOURNAL.md` 记录了本次所有 warning/偏差
+6. `./scripts/audit.sh` 通过（发布前必跑）
 
 ## 5. 排错决策树
-
 
 | 症状 | 根因 | 处理 |
 |---|---|---|
 | `sudo: 非交互管道下秒败 "需要密码"` | stdin 未送达（非密码错误） | 用 `SUDO_ASKPASS` 脚本 + `sudo -A <cmd>`；或临时 NOPASSWD sudoers.d 文件（结束必删） |
 | Stage 0 前置失败（error: Preflight failed） | 非交互会话无免密 sudo | 配临时 NOPASSWD 后重跑 restore-all |
 | Stage 4 die: Sugar Candy missing | 子模块未初始化 | 见 §1（Stage 0 已自动处理） |
-| GitHub 连接超时/SSL EOF | 直连被墙/抖动 | proxy 已有(clash verge)则查规则；否则用 vendor/ 或旧克隆离线救 |
+| GitHub 连接超时/SSL EOF | 直连被墙/抖动 | proxy 已有(clash verge)则查规则；否则用旧克隆离线救 |
 | paru 卡死/锁冲突 | 上一个 paru/pacman 未退出 | `pgrep -af 'paru\|pacman'` 确认后等待或清 `/var/lib/pacman/db.lck` |
 | Caps/Super+Space 无反应 | 原生 Noctalia 没起或键位仍指向旧 qs | 检查 niri 的 `noctalia msg panel-toggle launcher`；用 `noctalia --daemon` 启动 |
 | 候选框字体不对 | LXGW 未装/未刷新缓存 | `pacman -Q ttf-lxgw-wenkai ttf-lxgw-wenkai-mono-nerd`; `fc-cache -f` |
-| 单个 AUR 包反复构建失败 | 上游问题 | 从列表剔除该包单独装其余，记录 docs/agents/JOURNAL.md |
+| 单个 AUR 包反复构建失败 | 上游问题 | 从列表剔除该包单独装其余，并在提交说明里记一笔 |
 | `冲突的软件包将需要手动确认` | 包文件冲突 | 从清单剔除冲突包名，保留已装好的同名包 |
-| `无法找到所有需要的软件包: X` | X 在 AUR 不存在 | 从清单剔除 X，记录 docs/agents/JOURNAL.md |
+| `无法找到所有需要的软件包: X` | X 在 AUR 不存在 | 从清单剔除 X，并在提交说明里记一笔 |
 | 壁纸/配色恢复后被回退 | 快照未采集当前 GUI 覆盖，或仍使用旧回填命令 | 检查 `.local/state/noctalia/settings.toml`；采集正确状态，不从旧备份回填 |
 
 ## 6. 字体下载（无需 vendor）
 
 `ttf-lxgw-wenkai{,-mono-nerd}` 的 PKGBUILD 要现拉 ~140MB GitHub release。
-走 §0 代理实测 ~5MB/s，直接让 paru/makepkg 拉即可；`vendor/fonts/` 离线包方案
-已随 2026-08-25 重构移除（无脚本消费，纯冗余）。GitHub 完全不可达时才考虑旧克隆离线兜底。
+走 §1 代理实测 ~5MB/s，直接让 paru/makepkg 拉即可；离线包方案已移除。
+GitHub 完全不可达时才考虑旧克隆离线兜底。
 
 ## 7. 明确不要做的事
 
-- 不传 `--with-hardware`（fstab/hostname 是机器绑定的）
 - 不自动 reboot——最后提示用户自己重启
-- 不跳过备份（默认备份到 `~/.local/state/cachyos-config/backups/<ts>/`）
-- 临时提权文件（sudoers.d/askpass）用完必须删除并在 docs/agents/JOURNAL.md 记录
+- 不跳过备份（用户层备份到 `~/.local/state/cachyos-config/backup/home`，
+  系统层备份到 `/var/backups/cachyos-config`；两者每次恢复前清空，只留一份）
+- 临时提权文件（sudoers.d/askpass）用完必须删除
+- 不让备份目录里堆积多代副本：恢复脚本只保留一份，模块安装器同理
+
 Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`，
 不是 QuickShell 的 `noctalia-shell`。配置底层在 `~/.config/noctalia/config.toml`
 和 `widgets.toml`，GUI 保存到 `~/.local/state/noctalia/settings.toml` 并覆盖底层值；
 本地插件 `~/.local/share/noctalia/plugins/storage-gb` 也纳管。
 
-仓库使用**复制快照，不是软链接或自动同步**：`configs/apps/noctalia/` 为源，
-`configs/home/` 为生成副本，`restore-user.sh` 复制部署。GUI 修改保存后运行
-`./scripts/capture.sh` 更新快照，再 `./scripts/audit.sh` 检查后发布。
+仓库使用**复制快照，不是软链接或自动同步**：`configs/apps/noctalia/` 是唯一副本，
+`restore-user.sh` 直接从它复制部署。GUI 修改保存后运行 `./scripts/capture.sh` 更新快照，
+再 `./scripts/audit.sh` 检查后发布。托管路径与当前软件版本见
+`docs/en|zh-CN/configuration.md`。
 
 状态栏 CPU 温度取 `config.toml` 里 `[system.monitor].cpu_temp_sensor_path`
 （指向 `/run/user/1000/cpu-temp/temp1_input`），该文件由可选模块
@@ -182,22 +165,17 @@ uid 不是 1000 的机器要把 `config.toml` 里那一行改成自己的
 `$XDG_RUNTIME_DIR/cpu-temp/temp1_input` 再 `noctalia msg config-reload`。
 该模块只做读数的过滤与平滑，不引入任何按温度降频的逻辑。
 
-维护一套最新配置时，不要每次全量比对：每次 capture / 用户恢复 / 完整恢复都会写入
-`~/.local/state/cachyos-config/sync-record.txt`（本机状态，绝不提交）。Agent 直接读它：
+维护配置时不需要每次全量比对：
 
 ```bash
-./scripts/sync-status.sh           # clean/dirty/pending/rewritten + 待处理文件数（0/1/2 退出码）
-./scripts/sync-status.sh --files   # 变化的仓库文件（只是清单，不是全量扫描）
-./scripts/sync-status.sh --paths   # 对应纳管 $HOME 路径
-./scripts/sync-configs.sh --check  # 仅在需要确认实时 $HOME 是否被改动时使用
+./scripts/sync-configs.sh --check  # 确认实时 $HOME 是否被改动（不改文件，差异时退出码 1）
+./scripts/capture.sh               # 采集本机改动
+./scripts/audit.sh                 # 发布前检查
 ```
 
-`clean` 表示仓库等于本机上次对齐的快照（提交只搬 revision，不改内容，故仍然 clean）；
-`pending` 表示上次同步后落了新提交；`dirty` 表示本机有未提交的纳管改动；
-`rewritten` 表示记录提交不是 HEAD 祖先，必须重新完整审核。
 不要将 GUI 覆盖简单并入 `config.toml`，也不要回填历史 `settings.json`、
 `colors.json`、`colorschemes/`、旧 `config.toml`，否则会回滚当前配置。
-不要卸载已安装旧软件包，也不要改动 CachyOS meta 包。
+不要卸载仍被 profile 需要的软件包，也不要改动 CachyOS meta 包。
 
 KOReader 配置恢复必须保留目标机器已有的 `data/dict`，包括 `--no-backup`；
 已有词典整目录优先于快照，词典内容不参与 home 路径改写。词典软链接在恢复时

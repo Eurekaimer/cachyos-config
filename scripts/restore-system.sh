@@ -7,19 +7,18 @@ source "$SCRIPT_DIR/lib/restore.sh"
 
 require_non_root_user
 
-include_hardware=0
 while (($#)); do
     case "$1" in
         --dry-run) DRY_RUN=1 ;;
         --no-backup) BACKUP_ENABLED=0 ;;
-        --with-hardware) include_hardware=1 ;;
         -h|--help)
             cat <<'EOF'
-Usage: scripts/restore-system.sh [--dry-run] [--no-backup] [--with-hardware]
+Usage: scripts/restore-system.sh [--dry-run] [--no-backup]
 
-Directly replaces portable /etc snapshots. --with-hardware additionally replaces
-/etc/fstab and /etc/hostname and is only safe for the same disks/host layout.
-Location-generated reference files such as mirrorlist are never auto-restored.
+Directly replaces the portable /etc snapshots declared by
+manifests/system-portable-paths.txt. By default the replaced files are copied to
+/var/backups/cachyos-config, which is cleared first, so exactly one backup
+generation is kept.
 EOF
             exit 0
             ;;
@@ -28,7 +27,7 @@ EOF
     shift
 done
 
-backup_root="/var/backups/cachyos-config/$RESTORE_TIMESTAMP"
+backup_root="/var/backups/cachyos-config"
 
 restore_group() {
     local snapshot_root=$1 manifest=$2 label=$3
@@ -39,14 +38,13 @@ restore_group() {
     done < <(read_list "$manifest")
 }
 
+if (( BACKUP_ENABLED )) && (( ! DRY_RUN )); then
+    sudo rm -rf -- "$backup_root"
+    sudo mkdir -p -- "$backup_root"
+fi
+
 restore_group "$REPO_ROOT/configs/system/portable" \
     "$REPO_ROOT/manifests/system-portable-paths.txt" portable
-
-if (( include_hardware )); then
-    warn "Applying disk- and host-specific configuration because --with-hardware was requested"
-    restore_group "$REPO_ROOT/configs/system/hardware" \
-        "$REPO_ROOT/manifests/system-hardware-paths.txt" hardware-specific
-fi
 
 if (( ! DRY_RUN )); then
     sudo systemctl daemon-reload

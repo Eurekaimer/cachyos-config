@@ -2,14 +2,13 @@
 # Every entry names its consumer; drop an entry only when its consumer is gone.
 #
 # Installed by scripts/install-packages.sh together with the selected profile.
-7zip            # KOReader dictionary packs (docs/en/koreader.md)
-clang           # Neovim clangd C/C++ LSP and clang-format (docs/en/neovim.md)
+7zip            # KOReader dictionary packs (modules/koreader/README.md)
+clang           # Neovim clangd C/C++ LSP and clang-format (configs/apps/nvim/)
 curl            # KOReader dictionary packs, Neovim leetcode plugin
 imagemagick     # configs/apps/niri/.local/bin/niri-screenshot-window
 jq              # configs/apps/niri/.local/bin/niri-stack-column
-fd              # Neovim Snacks picker file search (docs/en/neovim.md)
+fd              # Neovim Snacks picker file search (configs/apps/nvim/)
 npm             # modules/bili-live-hime (Tauri build)
-python          # scripts/sync-timewarrior.sh, niri-screenshot-window
-timew           # scripts/sync-timewarrior.sh
-tree-sitter-cli # nvim-treesitter v1 parser builds (docs/en/neovim.md)
+python          # configs/apps/niri/.local/bin/niri-screenshot-window
+tree-sitter-cli # nvim-treesitter v1 parser builds (configs/apps/nvim/)
 wl-clipboard    # niri-screenshot-window (wl-copy)

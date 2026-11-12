@@ -54,7 +54,15 @@ if [[ -d "$REPO_ROOT/configs/apps" ]]; then
         fail "manifests/home-paths.txt is out of date; run scripts/sync-configs.sh --to-snapshot"
     fi
     rm -f -- "$generated" "$declared"
+    # One $HOME path, one owning app: two declarations would make restore order
+    # decide which application's configuration survives.
+    duplicates=$(apps_manifest "$REPO_ROOT" | cut -f2 | LC_ALL=C sort | uniq -d)
+    [[ -z "$duplicates" ]] || fail "Path declared by more than one application: ${duplicates//$'\n'/, }"
 fi
+
+# configs/apps/ is the only copy of the managed configuration. The generated
+# configs/home/ tree was a second copy of the same bytes and must not return.
+[[ ! -e "$REPO_ROOT/configs/home" ]] || fail "configs/home must not exist; configs/apps/ is the only copy"
 
 log "Checking forbidden private/runtime paths"
 for forbidden in .ssh .gnupg .aws .kube google-chrome mozilla NetworkManager/system-connections com.rsplwe.bili-live-hime; do
@@ -65,16 +73,15 @@ for forbidden in .ssh .gnupg .aws .kube google-chrome mozilla NetworkManager/sys
 # The application layer mirrors $HOME, so the same rules apply to configs/apps/.
 # The vendored micro syntax tree shadows micro's built-in definitions and must
 # never come back.
-if [[ -e "$REPO_ROOT/configs/apps/micro/.config/micro/syntax" || -e "$REPO_ROOT/configs/home/.config/micro/syntax" ]]; then
-    fail "configs/.../micro/syntax must not exist (it shadows micro's built-in syntax definitions)"
+if [[ -e "$REPO_ROOT/configs/apps/micro/.config/micro/syntax" ]]; then
+    fail "configs/apps/micro/.config/micro/syntax must not exist (it shadows micro's built-in syntax definitions)"
 fi
 # Only the credential-free global routing script is portable; subscriptions,
 # generated configurations, credentials and runtime state remain forbidden.
 clash_rel=".local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js"
 clash_authored="$REPO_ROOT/configs/apps/clash-verge/$clash_rel"
-clash_generated="$REPO_ROOT/configs/home/$clash_rel"
 if find "$REPO_ROOT/configs" -path '*/io.github.clash-verge-rev*' ! -type d \
-    ! -path "$clash_authored" ! -path "$clash_generated" -print -quit | grep -q .; then
+    ! -path "$clash_authored" -print -quit | grep -q .; then
     fail "Forbidden snapshot path found: Clash Verge private/runtime data"
 fi
 # .omp holds runtime state (agent db, logs, install-id, sessions) and stays forbidden.
@@ -97,34 +104,28 @@ if find "$REPO_ROOT/configs" -path '*/.pi/*' ! -type d \
     fail "Forbidden snapshot path found: .pi"
 fi
 
+# configs/apps/ is the single copy of every managed path, so the runtime paths
+# the sanitizer drops are checked there directly.
 for runtime_path in \
-    configs/home/.timewarrior \
-    configs/home/.local/share/timewarrior \
-    configs/home/.config/timewarrior/data \
-    configs/home/.config/mpv/cache \
-    configs/home/.config/mpv/memo-history.log \
-    configs/home/.config/koreader/cache \
-    configs/home/.config/koreader/data \
-    configs/home/.config/koreader/clipboard \
-    configs/home/.config/koreader/help \
-    configs/home/.config/koreader/ota \
-    configs/home/.config/koreader/screenshots \
-    configs/home/.config/koreader/history.lua \
-    configs/home/.config/koreader/settings/wikipedia_history.lua \
-    configs/home/.config/koreader/settings/bookinfo_cache.sqlite3 \
-    configs/home/.config/koreader/settings/statistics.sqlite3 \
-    configs/home/.config/koreader/settings/vocabulary_builder.sqlite3; do
+    configs/apps/mpv/.config/mpv/cache \
+    configs/apps/mpv/.config/mpv/memo-history.log \
+    configs/apps/koreader/.config/koreader/cache \
+    configs/apps/koreader/.config/koreader/data \
+    configs/apps/koreader/.config/koreader/clipboard \
+    configs/apps/koreader/.config/koreader/help \
+    configs/apps/koreader/.config/koreader/ota \
+    configs/apps/koreader/.config/koreader/screenshots \
+    configs/apps/koreader/.config/koreader/history.lua \
+    configs/apps/koreader/.config/koreader/settings/wikipedia_history.lua \
+    configs/apps/koreader/.config/koreader/settings/bookinfo_cache.sqlite3 \
+    configs/apps/koreader/.config/koreader/settings/statistics.sqlite3 \
+    configs/apps/koreader/.config/koreader/settings/vocabulary_builder.sqlite3; do
     [[ ! -e "$REPO_ROOT/$runtime_path" ]] || fail "Runtime snapshot path found: $runtime_path"
 done
-if find "$REPO_ROOT/configs/home/.config/koreader" -type f \
-    \( -name '*.old' -o -name '*.bak-*' \) -print -quit | grep -q .; then
-    fail "KOReader backup file found in portable snapshot"
-fi
-
-# The sync record is per-machine state kept outside the repository; a copy
-# inside it would publish one machine's sync position to every other machine.
-if find "$REPO_ROOT" -path "$REPO_ROOT/.git" -prune -o -name 'sync-record.txt*' -print -quit 2>/dev/null | grep -q .; then
-    fail "sync-record.txt must stay in ~/.local/state/cachyos-config, never in the repository"
+# Editor and tool backups are machine-local history, never configuration.
+if find "$REPO_ROOT/configs/apps" -type f \
+    \( -name '*.bak' -o -name '*.bak-*' -o -name '*.old' \) -print -quit | grep -q .; then
+    fail "Stale backup file found under configs/apps (the capture sanitizer deletes *.bak, *.bak-*, *.old)"
 fi
 
 log "Checking secret-shaped content"

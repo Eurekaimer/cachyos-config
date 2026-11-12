@@ -17,7 +17,6 @@ zed-math-snippets/
 │   └── templates.toml
 ├── generate.py         # 标准库生成器（校验 + JSON + 安装）
 ├── dist/               # 本地生成结果（不跟踪，generate.py 重建）
-├── tests/              # 三语言演示与语法验证
 └── README.md
 ```
 
@@ -30,7 +29,7 @@ cd ~/Documents/GitHub/cachyos-config/configs/apps/zed/zed-math-snippets
 python3 generate.py --install
 ```
 
-- `--install` 会把 `dist/*.json` 复制到 `~/.config/zed/snippets/`；若已有同名文件，先备份到 `~/.config/zed/snippets-backup/<时间戳>/`（不放进被纳管的 snippets 目录）。
+- `--install` 会把 `dist/*.json` 复制到 `~/.config/zed/snippets/`；若已有同名文件，先备份到 `~/.config/zed/snippets-backup/`（每次覆盖，只保留一份；不放进被纳管的 snippets 目录）。
 - Zed 监视该目录，保存后自动重载；用命令面板 `snippets: open folder` 可直接打开。
 - 不需要改 `settings.json` / `keymap.json`。
 
@@ -113,30 +112,18 @@ python3 generate.py --install
 
 ## 同步到 cachyos-config
 
-不要跑全局 `scripts/sync-configs.sh --to-snapshot`：本机快照已有其它漂移，会被一起改写。只做定向同步：
+`configs/apps/zed/.config/zed/snippets/` 是唯一副本（没有 `configs/home/` 生成树）：
 
 ```bash
 cd ~/Documents/GitHub/cachyos-config
 
-# 1) paths 里追加（.config/zed/settings.json 两行之后）
-#    # Zed 数学 snippets（由 configs/apps/zed/zed-math-snippets/generate.py 生成）
-#    .config/zed/snippets
+# 1) 生成并安装到 ~/.config/zed/snippets/
+python3 configs/apps/zed/zed-math-snippets/generate.py --install
 
-# 2) 应用层
-install -d configs/apps/zed/.config/zed/snippets
-cp -a ~/.config/zed/snippets/markdown.json \
-      ~/.config/zed/snippets/latex.json \
-      ~/.config/zed/snippets/typst.json \
-      configs/apps/zed/.config/zed/snippets/
+# 2) 把生成的 JSON 收进仓库
+./scripts/sync-configs.sh --to-snapshot
 
-# 3) 生成的恢复树
-install -d configs/home/.config/zed/snippets
-cp -a configs/apps/zed/.config/zed/snippets/. configs/home/.config/zed/snippets/
-
-# 4) 重建 manifest（不要手改）
-bash -c 'source scripts/lib/profile.sh; write_home_paths "$PWD"'
-
-# 5) 自检
+# 3) 自检
 ./scripts/audit.sh
 ```
 
@@ -146,26 +133,3 @@ bash -c 'source scripts/lib/profile.sh; write_home_paths "$PWD"'
 ./scripts/sync-configs.sh --check 2>&1 | grep -F '.config/zed/snippets'
 # 期望无输出
 ```
-
-## 测试与验收
-
-自动验证：
-
-```bash
-python3 generate.py
-python3 -m json.tool dist/markdown.json >/dev/null
-python3 -m json.tool dist/latex.json >/dev/null
-python3 -m json.tool dist/typst.json >/dev/null
-
-cp tests/demo.typ /tmp/demo.typ && (cd /tmp && typst compile demo.typ demo.pdf)
-cp tests/demo.tex /tmp/demo.tex && (cd /tmp && pdflatex -interaction=nonstopmode -halt-on-error demo.tex)
-```
-
-手动在 Zed 里确认（命令行无法代替）：
-
-1. `tests/demo.md` 输入 `@a`，菜单出现 `@a`，Tab 后是 `\alpha`，没有多余 `@`。
-2. `ff`：Tab 依次停在分子、分母，最后跳出。
-3. `sq`、`sum`（4 个占位符）、`int`（2 个）跳转顺序正确。
-4. `mk` 得到一对 `$`；`dm` 得到行间公式；无多余 `$` 或反斜杠。
-5. `->` 不自动弹菜单，`ctrl-space` 后 Tab 得到 `\to`。
-6. `.tex`、`.typ` 各验证 5 条，输出语法正确。

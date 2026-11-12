@@ -4,8 +4,6 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
-# shellcheck source=scripts/lib/sync-record.sh
-source "$SCRIPT_DIR/lib/sync-record.sh"
 
 require_non_root_user
 require_command pacman
@@ -13,7 +11,6 @@ require_command pacman
 captured_home=${HOME:?}
 config_root="$REPO_ROOT/configs"
 packages_root="$REPO_ROOT/packages"
-state_root="$REPO_ROOT/state"
 manifest_root="$REPO_ROOT/manifests"
 
 while (($#)); do
@@ -25,16 +22,14 @@ Usage: scripts/capture.sh [--help]
 Rebuilds the managed snapshot from the CURRENT machine into this repository:
 
   configs/apps/    per-application configuration under $HOME (source of truth)
-  configs/home/    generated $HOME install tree (rebuilt from configs/apps/)
-  configs/system/  portable /etc snapshots (+ hardware/reference layers)
+  configs/system/  portable /etc snapshots
   configs/dconf/   desktop settings database export
   packages/        explicit pacman/AUR packages, toolchains, enabled services
-  state/           machine metadata and hardware references
+  manifests/       portable path lists and the captured home directory
 
 The $HOME layer is delegated to scripts/sync-configs.sh --to-snapshot, which
 copies every path declared in configs/apps/<app>/paths, scrubs runtime state
-and credentials, rebuilds configs/home/, and regenerates
-manifests/home-paths.txt.
+and credentials, and regenerates manifests/home-paths.txt.
 
 Run as the desktop user. Readable /etc files are copied directly; protected
 ones are copied through sudo. Missing paths are reported and skipped; paths
@@ -46,10 +41,9 @@ machines:
 
   git add -A && git commit -m "sync: refresh snapshot" && git push
 
-The snapshot is machine-portable: absolute paths referencing the captured
-home are rewritten for the target user at restore time. Disk-specific files
-such as /etc/fstab and /etc/hostname live in a separate hardware layer and
-are never applied by the default restore.
+The snapshot is machine-portable: only configs/system/portable/ is restored,
+and absolute paths referencing the captured home are rewritten for the target
+user at restore time.
 EOF
             exit 0
             ;;
@@ -94,7 +88,7 @@ log "Refreshing managed snapshots"
 backup_root=$(mktemp -d)
 capture_complete=0
 # The /etc and dconf layers are moved aside first, so a failure halfway leaves
-# the previous published snapshot intact. configs/apps, configs/home and
+# the previous published snapshot intact. configs/apps and
 # manifests/home-paths.txt are owned by sync-configs.sh, which keeps its own
 # backup and rollback.
 snapshot_dirs=(system dconf)
@@ -118,19 +112,16 @@ for dir in "${snapshot_dirs[@]}"; do
     [[ -e "$config_root/$dir" || -L "$config_root/$dir" ]] || continue
     mv -- "$config_root/$dir" "$backup_root/$dir"
 done
-mkdir -p -- "$config_root/home" "$config_root/system/portable" \
-    "$config_root/system/hardware" "$config_root/system/reference" \
-    "$config_root/dconf" "$packages_root/inventory" "$packages_root/services" \
-    "$packages_root/toolchains" "$state_root/hardware" "$manifest_root"
+mkdir -p -- "$config_root/system/portable" "$config_root/dconf" \
+    "$packages_root/inventory" "$packages_root/services" \
+    "$packages_root/toolchains" "$manifest_root"
 
-# The application layer lives in configs/apps/; configs/home/ and
-# manifests/home-paths.txt are regenerated from it, with runtime state and
-# credentials scrubbed (scripts/lib/sanitize.sh).
+# The application layer lives in configs/apps/ (the only copy of the managed
+# configuration); manifests/home-paths.txt is regenerated from it, with runtime
+# state and credentials scrubbed (scripts/lib/sanitize.sh).
 "$SCRIPT_DIR/sync-configs.sh" --to-snapshot
 
 capture_group / "$config_root/system/portable" "$manifest_root/system-portable-paths.txt"
-capture_group / "$config_root/system/hardware" "$manifest_root/system-hardware-paths.txt"
-capture_group / "$config_root/system/reference" "$manifest_root/system-reference-paths.txt"
 
 if command -v dconf >/dev/null 2>&1; then
     dconf dump / | python3 -c '
@@ -198,9 +189,9 @@ else
 fi
 
 # A service snapshot is not an install list. Only units provided by an installed
-# package belong here: module- and hand-installed units (touchpad-boot-recovery,
-# one-off experiments) exist only after their installer runs and would make
-# restore-services.sh warn on every machine that never ran it.
+# package belong here: module- and hand-installed units (one-off experiments)
+# exist only after their installer runs and would make restore-services.sh warn
+# on every machine that never ran it.
 capture_package_owned_units() {
     local scope=$1 unit path
     while IFS= read -r unit; do
@@ -221,24 +212,10 @@ capture_package_owned_units system < <(systemctl list-unit-files --state=enabled
 capture_package_owned_units user < <(systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}') \
     | LC_ALL=C sort -u >"$packages_root/services/user.txt"
 
-printf '%s\n' "$captured_home" >"$state_root/captured-home.txt"
-printf '%s\n' "${USER:?}" >"$state_root/captured-user.txt"
-{
-    printf 'captured_at=%s\n' "$(date --iso-8601=seconds)"
-    printf 'kernel=%s\n' "$(uname -srmo)"
-    printf 'shell=%s\n' "${SHELL:-unknown}"
-    cat /etc/os-release
-} >"$state_root/system-info.txt"
-
-command -v lspci >/dev/null 2>&1 && lspci -k >"$state_root/hardware/lspci.txt" || true
-command -v lsblk >/dev/null 2>&1 && lsblk -f >"$state_root/hardware/lsblk.txt" || true
-command -v findmnt >/dev/null 2>&1 && findmnt --real >"$state_root/hardware/findmnt.txt" || true
-command -v niri >/dev/null 2>&1 && niri --version >"$state_root/niri-version.txt" || true
-command -v omp >/dev/null 2>&1 && omp --version >"$state_root/agent-version.txt" || true
+# restore-user.sh rewrites this path when the target home differs.
+printf '%s\n' "$captured_home" >"$manifest_root/captured-home.txt"
 
 capture_complete=1
-write_sync_record "direction=capture" "mode=to-snapshot"
 log "Snapshot complete: $REPO_ROOT"
-log "Sync record updated: $(sync_record_file)"
 warn "Deliberately excluded: passwords, SSH/GPG keys, browser profiles, Clash profiles, NetworkManager connections, cookies, logs, caches, and .omp runtime state."
 log "Next: ./scripts/audit.sh, then 'git add -A && git commit && git push' to sync other machines."

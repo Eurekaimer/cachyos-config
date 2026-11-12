@@ -96,8 +96,8 @@ The portable snapshot (`configs/apps/koreader/`) publishes `settings.reader.lua`
 `defaults.custom.lua`, `patches/`, `plugins/vimkeys.koplugin/`, and the
 `settings/*.lua` files. Reading history, caches, `data/`, `settings/*.sqlite3`,
 and the recent-file keys inside `settings.reader.lua` are pruned by
-`scripts/capture.sh` and rejected by `scripts/audit.sh`. Full user-facing
-documentation: `docs/en/koreader.md` and `docs/zh-CN/koreader.md`.
+`scripts/capture.sh` and rejected by `scripts/audit.sh`. This README is the
+source for the module's user-facing behaviour.
 
 `scripts/restore-user.sh` retains the complete existing
 `~/.config/koreader/data/dict/` tree when replacing KOReader configuration,

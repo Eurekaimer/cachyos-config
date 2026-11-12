@@ -4,28 +4,22 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
-# shellcheck source=scripts/lib/sync-record.sh
-source "$SCRIPT_DIR/lib/sync-record.sh"
 
 require_non_root_user
 
 dry_run=0
-with_hardware=0
 skip_aur=0
 no_backup=0
 start_now=0
-migrate_zh=0
 restart_fcitx5=0
 wallpaper=""
 profile_arg=""
 while (($#)); do
     case "$1" in
         --dry-run) dry_run=1 ;;
-        --with-hardware) with_hardware=1 ;;
         --skip-aur) skip_aur=1 ;;
         --no-backup) no_backup=1 ;;
         --now) start_now=1 ;;
-        --migrate-zh-dirs) migrate_zh=1 ;;
         --restart-fcitx5) restart_fcitx5=1 ;;
         --wallpaper)
             shift
@@ -56,18 +50,12 @@ Stages (in order):
   5  Service enablement
   6  Post-restore tweaks: eDP-1 scaling, optional native Noctalia wallpaper
 
-Machine-bound state is never touched by default: disk UUIDs, /etc/machine-id,
-/etc/fstab, and /etc/hostname are excluded unless --with-hardware is passed
-after explicit review on the same disks/host.
-
 Options:
   --dry-run          Print every replacement/install command without changing files
-  --with-hardware    Also replace /etc/fstab and /etc/hostname (same hardware only)
   --profile NAME     Package profile to install (see scripts/profile.sh)
   --skip-aur         Do not install captured AUR packages
   --no-backup        Replace configuration without saving previous files
   --now              Start enabled services immediately instead of after reboot/login
-  --migrate-zh-dirs  Rename legacy Chinese XDG dirs (桌面/文档/...) before Stage 1
   --restart-fcitx5   Restart fcitx5 in Stage 6 (after font installs)
   --wallpaper FILE   Set the Noctalia wallpaper in Stage 6 (relative paths
                      resolve under ~/Pictures/Wallpapers)
@@ -80,7 +68,6 @@ EOF
     shift
 done
 
-export RESTORE_TIMESTAMP=${RESTORE_TIMESTAMP:-$(date +%Y%m%d-%H%M%S)}
 (( dry_run )) && DRY_RUN=1
 common_args=()
 (( dry_run )) && common_args+=(--dry-run)
@@ -91,7 +78,6 @@ install_args=("${common_args[@]}")
 
 system_args=("${common_args[@]}")
 user_args=("${common_args[@]}")
-(( with_hardware )) && system_args+=(--with-hardware)
 if (( no_backup )); then
     system_args+=(--no-backup)
     user_args+=(--no-backup)
@@ -106,10 +92,6 @@ tweaks_args=("${common_args[@]}")
 
 log "Stage 0/7: preflight"
 ensure_sudo || die "Preflight failed; configure passwordless sudo first (see AGENT.md §5)"
-if (( migrate_zh )); then
-    log "Stage 0/7: migrating legacy Chinese home directories"
-    "$SCRIPT_DIR/migrate-home-dirs-zh.sh" "${common_args[@]}"
-fi
 log "Stage 0/7: initializing submodules"
 if (( DRY_RUN )); then
     print_cmd git submodule update --init --recursive
@@ -132,8 +114,4 @@ log "Stage 6/7: post-restore tweaks"
 "$SCRIPT_DIR/post-restore-tweaks.sh" "${tweaks_args[@]}"
 
 log "Full restore complete"
-if (( ! dry_run )); then
-    write_sync_record "direction=restore" "mode=restore-all"
-    log "Sync record updated: $(sync_record_file)"
-fi
 (( dry_run )) || warn "Reboot to activate kernel/initramfs, login shell, and all enabled services."

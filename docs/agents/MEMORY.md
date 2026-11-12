@@ -1,8 +1,8 @@
 # MEMORY — durable knowledge for agents
 
 Load this before changing the repository. It records what is true, why, and
-what will bite you. Run history lives in `JOURNAL.md`; directory layout and data
-flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
+what will bite you. Directory layout and data flow live in `ARCHITECTURE.md`;
+open gaps live in `TASKS.md`.
 
 ## Four layers, one entry point each
 
@@ -15,34 +15,20 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 
 ## Invariants
 
-- **`configs/home/` is generated.** Its only source is `configs/apps/<app>/`,
-  rebuilt by `scripts/sync-configs.sh --to-snapshot`. Hand edits are silently
-  overwritten on the next capture.
+- **`configs/apps/<app>/` is the only copy of the managed configuration.**
+  `scripts/restore-user.sh` reads it back directly; there is no generated
+  `configs/home/` install tree, and `scripts/audit.sh` fails if one reappears.
 - **`manifests/home-paths.txt` is generated** from `configs/apps/*/paths` by the
   same script; `scripts/audit.sh` fails when the two disagree.
 - **`packages/inventory/`, `packages/services/`, `packages/toolchains/` are
   capture output.** Only `packages/profiles/` and `packages/required-extra.txt`
   are installer inputs.
-- **"Directly installed" is a package count; software is fewer.** `pacman -Qe`
-  reports 277 packages on 2026-11-10, yet `scripts/pkgcensus.sh` merges them
-  into 134 software entries (38 apps, 71 tools/runtimes, 25 system/desktop
-  groups) plus 6 non-pacman items (cargo 4, go 1, uv 1) for 140 total.
-  Counting packages overstates what a user calls installed software, because
-  installer-explicit packages arrive as separate units: fcitx5 is seven
-  packages, texlive is six, the nvidia stack seven. The merge table at the top
-  of the script is the only place this mapping lives; any explicitly installed
-  package missing from it is printed as a trailing section, which is the signal
-  to extend the table. `packages/inventory/software-census.txt` is capture
-  output — refresh with
-  `./scripts/pkgcensus.sh > packages/inventory/software-census.txt`. The script
-  is read-only: it prints `sudo pacman -Rns` suggestions and never removes,
-  installs, or writes outside `mktemp -d`.
-- **The sync baseline is per machine, not per application.** Read
-  `~/.local/state/cachyos-config/sync-record.txt` first; it records a revision
-  plus managed-content/path hashes and must never be committed. A clean
-  `scripts/sync-status.sh` does not prove the live home is unchanged; use
-  `scripts/sync-configs.sh --check` for that. Component reconciliation history
-  belongs in `JOURNAL.md`, not invented per-app revision fields.
+- **Publishing is capture → audit → commit.** `scripts/capture.sh` rewrites the
+  snapshot from the live machine, `scripts/audit.sh` refuses to publish when a
+  secret, a runtime path or a stale backup leaked in, and only then does the
+  operator `git add/commit/push`. Nothing else tracks sync position, and no
+  per-machine state file is committed; `scripts/sync-configs.sh --check` is the
+  only way to ask whether the live `$HOME` still matches.
 - **`niri`, `noctalia`, `zsh`, `nodejs` must be listed explicitly in every
   profile.** Dependency-installed packages may not appear in `pacman -Qqen`.
 - **The desktop shell is native `/usr/bin/noctalia`**, observed as
@@ -89,8 +75,9 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
 - **`configs/apps/micro/.config/micro/syntax` must not exist.** The 146 vendored
   YAML files shadow micro's built-in syntax definitions. `scripts/audit.sh`
   asserts its absence.
-- **Recovery never writes `/etc/fstab`, `/etc/hostname`, `/etc/machine-id`, or
-  disk UUIDs** unless `--with-hardware` is passed after explicit review.
+- **Recovery writes only `configs/system/portable/`.** No disk UUIDs,
+  `/etc/machine-id`, `/etc/fstab`, or `/etc/hostname` are read or written, and
+  location-generated files such as `mirrorlist` are never restored.
 - **Module state is declared, not guessed.** A module's `installed-check` file
   lists the absolute paths (with `$HOME`) that must exist after install;
   `scripts/module.sh list` reports `unknown` when the file is missing.
@@ -100,7 +87,7 @@ flow live in `ARCHITECTURE.md`; open gaps live in `TASKS.md`.
   with every proxy variable cleared and `--proxy-server=direct://` to reach the
   Nankai captive portal. It cannot bypass Clash TUN mode, which intercepts at
   the network layer. The network itself needs web authentication before any
-  node works; see `docs/zh-CN/user-scripts.md` § campus-login.
+  node works; see `modules/campus-login/README.md`.
 
 ## Per-application configuration notes
 
@@ -135,10 +122,9 @@ means upstream code that must stay untouched.
 | sioyek | `.local/bin/sioyek` | wrapper script | — | The ECDICT plugin integration itself is a module (`modules/sioyek-ecdict`) |
 | starship | `.config/starship.toml` | yes | — | — |
 | thunar | `.config/Thunar/uca.xml` | yes | — | — |
-| timewarrior | `.config/timewarrior/timewarrior.cfg`, `.config/timewarrior/extensions/totals.py` | both | — | Timing data is never captured; `scripts/sync-timewarrior.sh` handles just these two files |
 | wallpapers | `Pictures/Wallpapers/` | images | — | `.comments/` metadata is runtime state; `sync-sddm-theme.sh` copies one into the SDDM theme |
 | wechat | `.local/share/applications/wechat.desktop` | yes | — | — |
-| xdg-user-dirs | `.config/user-dirs.dirs`, `.config/user-dirs.locale` | both | — | `migrate-home-dirs-zh.sh` must run before `restore-user.sh` on old installs |
+| xdg-user-dirs | `.config/user-dirs.dirs`, `.config/user-dirs.locale` | both | — | Renaming directories on an old install is a manual step; no script rewrites XDG dirs |
 | yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `init.lua`, `plugins/dirsize.yazi/` | — | Both TOMLs hold only overrides over the shipped presets (`prepend_*`/`append_*`), never full copies. `y` also writes `text/uri-list` to the Wayland clipboard through `wl-copy` (`wl-clipboard`) |
 | zed | `.config/zed/settings.json`, `.config/zed/keymap.json` | both | — | `ui_font_family` is `Monaspace Radon`, provided by `otf-monaspace` in `packages/profiles/`; `ui_font_size` 22 applies to chrome only, buffers stay on `buffer_font_*`. The keymap exists to undo two Linux defaults: vim mode binds `ctrl-v` (`vim::PushLiteral` when inserting, `vim::ToggleVisualBlock` in normal mode) and `Editor && extension == md` binds `ctrl-shift-v` to `markdown::OpenPreview`, so `ctrl-v` is rebound to `editor::Paste` and the Markdown preview stays on `ctrl-k v` |
 
@@ -169,8 +155,8 @@ means upstream code that must stay untouched.
 - **A service snapshot is not an install list.** `capture.sh` records only
   enabled units whose `FragmentPath` belongs to an installed package
   (`pacman -Qo`), for both buses. Module-installed and hand-written units
-  (`sioyek-ecdict.service`, `touchpad-boot-recovery.service`, one-off
-  experiments such as `tp-ab-*.service`) are excluded: they exist only after
+  (`sioyek-ecdict.service`, one-off experiments such as `tp-ab-*.service`) are
+  excluded: they exist only after
   their installer runs, and recording them would make `restore-services.sh`
   warn on every machine that never ran it. The module's own `install.sh`
   enables its unit.
@@ -178,5 +164,4 @@ means upstream code that must stay untouched.
   must be re-run after every upgrade; `scripts/install-packages.sh` does it
   automatically whenever the package is present.
 - **Sudo may be unavailable to an agent.** `ensure_sudo` warns instead of
-  hanging; unattended runs need a temporary NOPASSWD entry, removed afterwards
-  and recorded in `JOURNAL.md`.
+  hanging; unattended runs need a temporary NOPASSWD entry, removed afterwards.

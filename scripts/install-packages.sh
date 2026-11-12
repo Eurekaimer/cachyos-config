@@ -127,7 +127,7 @@ if (( ! skip_toolchains )); then
     fi
 
     # Dual OpenJDK: install the newest release as the default java/javac while
-    # keeping the LTS build available for stable projects (see docs/en/jdk.md).
+    # keeping the LTS build available for stable projects.
     if command -v archlinux-java >/dev/null 2>&1; then
         if jdk_version=$(pacman -Q jdk-openjdk 2>/dev/null | awk '{print $2}' | cut -d. -f1) && [[ -n "$jdk_version" ]]; then
             jvm_env="java-${jdk_version}-openjdk"

@@ -37,6 +37,6 @@ playback history.
 ## Validate
 
 ```sh
-timeout 3s mpv --config-dir="$PWD/configs/home/.config/mpv" \
+timeout 3s mpv --config-dir="$PWD/configs/apps/mpv/.config/mpv" \
   --idle --vo=null --ao=null --frames=0
 ```

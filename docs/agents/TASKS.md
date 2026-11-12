@@ -1,8 +1,7 @@
 # TASKS — open gaps and planned work
 
 Known gaps, with enough context to act on them without re-deriving the
-situation. Durable facts belong in `MEMORY.md`; resolved items move there or
-into `JOURNAL.md`.
+situation. Durable facts belong in `MEMORY.md`.
 
 ## Modules
 
@@ -19,31 +18,15 @@ into `JOURNAL.md`.
 
   Until then `scripts/module.sh list` prints a skip warning for it.
 
-- **`touchpad-boot-recovery` is not installed on the current workstation.**
-  `/usr/local/sbin/touchpad-boot-recovery` and
-  `/etc/systemd/system/touchpad-boot-recovery.service` are absent, so
-  `module.sh list` reports `missing`. The module itself is complete; it is
-  simply unused on this hardware. If the touchpad failure returns, run
-  `scripts/module.sh install touchpad-boot-recovery`.
-
 ## Verification
 
-- **`packages/inventory/` and `configs/home/` consistency is enforced by
+- **`manifests/home-paths.txt` and the single-copy rule are enforced by
   `scripts/audit.sh`** (profile resolvability, generated-manifest equality,
-  forbidden paths). The first run after a large refactor needs a rebuilt
-  baseline: run `scripts/sync-configs.sh --to-snapshot` before auditing.
-
-- **`scripts/install-progress.sh` reports "N remaining" for profile packages
-  only.** It counts `pacman -Q` hits over the profile, so AUR packages that are
-  installed but renamed upstream, and dependency installs, can skew the final
-  percentage. It is a progress display, not an acceptance check.
+  duplicate declared paths, no `configs/home/`, no stale `*.bak`, forbidden
+  paths). The first run after a large refactor needs a rebuilt baseline: run
+  `scripts/sync-configs.sh --to-snapshot` before auditing.
 
 ## Documentation
-
-- **`docs/zh-CN/koreader.md` and `docs/en/koreader.md` overlap with
-  `modules/koreader/README.md`.** The user docs keep the full shortcut tables;
-  the module README keeps install/verify/remove. Re-check both when the module
-  changes.
 
 - **`AGENT.md` duplicates parts of `docs/agents/ARCHITECTURE.md`.** `AGENT.md`
   is the operational quick path for a fresh-machine restore; the agent docs are

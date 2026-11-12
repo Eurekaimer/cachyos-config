@@ -43,7 +43,8 @@ fi
 # 备份已存在的旧版本
 if [[ -e "$install_path" || -L "$install_path" ]]; then
     mkdir -p "$backup_dir"
-    backup_path="$backup_dir/bili-live-hime.$(date +%Y%m%d-%H%M%S)"
+    backup_path="$backup_dir/bili-live-hime"
+    rm -rf "$backup_path"
     cp -a "$install_path" "$backup_path" || die "备份 $install_path 失败"
     printf '已备份旧版本到 %s\n' "$backup_path"
 fi

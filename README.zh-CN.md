@@ -4,19 +4,14 @@
 ![快照](https://img.shields.io/badge/快照-2026--10--15-2dba4e)
 ![脚本](https://img.shields.io/badge/脚本-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![文档](https://img.shields.io/badge/文档-English%20%7C%20中文-8A2BE2)](README.md)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
-[![SQLite](https://img.shields.io/badge/SQLite-离线数据库-003B57?logo=sqlite&logoColor=white)](modules/sioyek-ecdict)
-[![ECDICT](https://img.shields.io/badge/词典数据-ECDICT-6f42c1)](https://github.com/skywind3000/ECDICT)
 
 [English](README.md) · **简体中文**
 
-个人 CachyOS 工作站的配置快照与恢复脚本。托管文件、软件与服务清单、硬件参考
-信息彼此分离，每一层都可以独立检查或单独恢复。
+个人 CachyOS 工作站的配置快照与恢复脚本。托管文件、软件与服务清单彼此分离，
+每一层都可以独立检查或单独恢复。
 
 全新系统请先按 [CachyOS 官方下载页](https://cachyos.org/download/) 安装基础
 系统（建议使用种子下载），再用本仓库恢复工作站配置。
-
-![桌面截图](system.png)
 
 ## 架构
 
@@ -24,18 +19,18 @@
 flowchart TD
     H[当前 CachyOS 工作站] --> C[scripts/capture.sh]
     C --> AP[configs/apps 按应用拆分]
-    AP --> G[configs/home 生成树]
-    G --> DC[configs/dconf]
-    C --> S[configs/system]
+    C --> DC[configs/dconf]
+    C --> S[configs/system/portable]
     C --> P[packages 采集产物]
-    C --> R[state + hardware references]
-    PR[packages/profiles full 与 minimal] --> X
-    M[manifests 路径白名单] --> G
-    G --> A[scripts/audit.sh]
+    AP --> M[manifests/home-paths.txt]
+    C --> CH[manifests/captured-home.txt]
+    AP --> A[scripts/audit.sh]
+    DC --> A
     S --> A
     P --> A
-    R --> A
+    M --> A
     A --> X[scripts/restore-all.sh]
+    PR[packages/profiles full 与 minimal] --> X
     X --> I[软件包]
     X --> Y[系统配置]
     X --> Z[用户配置]
@@ -46,18 +41,17 @@ flowchart TD
 
 Git 就是传输介质：在配置好的机器上采集，在任意其他机器上恢复。
 
-纳管文件使用复制，**不是软链接或自动同步**：`configs/apps/` 是源，
-`configs/home/` 是生成副本。当前桌面外壳为原生 Noctalia，实测版本
+纳管文件使用复制，**不是软链接**：`configs/apps/<应用>/` 是每条声明路径的唯一
+副本，恢复直接从它读回。当前桌面外壳为原生 Noctalia，实测版本
 `v5.2.1 (5.2.1-1-dirty)`；底层配置为 `config.toml`/`widgets.toml`，
 GUI 覆盖保存在 `.local/state/noctalia/settings.toml`，并保留本地 `storage_gb` 插件。
 GUI 改动保存后应先采集再发布；恢复只部署已保存快照，不回填淘汰的 JSON 配置。
-具体路径与原生命令见 [Noctalia](docs/zh-CN/noctalia.md)。
+托管路径清单见[配置地图](docs/zh-CN/configuration.md)。
 
 **在当前机器上发布**（配置、软件包或服务有任何改动后）：
 
 ```bash
-./scripts/sync-status.sh # 查看自上次同步以来的变化（clean/dirty/pending）
-./scripts/capture.sh     # 按 manifests 白名单重建快照
+./scripts/capture.sh     # 从当前机器重建快照
 ./scripts/audit.sh       # 有密钥或隐私路径泄漏则拒绝发布
 
 git add -A
@@ -65,11 +59,10 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
-`sync-status.sh` 读取本机记录 `~/.local/state/cachyos-config/sync-record.txt`，
-日常同步只需查看变化部分，不必逐条重扫全部纳管路径；`--files`/`--paths` 给出清单，
-`./scripts/sync-configs.sh --check` 用于确认实时 `$HOME` 仍与快照一致。
+`./scripts/sync-configs.sh --check` 用于确认实时 `$HOME` 仍与快照一致，且不修改任何文件。
 
-免密推送配置见 [Git 免密推送（GitHub）](docs/zh-CN/git-authentication.md)。
+免密推送：`gh auth login` 并把 SSH 公钥加到 GitHub；不该入库的内容见
+`docs/zh-CN/security.md`。
 
 **在另一台机器上应用**（全新 CachyOS 安装或其他电脑）：
 
@@ -84,9 +77,8 @@ sudo reboot
 ```
 
 默认流程不涉及任何机器专属状态：不会读写磁盘 UUID、`/etc/machine-id`、
-`/etc/fstab` 或 `/etc/hostname`。后两者位于单独的 hardware 层，只有确认磁盘
-布局一致并显式使用 `--with-hardware` 评审后才会应用。目标机器用户名不同也没
-关系——托管文件中的绝对 home 路径会在恢复时自动改写为当前用户。
+`/etc/fstab` 或 `/etc/hostname`。目标机器用户名不同也没关系——托管文件中的绝对
+home 路径会在恢复时自动改写为当前用户。
 
 恢复收尾会关闭 UPower 支持的电池充电阈值，允许充至 100%；此偏好是硬件状态，
 不属于 Noctalia TOML。原生电源面板沿用电池/UPower 的充满时间估算，
@@ -96,43 +88,11 @@ sudo reboot
 
 ## 文档
 
-### 配置地图与边界
-
 + [配置位置与恢复边界](docs/zh-CN/configuration.md) · [English](docs/en/configuration.md)
-
-### 核心流程
-
 + [采集与快照维护](docs/zh-CN/capture.md) · [English](docs/en/capture.md)
-+ [Timewarrior 配置与 totals 扩展同步](docs/zh-CN/capture.md#timewarriortimew含-totals-扩展)
 + [恢复流程](docs/zh-CN/recovery.md) · [English](docs/en/recovery.md)
-
-### 组件
-
-+ [SDDM Qt6 登录主题](docs/zh-CN/sddm.md) · [English](docs/en/sddm.md)
-+ [Niri 窗口管理器](docs/zh-CN/niri.md) · [English](docs/en/niri.md)
-+ [Noctalia Shell](docs/zh-CN/noctalia.md) · [English](docs/en/noctalia.md)
-+ [输入法与桌面集成](docs/zh-CN/input-desktop.md) · [English](docs/en/input-desktop.md)
-+ [Kitty、Shell 与命令行工具](docs/zh-CN/kitty-shell.md) · [English](docs/en/kitty-shell.md)
-+ [Neovim 编辑器](docs/zh-CN/neovim.md) · [English](docs/en/neovim.md)
-+ [Yazi 文件管理器](docs/zh-CN/yazi.md) · [English](docs/en/yazi.md)
-+ [MPV 媒体栈](docs/zh-CN/mpv.md) · [English](docs/en/mpv.md)
-+ [KOReader 阅读器](docs/zh-CN/koreader.md) · [English](docs/en/koreader.md)
-+ [Sioyek 离线 ECDICT 查词](docs/zh-CN/sioyek-ecdict.md) · [English](docs/en/sioyek-ecdict.md)
-+ [Java 工具链：双版本 OpenJDK 与 Maven](docs/zh-CN/jdk.md) · [English](docs/en/jdk.md)
-+ [TeX Live](docs/zh-CN/texlive.md) · [English](docs/en/texlive.md)
-+ [Waydroid（Android 容器）](docs/zh-CN/waydroid.md) · [English](docs/en/waydroid.md)
-
-### 软件包与服务
-
 + [软件包与服务](docs/zh-CN/packages-services.md) · [English](docs/en/packages-services.md)
-
-### 安全与发布
-
 + [安全与公开边界](docs/zh-CN/security.md) · [English](docs/en/security.md)
 
-### 诊断与可选脚本
-
-+ [外置存储诊断](docs/zh-CN/storage-diagnostics.md) · [English](docs/en/storage-diagnostics.md)
-+ [触摸板开机自恢复（Lenovo 82XF）](docs/zh-CN/touchpad-boot-recovery.md) · [English](docs/en/touchpad-boot-recovery.md)
-+ [B 站直播（bili-live-hime + OBS）](docs/zh-CN/bili-live-hime.md) · [English](docs/en/bili-live-hime.md)
-+ [可选用户脚本](docs/zh-CN/user-scripts.md) · [English](docs/en/user-scripts.md)
+组件说明与组件本身放在一起：模块看 `modules/<module>/README.md`，应用配置看
+`configs/apps/<应用>/` 下的 README。

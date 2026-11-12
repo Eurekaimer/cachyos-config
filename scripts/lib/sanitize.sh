@@ -2,13 +2,9 @@
 # Snapshot sanitizers: strip runtime state and credentials from a captured
 # configuration tree before it is committed.
 #
-# Every rule is expressed relative to the root of the tree being cleaned.
-# Two callers use it:
-#
-#   configs/apps/<app>/  — the per-application tree, one app at a time
-#                          (its layout mirrors the paths that app owns, so the
-#                          same rules apply unchanged)
-#   configs/home/        — the generated $HOME install tree
+# Every rule is expressed relative to the root of the tree being cleaned, which
+# is one application tree at a time (configs/apps/<app>/). Its layout mirrors
+# the paths that app owns, so the rules below apply unchanged.
 #
 # shellcheck disable=SC2154  # warn/run/log come from scripts/lib/common.sh
 
@@ -43,6 +39,11 @@ sanitize_runtime_state() {
     # Plugin-generated config backups are machine-local history.
     find "$root/.config/sioyek" -maxdepth 1 -type f \
         -name '*.sioyek-ecdict-backup-*' -delete 2>/dev/null || true
+
+    # Editor and tool backups (*.bak, *.old) are machine-local history too; a
+    # restore reproduces the live file from the pristine copy, not the backup.
+    find "$root" -type f \
+        \( -name '*.bak' -o -name '*.bak-*' -o -name '*.old' \) -delete 2>/dev/null || true
 
     # Reader settings carry the last-opened book and last directory, which are
     # recent-file runtime state just like history.lua.

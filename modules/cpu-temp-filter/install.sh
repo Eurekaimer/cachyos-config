@@ -22,7 +22,8 @@ mkdir -p "$bin_dir" "$unit_dir"
 for target in "$install_path" "$unit_path"; do
     [[ -e "$target" || -L "$target" ]] || continue
     mkdir -p "$backup_dir"
-    backup_path="$backup_dir/$(basename "$target").$(date +%Y%m%d-%H%M%S)"
+    backup_path="$backup_dir/$(basename "$target")"
+    rm -rf "$backup_path"
     cp -a "$target" "$backup_path" || die "备份 $target 失败"
     printf '已备份旧版本到 %s\n' "$backup_path"
 done

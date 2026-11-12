@@ -4,23 +4,16 @@
 ![Snapshot](https://img.shields.io/badge/snapshot-2026--10--15-2dba4e)
 ![Shell](https://img.shields.io/badge/scripts-Bash-4EAA25?logo=gnubash&logoColor=white)
 [![Documentation](https://img.shields.io/badge/docs-English%20%7C%20中文-8A2BE2)](README.zh-CN.md)
-[![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?logo=python&logoColor=white)](modules/sioyek-ecdict/pyproject.toml)
-[![SQLite](https://img.shields.io/badge/SQLite-offline-003B57?logo=sqlite&logoColor=white)](modules/sioyek-ecdict)
-[![ECDICT](https://img.shields.io/badge/dictionary-ECDICT-6f42c1)](https://github.com/skywind3000/ECDICT)
 
 **English** · [简体中文](README.zh-CN.md)
 
 Personal CachyOS workstation configuration, kept as a versioned snapshot with
-scripts to capture and restore it. Managed files, package and service manifests,
-and hardware references are stored separately, so each layer can be inspected
-or restored on its own.
+scripts to capture and restore it. Managed files, package and service manifests
+are stored separately, so each layer can be inspected or restored on its own.
 
 For a fresh system, install the base from the
 [CachyOS download page](https://cachyos.org/download/) (torrent recommended),
 then use this repository to restore the workstation configuration.
-
-
-![CachyOS desktop screenshot](system.png)
 
 ## Architecture
 
@@ -28,18 +21,18 @@ then use this repository to restore the workstation configuration.
 flowchart TD
     H[Current CachyOS workstation] --> C[scripts/capture.sh]
     C --> AP[configs/apps per application]
-    AP --> G[configs/home generated tree]
-    G --> DC[configs/dconf]
-    C --> S[configs/system]
+    C --> DC[configs/dconf]
+    C --> S[configs/system/portable]
     C --> P[packages inventory + services + toolchains]
-    C --> R[state + hardware references]
-    PR[packages/profiles full and minimal] --> X
-    M[manifests allowlists] --> G
-    G --> A[scripts/audit.sh]
+    AP --> M[manifests/home-paths.txt]
+    C --> CH[manifests/captured-home.txt]
+    AP --> A[scripts/audit.sh]
+    DC --> A
     S --> A
     P --> A
-    R --> A
+    M --> A
     A --> X[scripts/restore-all.sh]
+    PR[packages/profiles full and minimal] --> X
     X --> I[Packages from the selected profile]
     X --> Y[System configuration]
     X --> Z[User configuration]
@@ -50,20 +43,19 @@ flowchart TD
 
 Git is the transport: capture on the machine you configure, restore on any other machine.
 
-Managed files are copied, not symlinked or automatically synchronized:
-`configs/apps/` is the source and `configs/home/` its generated mirror.
+Managed files are copied, not symlinked: `configs/apps/<app>/` is the only copy of
+each declared `$HOME` path, and restore reads it back directly.
 The active shell is native Noctalia (observed `v5.2.1 (5.2.1-1-dirty)`),
 with `config.toml`/`widgets.toml` plus saved GUI overrides in
 `.local/state/noctalia/settings.toml` and the local `storage_gb` plugin.
 After a GUI change is saved, capture it before publishing; restore deploys the
-saved snapshot without backfilling retired JSON settings. See
-[Noctalia](docs/en/noctalia.md) for the managed paths and native commands.
+saved snapshot without backfilling retired JSON settings. The managed paths are
+listed in the [configuration map](docs/en/configuration.md).
 
 **Publish from the current machine** after any config, package, or service change:
 
 ```bash
-./scripts/sync-status.sh  # what moved since the last recorded sync (clean/dirty/pending)
-./scripts/capture.sh      # rebuild the snapshot from the allowlists
+./scripts/capture.sh      # rebuild the snapshot from the current machine
 ./scripts/audit.sh        # refuse to publish if secrets or private paths leaked
 
 git add -A
@@ -71,13 +63,11 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
-`sync-status.sh` reads the per-machine record at
-`~/.local/state/cachyos-config/sync-record.txt`, so routine syncs inspect only
-what changed instead of re-diffing every managed path. Use
-`--files`/`--paths` for the list, and `./scripts/sync-configs.sh --check` to
-verify the live `$HOME` still matches the snapshot.
+`./scripts/sync-configs.sh --check` verifies the live `$HOME` still matches the
+snapshot without changing anything.
 
-Passwordless push setup: [Git authentication](docs/en/git-authentication.md).
+Passwordless push setup: `gh auth login` plus an SSH key added to GitHub; see
+`docs/en/security.md` for what must never enter the repository.
 
 **Apply on another machine** (fresh CachyOS install or any other computer):
 
@@ -92,11 +82,9 @@ sudo reboot
 ```
 
 The default flow never touches machine-bound state: no disk UUIDs,
-`/etc/machine-id`, `/etc/fstab`, or `/etc/hostname` are read or written. The
-last two live in a separate hardware layer applied only with an explicit,
-reviewed `--with-hardware` on the same disks/host. A different username on the
-target machine is fine — absolute home paths in managed files are rewritten
-for the current user at restore time.
+`/etc/machine-id`, `/etc/fstab`, or `/etc/hostname` are read or written. A
+different username on the target machine is fine — absolute home paths in
+managed files are rewritten for the current user at restore time.
 
 The final post-restore step disables supported UPower battery charge thresholds
 to allow charging to 100%; this hardware preference is not a Noctalia TOML setting.
@@ -107,43 +95,11 @@ User-config restore retains existing KOReader `data/dict` contents, even with
 
 ## Documentation
 
-### Configuration and boundaries
-
 + [Configuration map and restore boundaries](docs/en/configuration.md) · [中文](docs/zh-CN/configuration.md)
-
-### Core workflows
-
 + [Capture and snapshot maintenance](docs/en/capture.md) · [中文](docs/zh-CN/capture.md)
-+ [Timewarrior configuration and totals sync](docs/en/capture.md#timewarrior-timew-including-totals)
 + [Recovery workflow](docs/en/recovery.md) · [中文](docs/zh-CN/recovery.md)
-
-### Components
-
-+ [SDDM Qt6 login theme](docs/en/sddm.md) · [中文](docs/zh-CN/sddm.md)
-+ [Niri window manager](docs/en/niri.md) · [中文](docs/zh-CN/niri.md)
-+ [Noctalia Shell](docs/en/noctalia.md) · [中文](docs/zh-CN/noctalia.md)
-+ [Input methods and desktop integration](docs/en/input-desktop.md) · [中文](docs/zh-CN/input-desktop.md)
-+ [Kitty, shells, and command-line tools](docs/en/kitty-shell.md) · [中文](docs/zh-CN/kitty-shell.md)
-+ [Neovim editor](docs/en/neovim.md) · [中文](docs/zh-CN/neovim.md)
-+ [Yazi file manager](docs/en/yazi.md) · [中文](docs/zh-CN/yazi.md)
-+ [MPV media stack](docs/en/mpv.md) · [中文](docs/zh-CN/mpv.md)
-+ [KOReader ebook reader](docs/en/koreader.md) · [中文](docs/zh-CN/koreader.md)
-+ [Sioyek offline ECDICT lookup](docs/en/sioyek-ecdict.md) · [中文](docs/zh-CN/sioyek-ecdict.md)
-+ [Java toolchain: dual OpenJDK + Maven](docs/en/jdk.md) · [中文](docs/zh-CN/jdk.md)
-+ [TeX Live](docs/en/texlive.md) · [中文](docs/zh-CN/texlive.md)
-+ [Waydroid (Android container)](docs/en/waydroid.md) · [中文](docs/zh-CN/waydroid.md)
-
-### Packages and services
-
 + [Packages and services](docs/en/packages-services.md) · [中文](docs/zh-CN/packages-services.md)
-
-### Security and publishing
-
 + [Security and publishing boundaries](docs/en/security.md) · [中文](docs/zh-CN/security.md)
 
-### Diagnostics and optional scripts
-
-+ [External storage diagnostics](docs/en/storage-diagnostics.md) · [中文](docs/zh-CN/storage-diagnostics.md)
-+ [Touchpad boot self-recovery (Lenovo 82XF)](docs/en/touchpad-boot-recovery.md) · [中文](docs/zh-CN/touchpad-boot-recovery.md)
-+ [Bilibili streaming (bili-live-hime + OBS)](docs/en/bili-live-hime.md) · [中文](docs/zh-CN/bili-live-hime.md)
-+ [Optional user scripts](docs/en/user-scripts.md) · [中文](docs/zh-CN/user-scripts.md)
+Component notes live next to what they describe: `modules/<module>/README.md`
+for installers, and `configs/apps/<app>/` for application configuration.

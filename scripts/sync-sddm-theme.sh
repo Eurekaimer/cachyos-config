@@ -4,6 +4,8 @@ set -Eeuo pipefail
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=scripts/lib/common.sh
 source "$SCRIPT_DIR/lib/common.sh"
+# shellcheck source=scripts/lib/profile.sh
+source "$SCRIPT_DIR/lib/profile.sh"
 
 require_non_root_user
 require_command patch
@@ -28,8 +30,9 @@ selected Noctalia wallpaper and SDDM configuration represented in this repo.
 
 Options:
   --dry-run            Validate inputs and print system/repository changes
-  --from-snapshot      Use modules/sddm/wallpaper.path and configs/home instead
-                       of reading the current Noctalia runtime state
+  --from-snapshot      Use modules/sddm/wallpaper.path and the wallpaper's own
+                       application tree (configs/apps/wallpapers) instead of
+                       reading the current Noctalia runtime state
   --wallpaper FILE     Override the current Noctalia wallpaper
   -h, --help           Show this help
 EOF
@@ -46,7 +49,6 @@ theme_patch="$module_root/qt6.patch"
 theme_override="$module_root/theme.conf.user"
 sddm_source="$module_root/sddm.conf"
 wallpaper_record="$module_root/wallpaper.path"
-snapshot_home="$REPO_ROOT/configs/home"
 snapshot_sddm="$REPO_ROOT/configs/system/portable/etc/sddm.conf.d/10-eurekaimer-theme.conf"
 theme_target="/usr/share/sddm/themes/sugar-candy-qt6"
 sddm_target="/etc/sddm.conf.d/10-eurekaimer-theme.conf"
@@ -76,7 +78,17 @@ else
 fi
 
 [[ -n "$wallpaper_relative" && "$wallpaper_relative" != /* && "$wallpaper_relative" != *".."* ]] || die "Unsafe wallpaper path: $wallpaper_relative"
-snapshot_wallpaper="$snapshot_home/$wallpaper_relative"
+# The wallpaper lives in the application tree that declares its directory, so
+# the repository keeps exactly one copy of it.
+wallpaper_root=$(managed_source_path "$REPO_ROOT" "$wallpaper_relative") \
+    || die "No application declares a path containing the wallpaper: $wallpaper_relative"
+declared=${wallpaper_root#"$REPO_ROOT/configs/apps/"}
+declared=${declared#*/}
+if [[ "$wallpaper_relative" == "$declared" ]]; then
+    snapshot_wallpaper=$wallpaper_root
+else
+    snapshot_wallpaper="$wallpaper_root/${wallpaper_relative#"$declared"/}"
+fi
 
 if (( ! from_snapshot )); then
     if (( DRY_RUN )); then

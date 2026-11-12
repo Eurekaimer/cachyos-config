@@ -2,90 +2,58 @@
 
 [English](../en/configuration.md)
 
-本文从功能出发，索引实时位置、仓库快照和恢复边界。所有表格都按第一列的
-英文名称或路径字母序排列，因此知道软件名时不需要扫描无关内容。真正决定采集
-范围的来源仍然是 `manifests/` 下的白名单。
+`configs/apps/<应用>/` 是每条托管 `$HOME` 路径的唯一副本：目录结构镜像该应用
+拥有的路径，`configs/apps/<应用>/paths` 声明具体有哪些。`manifests/home-paths.txt`
+由这些声明生成，永不手改；当两者不一致、同一路径被两个应用声明、或生成副本
+`configs/home/` 重新出现时，`scripts/audit.sh` 直接失败。`configs/dconf/user.ini`
+是可移植文本导出，不是 dconf 二进制数据库。
+
+采集写入应用目录，恢复从应用目录读出——中间没有生成层。
 
 ## 用户层
 
-配置只在 `configs/apps/<应用>/` 下编写一次，目录结构镜像该应用拥有的、相对
-`$HOME` 的路径。`configs/home/` 是**生成物**：由
-`scripts/sync-configs.sh --to-snapshot` 从这些目录重建；
-`scripts/restore-user.sh` 只读生成的安装树，因此 `configs/home/` 永不手改。
-`manifests/home-paths.txt` 同时由 `configs/apps/*/paths` 生成。
-`configs/dconf/user.ini` 是可移植文本导出，不是 dconf 二进制数据库。
-
-| 应用 | 目录 | 拥有的路径 |
+| 应用 | 目录 | 拥有的路径（相对 `$HOME`） |
 | --- | --- | --- |
-| AniRSS | `configs/apps/ani-rss/` | `Projects/ASS/config/{ani,config}.v2.json` |
+| AniRSS（追番 RSS） | `configs/apps/ani-rss/` | `Projects/ASS/config/{ani,config}.v2.json` |
 | CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
-| Clash Verge | `configs/apps/clash-verge/` | 自启动项、全局 `Script.js` |
+| Clash Verge | `configs/apps/clash-verge/` | `.config/autostart/Clash Verge.desktop`、`.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js` |
 | Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
-| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`、`fcitx5-toggle-japanese` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`、`.local/bin/fcitx5-toggle-japanese` |
 | Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
 | Git | `configs/apps/git/` | `.gitconfig` |
 | Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
 | GTK | `configs/apps/gtk/` | `.config/gtk-3.0/` |
 | Kitty | `configs/apps/kitty/` | `.config/kitty/` |
 | KOReader | `configs/apps/koreader/` | `.config/koreader/` |
-| Micro | `configs/apps/micro/` | 设置与配色（不含 `syntax/`） |
+| Micro | `configs/apps/micro/` | `.config/micro/settings.json`、`.config/micro/colorschemes/` |
 | MIME 默认 | `configs/apps/mimeapps/` | `.config/mimeapps.list` |
 | MPV | `configs/apps/mpv/` | `.config/mpv/` |
-| Niri | `configs/apps/niri/` | `.config/niri/`、niri 辅助脚本、热键文本 |
-| Noctalia | `configs/apps/noctalia/` | 原生 `.config/noctalia/`、`.local/state/noctalia/settings.toml`、`.local/share/noctalia/plugins/storage-gb/` |
-| Neovim | `configs/apps/nvim/` | `.config/nvim/`、Markdown 桌面项 |
-| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/`（不含 `service.json`） |
-| OMP | `configs/apps/omp/` | `.omp/agent/config.yml`、`.omp/agent/models.yml`、`.omp/agent/themes/*.json` |
+| Neovim | `configs/apps/nvim/` | `.config/nvim/`、`.local/share/applications/neovim-markdown.desktop` |
+| Niri | `configs/apps/niri/` | `.config/niri/`、`.local/bin/niri-{hotkeys-zh,screenshot-window,stack-column}`、`.local/share/niri/hotkeys-zh.txt` |
+| Noctalia | `configs/apps/noctalia/` | `.config/noctalia/`、`.local/state/noctalia/settings.toml`、`.local/share/noctalia/plugins/storage-gb/` |
+| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` |
+| OMP（Oh My Pi 配置） | `configs/apps/omp/` | `.omp/agent/config.yml`、`.omp/agent/models.yml`、`.omp/agent/themes/` |
 | Pi（pi coding agent） | `configs/apps/pi/` | `.pi/agent/settings.json`、`.pi/agent/models-store.json`、`.pi/agent/npm/package.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
 | Shell | `configs/apps/shell/` | `.zshrc`、`.zshenv`、`.bashrc`、`.bash_profile`、`.bash_logout` |
-| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
+| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek`、`.config/sioyek/` |
 | Starship | `configs/apps/starship/` | `.config/starship.toml` |
 | Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
-| Timewarrior | `configs/apps/timewarrior/` | `.config/timewarrior/` 配置与扩展 |
-| Wallpapers | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |
-| WeChat | `configs/apps/wechat/` | `wechat.desktop` |
-| XDG 用户目录 | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
+| Wallpapers（壁纸） | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |
+| WeChat | `configs/apps/wechat/` | `.local/share/applications/wechat.desktop` |
+| Wine | `configs/apps/wine/` | `.local/share/applications/wine.desktop` |
+| XDG 用户目录 | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.dirs`、`.config/user-dirs.locale` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
-| Zed | `configs/apps/zed/` | `.config/zed/settings.json`、`.config/zed/keymap.json` |
+| Zed | `configs/apps/zed/` | `.config/zed/settings.json`、`.config/zed/keymap.json`、`.config/zed/snippets/` |
 
-每个应用目录下的 `paths` 文件声明它拥有的、相对 `$HOME` 的路径；采集与恢复都以
-该清单为准。各应用的改动要点见 `docs/agents/MEMORY.md`，数据流见
-`docs/agents/ARCHITECTURE.md`。
+每次提交前，采集清洗器（`scripts/lib/sanitize.sh`）会作用在每个应用目录上：
 
-| 功能 | 当前实际位置 | 仓库位置 |
-| --- | --- | --- |
-| AniRSS（追番 RSS） | `~/Projects/ASS/config/` 下的 `ani.v2.json`、`config.v2.json` | `configs/home/Projects/ASS/config/`；下载器密码/API Key/登录密码/实例 UUID 从公开快照移除 |
-| Autostart（自动启动） | `~/.config/autostart/` 下的白名单文件 | `configs/home/.config/autostart/` |
-| Bash | `~/.bashrc`、`~/.bash_profile`、`~/.bash_logout` | `configs/home/` |
-| CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
-| Dconf | `~/.config/dconf/user` 二进制数据库 | `configs/dconf/user.ini` 文本导出 |
-| Docker helper | `~/.local/bin/docker-ass` | 不入快照；用 `scripts/module.sh install docker-anirss` 单独安装 |
-| Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
-| Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
-| Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
-| Git | `~/.gitconfig` | `configs/home/.gitconfig`；公开快照移除邮箱 |
-| Go-musicfox | `~/.config/go-musicfox/config.toml` | `configs/home/.config/go-musicfox/` |
-| GTK | `~/.config/gtk-3.0/`、`~/.config/gtk-4.0/` | `configs/home/.config/` |
-| Kitty | `~/.config/kitty/` | `configs/home/.config/kitty/` |
-| Micro | `~/.config/micro/settings.json`、`~/.config/micro/colorschemes/` | `configs/home/.config/micro/` |
-| MIME defaults（默认应用） | `~/.config/mimeapps.list` | `configs/home/.config/mimeapps.list` |
-| KOReader | `~/.config/koreader/` | `configs/home/.config/koreader/`（剔除运行态） |
-| MPV | `~/.config/mpv/` | `configs/home/.config/mpv/` |
-| Neovim | `~/.config/nvim/`、Neovim Markdown desktop entry | `configs/home/.config/nvim/`、`configs/home/.local/share/applications/neovim-markdown.desktop` |
-| Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
-| Niri helpers（辅助脚本） | `~/.local/bin/niri-hotkeys-zh`、`~/.local/bin/niri-stack-column`、快捷键文本 | `configs/home/.local/bin/`、`configs/home/.local/share/niri/` |
-| Noctalia | `~/.config/noctalia/`、`~/.local/state/noctalia/settings.toml`、`~/.local/share/noctalia/plugins/storage-gb/` | `configs/home/` 下对应路径；GUI 覆盖优先于底层配置，历史/缓存/私有状态不纳管 |
-| OBS Studio | `~/.config/obs-studio/`（`global.ini`、`user.ini`、`basic/scenes/`、`basic/profiles/`、`plugin_manager/modules.json`） | `configs/home/.config/obs-studio/`；`service.json`（推流密钥）发布前删除，日志与 profiler 数据不入快照 |
-| OMP（Oh My Pi 配置） | `~/.omp/agent/config.yml`、`~/.omp/agent/models.yml`、`~/.omp/agent/themes/*.json` | `configs/home/.omp/agent/` 下对应路径；运行态不入，`models.yml` 的密钥必须是环境变量引用 |
-| Pi（pi coding agent） | `~/.pi/agent/settings.json`、`~/.pi/agent/models-store.json`、`~/.pi/agent/npm/package.json` | `configs/home/.pi/agent/` 下对应路径；`auth.json`、会话记录与 `node_modules/` 不纳管，`settings.json` 会剥掉 `deviceId` |
-| Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`；最近路径元数据会被移除 |
-| Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
-| Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
-| Wallpapers（壁纸） | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
-| XDG user directories（用户目录） | `~/.config/user-dirs.dirs`、`~/.config/user-dirs.locale` | `configs/home/.config/` |
-| Zed | `~/.config/zed/settings.json`、`~/.config/zed/keymap.json` | `configs/home/.config/zed/`；UI 字体 `Monaspace Radon` 由 `packages/profiles/` 里的 `otf-monaspace` 提供 |
-| Zsh | `~/.zshrc`、`~/.zshenv` | `configs/home/.zshrc`、`configs/home/.zshenv`；导出变量里的凭据值会被清空 |
+- 运行态删除而非入库：mpv 缓存与播放历史、KOReader 阅读历史/缓存/单书数据库、
+  壁纸注释元数据、pi 会话记录与 `node_modules/`；
+- 备份文件（`*.bak`、`*.bak-*`、`*.old`）删除：恢复取的是正式文件，不是备份；
+- 凭据清空但保留结构：shell rc 中 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的值、
+  OBS `service.json` 推流密钥、git `user.email`、ani-rss 下载器密码/API Key/UUID，
+  以及 `.omp`、`.pi` 运行态与 `agent/auth.json`。
 
 用户层恢复入口：
 
@@ -93,6 +61,9 @@
 ./scripts/restore-user.sh --dry-run
 ./scripts/restore-user.sh
 ```
+
+被替换的路径先复制到 `~/.local/state/cachyos-config/backup/home`；该目录每次
+恢复前清空，因此只保留一份备份。
 
 ## 系统可移植层
 
@@ -119,6 +90,9 @@
 只影响 X11、必须保留。`sd-vconsole` 钩子把 `/etc/vconsole.conf` 打进 initramfs，
 所以改完该文件必须重建 initramfs（`update-initramfs`），否则 initramfs 阶段仍按旧值报错。
 
+这一层之外恢复流程不写任何东西：没有磁盘 UUID、`/etc/machine-id`、`/etc/fstab`、
+`/etc/hostname`。`/etc/pacman.d/mirrorlist` 这类由位置生成的文件永不自动恢复。
+
 系统层恢复入口：
 
 ```bash
@@ -126,47 +100,17 @@
 ./scripts/restore-system.sh
 ```
 
-复制后，恢复脚本会重新加载 systemd、生成 locale 并重建 initramfs。
-
-## 硬件/主机层
-
-这些文件保存在 `configs/system/hardware/`，默认恢复流程不会应用。
-
-| 功能 | 位置 | 风险 |
-| --- | --- | --- |
-| Filesystem table（文件系统表） | `/etc/fstab` | 包含磁盘 UUID、挂载点和 Btrfs 子卷 |
-| Hostname（主机名） | `/etc/hostname` | 包含主机身份 |
-
-只有确认目标机器具有相同磁盘、子卷、挂载点和预期主机身份，并与
-`state/hardware/{lsblk,findmnt,lspci}.txt` 对照后，才可以使用
-`--with-hardware`。
-
-## 仅供比较层
-
-| 参考项 | 位置 | 恢复行为 |
-| --- | --- | --- |
-| Hardware inventory（硬件清单） | `state/hardware/` | 只供比较，不作为配置复制 |
-| Pacman mirror list（镜像列表） | `configs/system/reference/etc/pacman.d/mirrorlist` | 与位置和时间相关，永不自动恢复 |
+复制后，恢复脚本会重新加载 systemd、生成 locale 并重建 initramfs。被替换的文件
+备份在 `/var/backups/cachyos-config`，该目录每次恢复前清空，只保留一份备份。
 
 ## 软件与服务
 
-`packages/` 分为"安装输入"与"采集产物"两类。第一列是实际路径，按路径字母序排列。
+`packages/profiles/` 与 `packages/required-extra.txt` 是**安装输入**；
+`packages/inventory/`、`packages/services/`、`packages/toolchains/` 是**采集产物**，
+记录采集机器当时的实际状态。详见[软件包与服务](packages-services.md)。
 
-| 清单 | 角色 | 内容 |
-| --- | --- | --- |
-| `packages/profiles/full.txt` | **安装输入** | 当前工作站档：NVIDIA 独显、游戏、容器、通讯、重型 IDE |
-| `packages/profiles/minimal.txt` | **安装输入** | ThinkPad T480 级档：Intel 核显、无游戏/容器、中英精简 TeX |
-| `packages/inventory/pacman-explicit.txt` | 采集产物 | 当前显式安装且来自已配置仓库的软件 |
-| `packages/inventory/aur-explicit.txt` | 采集产物 | 当前显式 AUR 或外部软件 |
-| `packages/services/system.txt` | 采集产物 | 已启用系统服务 |
-| `packages/services/user.txt` | 采集产物 | 已启用用户服务 |
-| `packages/toolchains/rustup.txt` | 采集产物 | Rust 工具链 |
-| `packages/toolchains/bun.txt` | 采集产物 | Bun 全局工具，包括 Oh My Pi Agent |
-| `packages/required-extra.txt` | **安装输入** | 托管配置或恢复脚本自身依赖的软件 |
-
-只有 `profiles/` 与 `required-extra.txt` 是安装输入；`inventory/`、`services/`、
-`toolchains/` 记录采集机器当时的实际状态。用 `scripts/profile.sh use NAME`
-选择档位，用 `scripts/profile.sh diff full minimal` 查看两档差异。
+只有 `profiles/` 参与安装。用 `scripts/profile.sh use NAME` 选择档位，
+用 `scripts/profile.sh diff full minimal` 查看两档差异。
 
 ### Clash Verge 国内直连
 
@@ -193,6 +137,36 @@
 不负责 disable：目标机器若此前已 enable 过 `libvirtd.service`，恢复后需手动执行
 `sudo systemctl disable --now libvirtd.service`。回滚只需
 `sudo systemctl enable --now libvirtd.service`。
+
+## 记录的软件版本
+
+CachyOS 是滚动发行，软件包一直在升级，配置文件不会自动跟上。下表是每份托管配置
+验证时对应的版本。跨版本升级后要回头读上游的格式变更说明（niri `.kdl` 节点名、
+Noctalia 设置、kitty 选项、mpv `script-opts`、KOReader `settings.reader.lua`、
+Sioyek `prefs.config`、Zed 设置、Micro 键位、fcitx5 profile 格式），并在同一次
+提交里同时改配置和这张表。
+
+| 组件 | 采集时版本 | 可能失效的配置格式 |
+| --- | --- | --- |
+| niri | 26.04 | `.config/niri/*.kdl` 的节点与 action 名 |
+| Noctalia | 5.4.0 | `.config/noctalia/` 结构、`settings.toml` 状态键 |
+| kitty | 0.49.2 | `.config/kitty/kitty.conf` 选项 |
+| mpv | 0.41.0 | `mpv.conf` 选项、`script-opts/uosc.conf` |
+| KOReader | 2026.07.1 | `settings.reader.lua`、`defaults.lua`、插件目录 |
+| Sioyek | 2.0.0 | `prefs.config` 共享键 |
+| Zed | 1.26.2 | `settings.json` 键、snippet JSON 结构 |
+| Neovim | 0.12.6 | 插件 API、LSP `vim.lsp.config` 结构 |
+| Micro | 2.0.15 | `settings.json` 键、`bindings.json` action |
+| fcitx5 | 5.1.23 | `profile`/`config` 选项名 |
+| SDDM + Sugar Candy | 0.21.0 / 模块 | `theme.conf`、Qt6 QML API |
+| OBS Studio | 33.0.1 | `basic/profiles/`、`basic/scenes/` JSON 结构 |
+| Thunar | 4.20.10 | 自定义动作 XML（`uca.xml`） |
+| Yazi | 26.9.1 | `yazi.toml`、`keymap.toml` 键 |
+| Starship | 1.27.0 | `starship.toml` 模块 |
+| Clash Verge Rev | 2.5.8 | 扩展脚本 API（`main(config)`） |
+| Git | 2.56.0 | `.gitconfig` 段名 |
+| Qt | 6.12.0 | `QtProject.conf` 键 |
+| zsh | 5.9.2 | rc 加载顺序（`.zshenv` → `.zshrc`） |
 
 ## 明确不进入公开仓库
 

@@ -15,29 +15,28 @@ packages/
   toolchains/{rustup,bun}.txt  # capture output: toolchains and global tools
 manifests/
   home-paths.txt               # GENERATED from configs/apps/*/paths
-  system-{portable,hardware,reference}-paths.txt
+  captured-home.txt            # the $HOME the snapshot came from
+  system-portable-paths.txt
 configs/
   apps/<app>/paths             # the $HOME paths that app owns
-  apps/<app>/…                 # that app's configuration (source of truth)
-  home/…                       # GENERATED $HOME install tree
+  apps/<app>/…                 # that app's configuration (only copy)
   dconf/user.ini               # desktop settings text export
-  system/{portable,hardware,reference}/
+  system/portable/             # the only restored /etc subset
 modules/<name>/                # install.sh, uninstall.sh, README.md,
                                # installed-check, payload files
 scripts/
   module.sh                    # module entry point
   profile.sh                   # profile entry point
   capture.sh                   # machine -> repository
-  sync-configs.sh              # configs/apps <-> $HOME, configs/home
+  sync-configs.sh              # configs/apps <-> $HOME
   restore-{all,system,user,services}.sh
-  install-{packages,progress}.sh
-  sync-{sddm-theme,timewarrior}.sh, post-restore-tweaks.sh, migrate-home-dirs-zh.sh
+  install-packages.sh
+  sync-sddm-theme.sh, post-restore-tweaks.sh
   audit.sh
   lib/{common,restore,profile,sanitize,proxy}.sh
 docs/
   en/, zh-CN/                  # user documentation, bilingual
-  agents/{MEMORY,ARCHITECTURE,TASKS,JOURNAL}.md
-state/                         # captured machine metadata and hardware reference
+  agents/{MEMORY,ARCHITECTURE,TASKS}.md
 ```
 
 ## Data flow
@@ -48,14 +47,14 @@ state/                         # captured machine metadata and hardware referenc
 flowchart LR
   HOME["\$HOME"] -->|"sync-configs --to-snapshot"| APPS["configs/apps/&lt;app&gt;/"]
   APPS -->|sanitize.sh| APPS
-  APPS -->|"rebuild and regenerate"| GEN["configs/home/ + manifests/home-paths.txt"]
-  GEN -->|restore-user.sh| TARGET["target \$HOME"]
+  APPS -->|"regenerate"| MAN["manifests/home-paths.txt"]
+  APPS -->|restore-user.sh| TARGET["target \$HOME"]
   APPS -->|"sync-configs --to-home"| HOME
 ```
 
-`configs/apps/` is the only authored copy. `configs/home/` and
-`manifests/home-paths.txt` are derived and are rewritten together inside one
-transaction, so a failure leaves the previous published state intact.
+`configs/apps/` is the only copy of the managed configuration. The app tree and
+`manifests/home-paths.txt` are rewritten inside one transaction, so a failure
+leaves the previous published state intact.
 
 ### Packages
 
@@ -115,10 +114,10 @@ without `install.sh` (currently `modules/sddm`, consumed by
 
 `scripts/restore-all.sh` runs the stages in this order, and the order matters:
 
-0. preflight (`ensure_sudo`, submodule init, optional zh-directory migration)
+0. preflight (`ensure_sudo`, submodule init)
 1. packages and toolchains
 2. system configuration (`/etc`, portable layer)
-3. user configuration and dconf (`configs/home/`)
+3. user configuration and dconf (`configs/apps/<app>/`)
 4. SDDM theme (needs the submodule from stage 0)
 5. service enablement
 6. post-restore tweaks (eDP-1 scaling, optional native Noctalia wallpaper)

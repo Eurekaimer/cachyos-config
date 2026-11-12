@@ -17,8 +17,8 @@ DTS 读数**双稳态**：单个核心与 `Package id 0` 会在真实的 45–60
 
 安装会：投放 `~/.local/bin/cpu-temp-filter`（0755）与
 `~/.config/systemd/user/cpu-temp-filter.service`，覆盖前备份到
-`~/.local/state/cachyos-config/module-backups/`，然后 `daemon-reload` +
-`enable --now`。
+`~/.local/state/cachyos-config/module-backups/<文件名>`（同名只保留一份），
+然后 `daemon-reload` + `enable --now`。
 
 ## Noctalia 侧配置
 

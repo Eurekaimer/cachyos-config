@@ -45,7 +45,6 @@ limine-snapper-sync
 linux-firmware
 logrotate
 lsb-release
-lsscsi
 lvm2
 lzip
 man-db
@@ -64,7 +63,6 @@ plocate
 plymouth
 rebuild-detector
 reflector
-sg3_utils
 smartmontools
 snapper
 sudo
@@ -127,18 +125,15 @@ fcitx5-pinyin-zhwiki
 fcitx5-qt
 
 # [06-fonts] 字体：中文、emoji、终端 Nerd 图标
-awesome-terminal-fonts
 cantarell-fonts
 noto-fonts
 noto-fonts-emoji
 otf-monaspace
-ttf-bitstream-vera
 ttf-dejavu
 ttf-fantasque-nerd
 ttf-liberation
 ttf-lxgw-wenkai
 ttf-lxgw-wenkai-mono-nerd
-ttf-opensans
 
 # [08-gpu-intel] 显卡：Intel 核显（ThinkPad T480 等无独显机器）
 intel-media-driver
@@ -181,12 +176,10 @@ rsync
 starship
 tealdeer
 thunar
-timew
 tree-sitter-cli
 unrar
 unzip
 wget
-yay-bin
 yazi
 zsh
 

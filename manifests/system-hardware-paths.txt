@@ -1,3 +1,0 @@
-# Never restore on different disks/host without explicit hardware review.
-etc/fstab
-etc/hostname

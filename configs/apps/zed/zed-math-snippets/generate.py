@@ -7,7 +7,6 @@
 from __future__ import annotations
 
 import argparse
-import datetime as dt
 import json
 import re
 import shutil
@@ -190,8 +189,8 @@ def install(files: list[Path]) -> None:
     destination.mkdir(parents=True, exist_ok=True)
     existing = [destination / path.name for path in files if (destination / path.name).exists()]
     if existing:
-        stamp = dt.datetime.now().strftime("%Y%m%d-%H%M%S")
-        backup = Path.home() / ".config" / "zed" / "snippets-backup" / stamp
+        backup = Path.home() / ".config" / "zed" / "snippets-backup"
+        shutil.rmtree(backup, ignore_errors=True)
         backup.mkdir(parents=True)
         for path in existing:
             shutil.copy2(path, backup / path.name)

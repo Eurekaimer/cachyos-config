@@ -18,7 +18,8 @@ mkdir -p "$bin_dir"
 # 备份已存在的旧版本
 if [[ -e "$install_path" || -L "$install_path" ]]; then
     mkdir -p "$backup_dir"
-    backup_path="$backup_dir/campus-login.$(date +%Y%m%d-%H%M%S)"
+    backup_path="$backup_dir/campus-login"
+    rm -rf "$backup_path"
     cp -a "$install_path" "$backup_path" || die "备份 $install_path 失败"
     printf '已备份旧版本到 %s\n' "$backup_path"
 fi

@@ -45,11 +45,9 @@ downloads ECDICT data. Once the AUR package layer has installed Sioyek, run:
 ./scripts/module.sh install sioyek-ecdict
 ```
 
-Restart Sioyek, select an English word, and press `s`. See the
-[component guide](sioyek-ecdict.md) for the generated files and removal.
+Restart Sioyek, select an English word, and press `s`. See
+`modules/sioyek-ecdict/README.md` for the generated files and removal.
 
 If AUR access is temporarily unavailable, use `install-packages.sh --skip-aur` and retry that layer later.
 
-Do not pass `--with-hardware` on a new disk or host. That option overwrites `/etc/fstab` and `/etc/hostname`; compare `lsblk -f` and `findmnt --real` with `state/hardware/` before considering it.
-
-After recovery, run `./scripts/audit.sh`, `niri validate`, verify the required commands and enabled services, and exercise the desktop shortcuts and default applications described in the component documents.
+After recovery, run `./scripts/audit.sh`, `niri validate`, verify the required commands and enabled services, and exercise the desktop shortcuts and default applications described in the module and configuration READMEs.

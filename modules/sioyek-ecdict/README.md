@@ -154,9 +154,3 @@ The installer defines `_ecdict` in `prefs_user.config` as a `gdbus` call whose `
 ```
 
 The script removes the user service and owned Sioyek bindings, restores Sioyek's default external-search prefix, and preserves the project directory and local dictionary database.
-
-## Development
-
-```bash
-modules/sioyek-ecdict/.venv/bin/python -m unittest discover -s modules/sioyek-ecdict/tests -v
-```

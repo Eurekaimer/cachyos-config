@@ -14,6 +14,6 @@ Clash 唯一例外是 `.local/share/io.github.clash-verge-rev.clash-verge-rev/`
 ./scripts/audit.sh
 ```
 
-审计会检查 Shell 语法、禁止出现的私密或运行时路径、疑似密钥文本、逃逸出仓库的符号链接，以及 GitHub 文件大小限制。启发式审计通过只是必要条件；仍需人工检查 `configs/`、`packages/` 和 `state/` 中是否出现未被规则识别的主机名、个人路径、文件名或凭据。
+审计会检查 Shell 语法、禁止出现的私密或运行时路径、疑似密钥文本、逃逸出仓库的符号链接，以及 GitHub 文件大小限制。启发式审计通过只是必要条件；仍需人工检查 `configs/` 和 `packages/` 中是否出现未被规则识别的主机名、个人路径、文件名或凭据。
 
 被排除的凭据应保存在密码管理器或加密备份中。不要为了消除采集警告而弱化审计或随意扩大 manifest。

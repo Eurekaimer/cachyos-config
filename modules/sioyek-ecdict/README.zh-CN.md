@@ -150,9 +150,3 @@ systemctl --user status sioyek-ecdict.service
 ```
 
 脚本会删除用户服务和本项目写入的 Sioyek 键位，恢复 Sioyek 默认的外部搜索前缀，同时保留项目目录和本地词典数据库。
-
-## 开发验证
-
-```bash
-modules/sioyek-ecdict/.venv/bin/python -m unittest discover -s modules/sioyek-ecdict/tests -v
-```

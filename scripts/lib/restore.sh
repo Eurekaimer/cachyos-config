@@ -4,7 +4,6 @@ set -Eeuo pipefail
 # shellcheck source=scripts/lib/common.sh
 source "$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
-RESTORE_TIMESTAMP=${RESTORE_TIMESTAMP:-$(date +%Y%m%d-%H%M%S)}
 BACKUP_ENABLED=${BACKUP_ENABLED:-1}
 
 backup_user_path() {
@@ -106,7 +105,7 @@ replace_system_path() {
 rewrite_captured_home() {
     local target_home=$1 manifest=$2
     local captured_home
-    captured_home=$(<"$REPO_ROOT/state/captured-home.txt")
+    captured_home=$(<"$REPO_ROOT/manifests/captured-home.txt")
     [[ -n "$captured_home" && "$captured_home" != "$target_home" ]] || return 0
     (( DRY_RUN )) && { log "Would rewrite $captured_home to $target_home in managed text files"; return 0; }
 

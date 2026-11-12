@@ -2,36 +2,36 @@
 
 [English](../en/packages-services.md)
 
-以下数量取自已提交的清单（`packages/profiles/*.txt` 为安装输入，其余为
-采集到的状态）。"刷新量"由 `./scripts/capture.sh` 生成；采集时间记录在
-`state/system-info.txt` 的 `captured_at` 字段。
+`packages/` 里只有两类文件，其中一类真正参与安装。
 
-| 来源 | full | minimal | 清单 |
-|---|---:|---:|---|
-| 仓库软件包 | 260 | — | `packages/inventory/pacman-explicit.txt` |
-| AUR/外部软件包 | 18 | — | `packages/inventory/aur-explicit.txt` |
-| **档位安装输入** | **319** | **210** | `packages/profiles/full.txt`、`packages/profiles/minimal.txt` |
-| 直接安装软件（按软件归并） | 134 | — | `packages/inventory/software-census.txt` |
-| Rustup 工具链 | 1 | 1 | `packages/toolchains/rustup.txt` |
-| Bun 全局软件包 | 3 | 3 | `packages/toolchains/bun.txt` |
-| 已启用系统服务 | 31 | 31 | `packages/services/system.txt` |
-| 已启用用户服务 | 9 | 9 | `packages/services/user.txt` |
+**安装输入**——由 `scripts/install-packages.sh` 读取：
 
-`packages/inventory/software-census.txt` 用**软件**而不是包计数：本机 277 个
-显式安装的包归并为 134 个软件（应用 38、工具/运行时 71、系统/桌面组件 25 组），
-外加 6 个非 pacman 管理器安装项（cargo 4、go 1、uv 1），合计 140。
-归并表（例如 fcitx5 的 7 个包 = 1 个输入法、texlive 的 6 个包 = 1 个 TeX Live）
-写在 `scripts/pkgcensus.sh` 顶部；未归并的显式包会在报告末尾单独列出，
-出现该段即说明归并表需要补充。重新生成：
+| 路径 | 作用 |
+| --- | --- |
+| `packages/profiles/full.txt` | 工作站档：NVIDIA 独显、游戏、容器、通讯 |
+| `packages/profiles/minimal.txt` | ThinkPad T480 级档：Intel 核显、无游戏/容器、中英精简 TeX |
+| `packages/required-extra.txt` | 托管配置或恢复脚本自身依赖的软件 |
 
-```bash
-./scripts/pkgcensus.sh > packages/inventory/software-census.txt
-```
+`profiles/*.txt` 是安装器唯一读取的软件清单；安装器先把每个名字解析到仓库，
+剩下的交给 AUR helper，所以新增软件只需加一行。不再需要的软件要从两个档位里
+都删掉——安装器没有分组过滤，留在文件里的行就会被安装。
 
-软件安装的唯一输入是 `packages/profiles/*.txt`；`packages/required-extra.txt`
-另外补齐恢复工具自身依赖。`inventory/`、`services/`、`toolchains/` 是采集产物，
-描述快照来源机器的状态。用 `./scripts/profile.sh diff full minimal` 比较两档，
-用 `./scripts/profile.sh use minimal` 或
+**采集产物**——由 `scripts/capture.sh` 写入，描述快照来源机器：
+
+| 路径 | 内容 |
+| --- | --- |
+| `packages/inventory/pacman-explicit.txt` | 显式安装的仓库软件包 |
+| `packages/inventory/aur-explicit.txt` | 显式安装的 AUR/外部软件包 |
+| `packages/services/system.txt` | 已启用的、由已安装软件包提供的系统服务 |
+| `packages/services/user.txt` | 已启用的、由已安装软件包提供的用户服务 |
+| `packages/toolchains/rustup.txt` | Rust 工具链 |
+| `packages/toolchains/bun.txt` | Bun 全局工具，包括 Oh My Pi agent |
+
+服务快照不是安装清单：只记录由已安装软件包提供的单元，因此模块安装或手工安装
+的服务不会让目标机器上的 `restore-services.sh` 报警。软件包清单是来源机器的记录，
+不是安装输入——某软件从档位移除并卸载后，要等下一次采集清单才会再次一致。
+
+用 `./scripts/profile.sh diff full minimal` 比较两档，用
+`./scripts/profile.sh use minimal` 或
 `./scripts/install-packages.sh --profile minimal` 选择档位。
-
-使用 `./scripts/capture.sh` 刷新全部生成清单；`./scripts/install-packages.sh` 仅恢复软件，`./scripts/restore-services.sh` 恢复服务启用状态。不存在的服务单元会跳过，不会伪造。
+`./scripts/install-packages.sh` 恢复软件，`./scripts/restore-services.sh` 恢复服务启用状态。

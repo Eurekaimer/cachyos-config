@@ -34,6 +34,29 @@ apps_manifest() {
     done
 }
 
+# Map a $HOME-relative path to the repository file that backs it.
+#
+#   managed_source_path <repo-root> <relative>
+#
+# Prints "$REPO_ROOT/configs/apps/<app>/<declared>" for the declared path that
+# equals <relative>, or failing that, contains it; returns 1 when no application
+# declares the path. An exact declaration always wins, so a nested path cannot
+# be claimed by an unrelated app that happens to declare a shorter parent.
+managed_source_path() {
+    local repo_root=$1 relative=$2 app path
+    while IFS=$'\t' read -r app path; do
+        [[ -n "$app" && "$path" == "$relative" ]] || continue
+        printf '%s/configs/apps/%s/%s\n' "$repo_root" "$app" "$path"
+        return 0
+    done < <(apps_manifest "$repo_root")
+    while IFS=$'\t' read -r app path; do
+        [[ -n "$app" && "$relative" == "$path"/* ]] || continue
+        printf '%s/configs/apps/%s/%s\n' "$repo_root" "$app" "$path"
+        return 0
+    done < <(apps_manifest "$repo_root")
+    return 1
+}
+
 # Regenerate manifests/home-paths.txt from configs/apps/*/paths (sorted, deduped).
 write_home_paths() {
     local repo_root=$1

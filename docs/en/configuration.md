@@ -2,94 +2,65 @@
 
 [简体中文](../zh-CN/configuration.md)
 
-This is the authoritative map from a feature to its live location, snapshot
-location, and restore boundary. Tables are alphabetized by the first column so
-a known application or manifest can be found without scanning unrelated rows.
-The allowlists under `manifests/` remain the source of truth.
+`configs/apps/<app>/` is the single copy of every managed `$HOME` path: the
+directory mirrors the path the application owns, and `configs/apps/<app>/paths`
+declares which paths those are. `manifests/home-paths.txt` is generated from
+those declarations and never edited by hand; `scripts/audit.sh` fails when the
+two disagree, when a path is declared twice, or when a generated copy
+(`configs/home/`) reappears. `configs/dconf/user.ini` is a portable text export
+rather than the binary dconf database.
+
+Capture writes the app trees, restore reads them back — there is no generated
+install tree in between.
 
 ## User layer
 
-Configuration is authored once, under `configs/apps/<app>/`, which mirrors the
-paths that application owns relative to `$HOME`. `configs/home/` is a
-**generated** install tree rebuilt from those directories by
-`scripts/sync-configs.sh --to-snapshot`; `scripts/restore-user.sh` reads only
-the generated tree, so `configs/home/` is never edited by hand.
-`manifests/home-paths.txt` is generated from `configs/apps/*/paths` at the same
-time. `configs/dconf/user.ini` is a portable text export rather than the binary
-dconf database.
-
-| Application | Directory | Owns |
+| Application | Directory | Owns, relative to `$HOME` |
 | --- | --- | --- |
 | AniRSS | `configs/apps/ani-rss/` | `Projects/ASS/config/{ani,config}.v2.json` |
 | CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
-| Clash Verge | `configs/apps/clash-verge/` | autostart entry, global `Script.js` |
+| Clash Verge | `configs/apps/clash-verge/` | `.config/autostart/Clash Verge.desktop`, `.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js` |
 | Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
-| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`, `fcitx5-toggle-japanese` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`, `.local/bin/fcitx5-toggle-japanese` |
 | Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
 | Git | `configs/apps/git/` | `.gitconfig` |
 | Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
 | GTK | `configs/apps/gtk/` | `.config/gtk-3.0/` |
 | Kitty | `configs/apps/kitty/` | `.config/kitty/` |
 | KOReader | `configs/apps/koreader/` | `.config/koreader/` |
-| Micro | `configs/apps/micro/` | settings and colorschemes (no `syntax/`) |
+| Micro | `configs/apps/micro/` | `.config/micro/settings.json`, `.config/micro/colorschemes/` |
 | MIME defaults | `configs/apps/mimeapps/` | `.config/mimeapps.list` |
 | MPV | `configs/apps/mpv/` | `.config/mpv/` |
-| Niri | `configs/apps/niri/` | `.config/niri/`, niri helpers, hotkey text |
-| Noctalia | `configs/apps/noctalia/` | native `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb/` |
-| Neovim | `configs/apps/nvim/` | `.config/nvim/`, Markdown desktop entry |
-| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/` (no `service.json`) |
-| OMP | `configs/apps/omp/` | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/*.json` |
-| Pi (pi coding agent) | `configs/apps/pi/` | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` |
+| Neovim | `configs/apps/nvim/` | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` |
+| Niri | `configs/apps/niri/` | `.config/niri/`, `.local/bin/niri-{hotkeys-zh,screenshot-window,stack-column}`, `.local/share/niri/hotkeys-zh.txt` |
+| Noctalia | `configs/apps/noctalia/` | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb/` |
+| OBS Studio | `configs/apps/obs-studio/` | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` |
+| OMP | `configs/apps/omp/` | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/` |
+| Pi | `configs/apps/pi/` | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
 | Shell | `configs/apps/shell/` | `.zshrc`, `.zshenv`, `.bashrc`, `.bash_profile`, `.bash_logout` |
-| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek` |
+| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek`, `.config/sioyek/` |
 | Starship | `configs/apps/starship/` | `.config/starship.toml` |
 | Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
-| Timewarrior | `configs/apps/timewarrior/` | `.config/timewarrior/` config and extension |
 | Wallpapers | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |
-| WeChat | `configs/apps/wechat/` | `wechat.desktop` |
-| XDG user dirs | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.{dirs,locale}` |
+| WeChat | `configs/apps/wechat/` | `.local/share/applications/wechat.desktop` |
+| Wine | `configs/apps/wine/` | `.local/share/applications/wine.desktop` |
+| XDG user dirs | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.dirs`, `.config/user-dirs.locale` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
-| Zed | `configs/apps/zed/` | `.config/zed/settings.json`, `.config/zed/keymap.json` |
+| Zed | `configs/apps/zed/` | `.config/zed/settings.json`, `.config/zed/keymap.json`, `.config/zed/snippets/` |
 
-Each application directory contains a `paths` file listing the `$HOME`-relative
-paths it owns; that list is what both the capture and the restore use. See
-`docs/agents/MEMORY.md` for per-application editing notes and
-`docs/agents/ARCHITECTURE.md` for the data flow.
+The capture sanitizer (`scripts/lib/sanitize.sh`) runs on every app tree before
+it is committed:
 
-| Feature | Live location | Snapshot location |
-| --- | --- | --- |
-| AniRSS (anime RSS) | `ani.v2.json`, `config.v2.json` under `~/Projects/ASS/config/` | `configs/home/Projects/ASS/config/`; downloader password/API key/login password/instance UUID removed from the public snapshot |
-| Autostart | Allowlisted entries under `~/.config/autostart/` | `configs/home/.config/autostart/` |
-| Bash | `~/.bashrc`, `~/.bash_profile`, `~/.bash_logout` | `configs/home/` |
-| CachyOS Hello | `~/.config/cachyos-hello.json` | `configs/home/.config/cachyos-hello.json` |
-| Dconf | `~/.config/dconf/user` binary database | `configs/dconf/user.ini` text export |
-| Docker helper | `~/.local/bin/docker-ass` | not snapshotted; install with `scripts/module.sh install docker-anirss` |
-| Fastfetch | `~/.config/fastfetch/` | `configs/home/.config/fastfetch/` |
-| Fcitx5 | `~/.config/fcitx5/` | `configs/home/.config/fcitx5/` |
-| Fontconfig | `~/.config/fontconfig/` | `configs/home/.config/fontconfig/` |
-| Git | `~/.gitconfig` | `configs/home/.gitconfig`; public snapshot removes email |
-| Go-musicfox | `~/.config/go-musicfox/config.toml` | `configs/home/.config/go-musicfox/` |
-| GTK | `~/.config/gtk-3.0/`, `~/.config/gtk-4.0/` | `configs/home/.config/` |
-| Kitty | `~/.config/kitty/` | `configs/home/.config/kitty/` |
-| Micro | `~/.config/micro/settings.json`, `~/.config/micro/colorschemes/` | `configs/home/.config/micro/` |
-| MIME defaults | `~/.config/mimeapps.list` | `configs/home/.config/mimeapps.list` |
-| KOReader | `~/.config/koreader/` | `configs/home/.config/koreader/` (runtime state pruned) |
-| MPV | `~/.config/mpv/` | `configs/home/.config/mpv/` |
-| Neovim | `~/.config/nvim/`, Neovim Markdown desktop entry | `configs/home/.config/nvim/`, `configs/home/.local/share/applications/neovim-markdown.desktop` |
-| Niri | `~/.config/niri/` | `configs/home/.config/niri/` |
-| Niri helpers | `~/.local/bin/niri-hotkeys-zh`, `~/.local/bin/niri-stack-column`, hotkey text | `configs/home/.local/bin/`, `configs/home/.local/share/niri/` |
-| Noctalia | `~/.config/noctalia/`, `~/.local/state/noctalia/settings.toml`, `~/.local/share/noctalia/plugins/storage-gb/` | Matching paths under `configs/home/`; saved GUI overrides take precedence over base config; histories/caches/private state excluded |
-| OBS Studio | `~/.config/obs-studio/` (`global.ini`, `user.ini`, `basic/scenes/`, `basic/profiles/`, `plugin_manager/modules.json`) | `configs/home/.config/obs-studio/`; `service.json` (stream key) is deleted before publishing; logs and profiler data stay out |
-| OMP (Oh My Pi config) | `~/.omp/agent/config.yml`, `~/.omp/agent/models.yml`, `~/.omp/agent/themes/*.json` | Matching paths under `configs/home/.omp/agent/`; runtime state stays out, and `models.yml` keys must be env-var references |
-| Pi (pi coding agent) | `~/.pi/agent/settings.json`, `~/.pi/agent/models-store.json`, `~/.pi/agent/npm/package.json` | Matching paths under `configs/home/.pi/agent/`; `auth.json`, session transcripts and `node_modules/` are excluded, and `deviceId` is stripped from `settings.json` |
-| Qt | `~/.config/QtProject.conf` | `configs/home/.config/QtProject.conf`; recent-path metadata is removed |
-| Starship | `~/.config/starship.toml` | `configs/home/.config/starship.toml` |
-| Thunar | `~/.config/Thunar/uca.xml` | `configs/home/.config/Thunar/uca.xml` |
-| Wallpapers | `~/Pictures/Wallpapers/` | `configs/home/Pictures/Wallpapers/` |
-| XDG user directories | `~/.config/user-dirs.dirs`, `~/.config/user-dirs.locale` | `configs/home/.config/` |
-| Zed | `~/.config/zed/settings.json`, `~/.config/zed/keymap.json` | `configs/home/.config/zed/`; `Monaspace Radon` UI font comes from `otf-monaspace` in `packages/profiles/` |
-| Zsh | `~/.zshrc`, `~/.zshenv` | `configs/home/.zshrc`, `configs/home/.zshenv`; credential export values are blanked |
+- runtime state is deleted, not versioned: mpv cache and play history, KOReader
+  reading history/caches/per-book databases, wallpaper comment metadata, pi
+  session transcripts and `node_modules/`;
+- backups (`*.bak`, `*.bak-*`, `*.old`) are deleted, because a restore
+  reproduces the live file from the pristine copy;
+- credentials are blanked while the structure stays: `KEY`/`TOKEN`/`SECRET`/
+  `PASSWORD` values in shell rc files, OBS `service.json` stream keys, the git
+  `user.email`, ani-rss downloader password/API key/UUID, `.omp` and `.pi`
+  runtime state, and `agent/auth.json`.
 
 Restore this layer with:
 
@@ -97,6 +68,10 @@ Restore this layer with:
 ./scripts/restore-user.sh --dry-run
 ./scripts/restore-user.sh
 ```
+
+Existing paths are copied to `~/.local/state/cachyos-config/backup/home` first;
+that directory is cleared on every restore, so exactly one backup generation is
+kept.
 
 ## Portable system layer
 
@@ -124,6 +99,10 @@ fcitx5 in the GUI; `XKBLAYOUT=cn` only affects X11 and must stay. The `sd-vconso
 embeds `/etc/vconsole.conf` into the initramfs, so any edit must be followed by an
 initramfs rebuild (`update-initramfs`), otherwise the initramfs stage keeps the old value.
 
+Nothing outside this layer is written by recovery: no disk UUIDs,
+`/etc/machine-id`, `/etc/fstab`, or `/etc/hostname`. Location-generated files
+such as `/etc/pacman.d/mirrorlist` are never restored automatically.
+
 Restore this layer with:
 
 ```bash
@@ -132,50 +111,19 @@ Restore this layer with:
 ```
 
 The restore reloads systemd, regenerates locales, and rebuilds initramfs after
-copying.
-
-## Hardware-bound layer
-
-These files live in `configs/system/hardware/` and are excluded from default
-recovery.
-
-| Feature | Live location | Risk |
-| --- | --- | --- |
-| Filesystem table | `/etc/fstab` | Contains disk UUIDs, mount points, and Btrfs subvolumes |
-| Hostname | `/etc/hostname` | Carries host identity |
-
-Use `--with-hardware` only after confirming the target has the same disks,
-subvolumes, mount points, and intended host identity against
-`state/hardware/{lsblk,findmnt,lspci}.txt`.
-
-## Reference-only layer
-
-| Reference | Location | Restore behavior |
-| --- | --- | --- |
-| Hardware inventory | `state/hardware/` | Comparison only; never copied as configuration |
-| Pacman mirror list | `configs/system/reference/etc/pacman.d/mirrorlist` | Location/time dependent; never restored automatically |
+copying. Replaced files are backed up to `/var/backups/cachyos-config`, which is
+cleared first so one backup generation is kept.
 
 ## Software and services
 
-`packages/` splits into install inputs and capture outputs. The first column is
-the actual path and is sorted alphabetically.
+`packages/profiles/` and `packages/required-extra.txt` are **install inputs**;
+`packages/inventory/`, `packages/services/` and `packages/toolchains/` are
+**capture outputs** recording what the capturing machine actually had. See
+[packages and services](packages-services.md).
 
-| Manifest | Role | Content |
-| --- | --- | --- |
-| `packages/profiles/full.txt` | **install input** | Current workstation profile: NVIDIA, gaming, containers, comms, heavy IDEs |
-| `packages/profiles/minimal.txt` | **install input** | ThinkPad T480 class profile: Intel iGPU, no gaming/containers, CN/EN TeX |
-| `packages/inventory/pacman-explicit.txt` | capture output | Explicit packages from configured repositories |
-| `packages/inventory/aur-explicit.txt` | capture output | Explicit AUR or external packages |
-| `packages/services/system.txt` | capture output | Enabled system services |
-| `packages/services/user.txt` | capture output | Enabled user services |
-| `packages/toolchains/rustup.txt` | capture output | Rust toolchains |
-| `packages/toolchains/bun.txt` | capture output | Bun global tools, including Oh My Pi Agent |
-| `packages/required-extra.txt` | **install input** | Dependencies required by managed configuration or recovery scripts |
-
-Only `profiles/` and `required-extra.txt` are installer inputs; the `inventory/`,
-`services/` and `toolchains/` trees record what the capturing machine actually
-had. Select a profile with `scripts/profile.sh use NAME`, and inspect the
-difference between two profiles with `scripts/profile.sh diff full minimal`.
+Only `profiles/` feeds the installer. Select a profile with
+`scripts/profile.sh use NAME` and inspect the difference with
+`scripts/profile.sh diff full minimal`.
 
 ### Clash Verge domestic routing
 
@@ -203,6 +151,38 @@ connection. `QEMU-win10` lives in `qemu:///session`, has no autostart
 Trade-off: the `virbr0` NAT network no longer appears at boot but comes up with the daemon
 on first system-level libvirt use; that domain uses `<interface type='user'>` and does not
 need `virbr0`. Roll back with `sudo systemctl enable --now libvirtd.service`.
+
+## Recorded software versions
+
+CachyOS is rolling, so the packages move; the configuration files do not follow
+automatically. The versions below are what each managed configuration was
+validated against. After a version jump, re-read the upstream release notes for
+the schema the config depends on (niri `.kdl` node names, Noctalia settings,
+kitty keys, mpv `script-opts`, KOReader `settings.reader.lua`, Sioyek
+`prefs.config`, Zed settings, Micro bindings, fcitx5 profile format) and update
+both the config and this table in the same commit.
+
+| Component | Version at capture | Config format that can break |
+| --- | --- | --- |
+| niri | 26.04 | `.config/niri/*.kdl` layout and action names |
+| Noctalia | 5.4.0 | `.config/noctalia/` schema, `settings.toml` state keys |
+| kitty | 0.49.2 | `.config/kitty/kitty.conf` options |
+| mpv | 0.41.0 | `mpv.conf` options, `script-opts/uosc.conf` |
+| KOReader | 2026.07.1 | `settings.reader.lua`, `defaults.lua`, plugin layout |
+| Sioyek | 2.0.0 | `prefs.config` shared keys |
+| Zed | 1.26.2 | `settings.json` keys, snippet JSON schema |
+| Neovim | 0.12.6 | plugin APIs, LSP `vim.lsp.config` shape |
+| Micro | 2.0.15 | `settings.json` keys, `bindings.json` actions |
+| fcitx5 | 5.1.23 | `profile`/`config` option names |
+| SDDM + Sugar Candy | 0.21.0 / module | `theme.conf`, Qt6 QML API |
+| OBS Studio | 33.0.1 | `basic/profiles/`, `basic/scenes/` JSON schema |
+| Thunar | 4.20.10 | custom action XML (`uca.xml`) |
+| Yazi | 26.9.1 | `yazi.toml`, `keymap.toml` keys |
+| Starship | 1.27.0 | `starship.toml` modules |
+| Clash Verge Rev | 2.5.8 | extension script API (`main(config)`) |
+| Git | 2.56.0 | `.gitconfig` section names |
+| Qt | 6.12.0 | `QtProject.conf` keys |
+| zsh | 5.9.2 | rc file ordering (`.zshenv` → `.zshrc`) |
 
 ## Excluded from the public repository
 

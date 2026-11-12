@@ -48,14 +48,10 @@ sudo reboot
 ```
 
 重启 Sioyek，选中英文单词并按 `s` 即可查词。生成的文件与卸载方法见
-[插件说明](sioyek-ecdict.md)。
+`modules/sioyek-ecdict/README.md`。
 
 如果暂时无法访问 AUR，可以先用 `install-packages.sh --skip-aur` 装完仓库软件包，
 之后再单独重试该层。
 
-不要在全新的磁盘或主机上使用 `--with-hardware`。该选项会覆盖 `/etc/fstab`
-和 `/etc/hostname`；考虑使用前，先用 `lsblk -f` 和 `findmnt --real` 与
-`state/hardware/` 比对，确认磁盘布局一致。
-
 恢复完成后，再运行 `./scripts/audit.sh`、`niri validate`，核对必备命令与已启用
-服务，并按各组件文档测试桌面快捷键和默认应用。
+服务，并按模块与配置目录里的 README 测试桌面快捷键和默认应用。

@@ -13,14 +13,11 @@ source "$SCRIPT_DIR/lib/sanitize.sh"
 #
 #   configs/apps/<app>/paths   the $HOME paths the app owns (source of truth)
 #   configs/apps/<app>/…       the app's configuration, mirroring those paths
-#   configs/home/…             GENERATED $HOME install tree consumed by
-#                              restore-user.sh; never edit by hand
 #
-# --to-snapshot: $HOME -> configs/apps -> configs/home -> manifests/home-paths.txt
+# --to-snapshot: $HOME -> configs/apps -> manifests/home-paths.txt
 # --to-home:     configs/apps -> $HOME (per-path; the inverse of the first hop)
 
 apps_root="$REPO_ROOT/configs/apps"
-home_root="$REPO_ROOT/configs/home"
 
 usage() {
     cat <<'EOF'
@@ -30,8 +27,8 @@ Keeps the application layer and this machine in step.
 
 --to-snapshot (default direction for capture)
     For every app under configs/apps/, copy each path it declares from $HOME
-    into configs/apps/<app>/, strip runtime state and credentials, rebuild
-    configs/home/ from the app trees, and regenerate manifests/home-paths.txt.
+    into configs/apps/<app>/, strip runtime state and credentials, and
+    regenerate manifests/home-paths.txt. configs/apps/ is the only copy.
 
 --to-home
     Copy every declared path from configs/apps/<app>/ back into $HOME.
@@ -111,26 +108,6 @@ snapshot_apps() {
     fi
 }
 
-# Rebuild the generated $HOME install tree from the app trees.
-rebuild_home_tree() {
-    local app path source destination
-    if (( DRY_RUN )); then
-        print_cmd rm -rf -- "$home_root"
-        print_cmd mkdir -p -- "$home_root"
-    else
-        rm -rf -- "$home_root"
-        mkdir -p -- "$home_root"
-    fi
-    while IFS=$'\t' read -r app path; do
-        [[ -n "$app" ]] || continue
-        source="$apps_root/$app/$path"
-        destination="$home_root/$path"
-        [[ -e "$source" || -L "$source" ]] || { warn "App tree lacks $app:$path; skipping"; continue; }
-        run mkdir -p -- "$(dirname -- "$destination")"
-        run cp -a -- "$source" "$destination"
-    done < <(apps_manifest "$REPO_ROOT")
-}
-
 # --- check direction -------------------------------------------------------
 # Compare each declared path in $HOME against the application tree, applying the
 # same sanitizer a capture would, then diffing. This is the "$HOME vs snapshot"
@@ -188,10 +165,10 @@ restore_apps_to_home() {
 
 case "$direction" in
     snapshot)
-        # configs/apps, configs/home and manifests/home-paths.txt are rewritten
-        # as one transaction: any failure restores all three unchanged. The
-        # backup is a copy, because snapshot_apps reads configs/apps/*/paths to
-        # learn which $HOME paths to capture.
+        # configs/apps and manifests/home-paths.txt are rewritten as one
+        # transaction: any failure restores both unchanged. The backup is a
+        # copy, because snapshot_apps reads configs/apps/*/paths to learn which
+        # $HOME paths to capture.
         sync_backup=$(mktemp -d)
         sync_complete=0
         restore_snapshot() {
@@ -200,7 +177,7 @@ case "$direction" in
                 rm -rf -- "$sync_backup"
                 return 0
             fi
-            for item in apps home home-paths.txt; do
+            for item in apps home-paths.txt; do
                 [[ -e "$sync_backup/$item" || -L "$sync_backup/$item" ]] || continue
                 if [[ "$item" == home-paths.txt ]]; then
                     rm -f -- "$REPO_ROOT/manifests/$item"
@@ -214,7 +191,7 @@ case "$direction" in
             die "Configuration sync failed; previous application layer restored"
         }
         trap restore_snapshot EXIT
-        for item in apps home home-paths.txt; do
+        for item in apps home-paths.txt; do
             if [[ "$item" == home-paths.txt ]]; then
                 src="$REPO_ROOT/manifests/$item"
             else
@@ -226,8 +203,6 @@ case "$direction" in
 
         log "Capturing the application layer from $HOME"
         snapshot_apps
-        log "Rebuilding the generated home tree: configs/home/"
-        rebuild_home_tree
         if (( DRY_RUN )); then
             log "Would regenerate manifests/home-paths.txt"
         else

@@ -1,6 +1,6 @@
 # mpv 配置架构手册
 
-> 所有文件位于 `~/.config/mpv/` (由 cachyos-config 的 `scripts/restore-user.sh` 从 `configs/home/.config/mpv/` 快照恢复)
+> 所有文件位于 `~/.config/mpv/` (由 cachyos-config 的 `scripts/restore-user.sh` 从 `configs/apps/mpv/.config/mpv/` 恢复)
 > 修改后重启 mpv 即生效
 
 ---
@@ -330,7 +330,7 @@
 ## 常见问题
 
 **Q: 改配置后没生效?**
-A: 重启 mpv。如果还不行，确认 `~/.config/mpv/` 与仓库 `configs/home/.config/mpv/` 一致，可重跑 `./scripts/restore-user.sh` 恢复快照。
+A: 重启 mpv。如果还不行，确认 `~/.config/mpv/` 与仓库 `configs/apps/mpv/.config/mpv/` 一致，可重跑 `./scripts/restore-user.sh` 恢复。
 
 **Q: 字幕没自动加载?**
 A: 确保字幕文件与视频同目录，文件名包含相同数字 (如 `01`)。也可按 `y` 手动选择。

@@ -28,8 +28,6 @@
 .config/obs-studio/user.ini
 .config/sioyek
 .config/starship.toml
-.config/timewarrior/extensions/totals.py
-.config/timewarrior/timewarrior.cfg
 .config/user-dirs.dirs
 .config/user-dirs.locale
 .config/yazi
