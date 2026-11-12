@@ -1,0 +1,73 @@
+# operators.toml — 常用运算符、关系与箭头；以标点结尾的触发词需 ctrl-space
+
+[[snippet]]
+prefix = "+-"
+description = "正负号 ±"
+latex = '\pm$0'
+typst = 'plus.minus$0'
+
+[[snippet]]
+prefix = "..."
+description = "居中标点省略号 ⋯"
+latex = '\dots$0'
+typst = 'dots.h.c$0'
+
+[[snippet]]
+prefix = "**"
+description = "点乘 ⋅（旧习惯；ctrl-space 触发）"
+latex = '\cdot$0'
+typst = 'dot.op$0'
+
+[[snippet]]
+prefix = "xx"
+description = "乘号 ×（旧习惯）"
+latex = '\times$0'
+typst = 'times$0'
+
+[[snippet]]
+prefix = "!="
+description = "不等 ≠（旧习惯；ctrl-space 触发）"
+latex = '\neq$0'
+typst = 'eq.not$0'
+
+[[snippet]]
+prefix = ">="
+description = "大于等于 ⩾（旧习惯；ctrl-space 触发）"
+latex = '\geqslant$0'
+typst = 'gt.eq.slant$0'
+
+[[snippet]]
+prefix = "<="
+description = "小于等于 ⩽（旧习惯；ctrl-space 触发）"
+latex = '\leqslant$0'
+typst = 'lt.eq.slant$0'
+
+[[snippet]]
+prefix = "approx"
+description = "约等于 ≈"
+latex = '\approx$0'
+typst = 'approx$0'
+
+[[snippet]]
+prefix = "prop"
+description = "正比于 ∝（旧习惯）"
+latex = '\propto$0'
+typst = 'prop$0'
+
+[[snippet]]
+prefix = "<->"
+description = "双向箭头 ↔（旧习惯；ctrl-space 触发）"
+latex = '\leftrightarrow$0'
+typst = 'arrow.l.r$0'
+
+[[snippet]]
+prefix = "->"
+description = "右箭头 →（旧习惯；ctrl-space 触发）"
+latex = '\to$0'
+typst = 'arrow.r$0'
+
+[[snippet]]
+prefix = "=>"
+description = "推出 ⟹（旧习惯；ctrl-space 触发）"
+latex = '\implies$0'
+typst = 'arrow.r.double.long$0'

@@ -13,6 +13,9 @@ backups/
 *.tmp
 *.log
 
+# Generated Zed math snippet JSON (rebuilt by zed-math-snippets/generate.py)
+configs/apps/zed/zed-math-snippets/dist/
+
 # Editor and OS noise
 .DS_Store
 .idea/

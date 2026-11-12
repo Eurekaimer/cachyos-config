@@ -1,0 +1,206 @@
+# greek.toml — 希腊字母；@x 形式沿用 Obsidian LaTeX Suite 旧习惯
+
+[[snippet]]
+prefix = "@a"
+description = "希腊字母 α"
+latex = '\alpha$0'
+typst = 'alpha$0'
+
+[[snippet]]
+prefix = "@b"
+description = "希腊字母 β"
+latex = '\beta$0'
+typst = 'beta$0'
+
+[[snippet]]
+prefix = "@g"
+description = "希腊字母 γ"
+latex = '\gamma$0'
+typst = 'gamma$0'
+
+[[snippet]]
+prefix = "@G"
+description = "大写希腊字母 Γ"
+latex = '\Gamma$0'
+typst = 'Gamma$0'
+
+[[snippet]]
+prefix = "@d"
+description = "希腊字母 δ"
+latex = '\delta$0'
+typst = 'delta$0'
+
+[[snippet]]
+prefix = "@D"
+description = "大写希腊字母 Δ"
+latex = '\Delta$0'
+typst = 'Delta$0'
+
+[[snippet]]
+prefix = "@e"
+description = "希腊字母 ε（变体）"
+latex = '\varepsilon$0'
+typst = 'epsilon$0'
+
+[[snippet]]
+prefix = "@z"
+description = "希腊字母 ζ"
+latex = '\zeta$0'
+typst = 'zeta$0'
+
+[[snippet]]
+prefix = "@t"
+description = "希腊字母 θ"
+latex = '\theta$0'
+typst = 'theta$0'
+
+[[snippet]]
+prefix = "@T"
+description = "大写希腊字母 Θ"
+latex = '\Theta$0'
+typst = 'Theta$0'
+
+[[snippet]]
+prefix = ":t"
+description = "希腊字母 ϑ（theta 变体，旧习惯）"
+latex = '\vartheta$0'
+typst = 'theta.alt$0'
+
+[[snippet]]
+prefix = "@i"
+description = "希腊字母 ι（旧习惯）"
+latex = '\iota$0'
+typst = 'iota$0'
+
+[[snippet]]
+prefix = "@k"
+description = "希腊字母 κ"
+latex = '\kappa$0'
+typst = 'kappa$0'
+
+[[snippet]]
+prefix = "@l"
+description = "希腊字母 λ"
+latex = '\lambda$0'
+typst = 'lambda$0'
+
+[[snippet]]
+prefix = "@L"
+description = "大写希腊字母 Λ"
+latex = '\Lambda$0'
+typst = 'Lambda$0'
+
+[[snippet]]
+prefix = "@m"
+description = "希腊字母 μ"
+latex = '\mu$0'
+typst = 'mu$0'
+
+[[snippet]]
+prefix = "@n"
+description = "希腊字母 ν"
+latex = '\nu$0'
+typst = 'nu$0'
+
+[[snippet]]
+prefix = "@x"
+description = "希腊字母 ξ"
+latex = '\xi$0'
+typst = 'xi$0'
+
+[[snippet]]
+prefix = "@X"
+description = "大写希腊字母 Ξ"
+latex = '\Xi$0'
+typst = 'Xi$0'
+
+[[snippet]]
+prefix = "@p"
+description = "希腊字母 π"
+latex = '\pi$0'
+typst = 'pi$0'
+
+[[snippet]]
+prefix = "@P"
+description = "大写希腊字母 Π"
+latex = '\Pi$0'
+typst = 'Pi$0'
+
+[[snippet]]
+prefix = "@r"
+description = "希腊字母 ρ"
+latex = '\rho$0'
+typst = 'rho$0'
+
+[[snippet]]
+prefix = "@s"
+description = "希腊字母 σ"
+latex = '\sigma$0'
+typst = 'sigma$0'
+
+[[snippet]]
+prefix = "@S"
+description = "大写希腊字母 Σ"
+latex = '\Sigma$0'
+typst = 'Sigma$0'
+
+[[snippet]]
+prefix = "@f"
+description = "希腊字母 φ"
+latex = '\phi$0'
+typst = 'phi$0'
+
+[[snippet]]
+prefix = "@F"
+description = "大写希腊字母 Φ"
+latex = '\Phi$0'
+typst = 'Phi$0'
+
+[[snippet]]
+prefix = "@c"
+description = "希腊字母 χ"
+latex = '\chi$0'
+typst = 'chi$0'
+
+[[snippet]]
+prefix = "@y"
+description = "希腊字母 ψ"
+latex = '\psi$0'
+typst = 'psi$0'
+
+[[snippet]]
+prefix = "@Y"
+description = "大写希腊字母 Ψ"
+latex = '\Psi$0'
+typst = 'Psi$0'
+
+[[snippet]]
+prefix = "@o"
+description = "希腊字母 ω"
+latex = '\omega$0'
+typst = 'omega$0'
+
+[[snippet]]
+prefix = "@O"
+description = "大写希腊字母 Ω"
+latex = '\Omega$0'
+typst = 'Omega$0'
+
+[[snippet]]
+prefix = "@u"
+description = "希腊字母 υ（旧习惯）"
+latex = '\upsilon$0'
+typst = 'upsilon$0'
+
+[[snippet]]
+prefix = "@U"
+description = "大写希腊字母 Υ（旧习惯）"
+latex = '\Upsilon$0'
+typst = 'Upsilon$0'
+
+[[snippet]]
+prefix = "eta"
+description = "希腊字母 η（旧习惯）"
+latex = '\eta$0'
+typst = 'eta$0'
+

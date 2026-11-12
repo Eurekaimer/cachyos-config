@@ -1,0 +1,85 @@
+# calculus.toml — 极限、导数、积分、求和与连乘
+
+[[snippet]]
+prefix = "lim"
+description = "极限"
+latex = '\lim_{${1:x} \to ${2:\infty}} ${3}$0'
+typst = 'lim_(${1:x} -> ${2:oo}) ${3}$0'
+
+[[snippet]]
+prefix = "suplim"
+description = "上极限（旧习惯）"
+latex = '\varlimsup\limits_{${1:n} \to ${2:\infty}} ${3}$0'
+typst = 'limsup_(${1:n} -> ${2:oo}) ${3}$0'
+
+[[snippet]]
+prefix = "inflim"
+description = "下极限（旧习惯）"
+latex = '\varliminf\limits_{${1:n} \to ${2:\infty}} ${3}$0'
+typst = 'liminf_(${1:n} -> ${2:oo}) ${3}$0'
+
+[[snippet]]
+prefix = "ddt"
+description = "对 t 求导（旧习惯）"
+latex = '\frac{d}{dt}$0'
+typst = 'frac(dif, dif t)$0'
+
+[[snippet]]
+prefix = "par"
+description = "偏导分式（旧习惯）"
+latex = '\frac{\partial ${1:y}}{\partial ${2:x}}$0'
+typst = 'frac(partial ${1:y}, partial ${2:x})$0'
+
+[[snippet]]
+prefix = "int"
+description = "不定积分"
+latex = '\int ${1} \, d${2:x}$0'
+typst = 'integral ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "dint"
+description = "定积分（旧习惯）"
+latex = '\int_{${1:0}}^{${2:1}} ${3} \, d${4:x}$0'
+typst = 'integral_(${1:0})^(${2:1}) ${3} dif ${4:x}$0'
+
+[[snippet]]
+prefix = "iint"
+description = "二重积分（旧习惯）"
+latex = '\iint ${1} \, d${2:x}$0'
+typst = 'integral.double ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "iiint"
+description = "三重积分（旧习惯）"
+latex = '\iiint ${1} \, d${2:x}$0'
+typst = 'integral.triple ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "oint"
+description = "环路积分（旧习惯）"
+latex = '\oint ${1} \, d${2:x}$0'
+typst = 'integral.cont ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "oinf"
+description = "0 到 ∞ 的积分（旧习惯）"
+latex = '\int_{0}^{\infty} ${1} \, d${2:x}$0'
+typst = 'integral_0^oo ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "infi"
+description = "-∞ 到 ∞ 的积分（旧习惯）"
+latex = '\int_{-\infty}^{\infty} ${1} \, d${2:x}$0'
+typst = 'integral_(-oo)^oo ${1} dif ${2:x}$0'
+
+[[snippet]]
+prefix = "sum"
+description = "求和"
+latex = '\sum_{${1:i}=${2:1}}^{${3:n}} ${4}$0'
+typst = 'sum_(${1:i}=${2:1})^(${3:n}) ${4}$0'
+
+[[snippet]]
+prefix = "prod"
+description = "连乘"
+latex = '\prod_{${1:i}=${2:1}}^{${3:n}} ${4}$0'
+typst = 'product_(${1:i}=${2:1})^(${3:n}) ${4}$0'

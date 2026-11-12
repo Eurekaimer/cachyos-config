@@ -1,0 +1,687 @@
+{
+  "greek/@a": {
+    "prefix": "@a",
+    "body": "\\alpha$0",
+    "description": "希腊字母 α"
+  },
+  "greek/@b": {
+    "prefix": "@b",
+    "body": "\\beta$0",
+    "description": "希腊字母 β"
+  },
+  "greek/@g": {
+    "prefix": "@g",
+    "body": "\\gamma$0",
+    "description": "希腊字母 γ"
+  },
+  "greek/@G": {
+    "prefix": "@G",
+    "body": "\\Gamma$0",
+    "description": "大写希腊字母 Γ"
+  },
+  "greek/@d": {
+    "prefix": "@d",
+    "body": "\\delta$0",
+    "description": "希腊字母 δ"
+  },
+  "greek/@D": {
+    "prefix": "@D",
+    "body": "\\Delta$0",
+    "description": "大写希腊字母 Δ"
+  },
+  "greek/@e": {
+    "prefix": "@e",
+    "body": "\\varepsilon$0",
+    "description": "希腊字母 ε（变体）"
+  },
+  "greek/@z": {
+    "prefix": "@z",
+    "body": "\\zeta$0",
+    "description": "希腊字母 ζ"
+  },
+  "greek/@t": {
+    "prefix": "@t",
+    "body": "\\theta$0",
+    "description": "希腊字母 θ"
+  },
+  "greek/@T": {
+    "prefix": "@T",
+    "body": "\\Theta$0",
+    "description": "大写希腊字母 Θ"
+  },
+  "greek/:t": {
+    "prefix": ":t",
+    "body": "\\vartheta$0",
+    "description": "希腊字母 ϑ（theta 变体，旧习惯）"
+  },
+  "greek/@i": {
+    "prefix": "@i",
+    "body": "\\iota$0",
+    "description": "希腊字母 ι（旧习惯）"
+  },
+  "greek/@k": {
+    "prefix": "@k",
+    "body": "\\kappa$0",
+    "description": "希腊字母 κ"
+  },
+  "greek/@l": {
+    "prefix": "@l",
+    "body": "\\lambda$0",
+    "description": "希腊字母 λ"
+  },
+  "greek/@L": {
+    "prefix": "@L",
+    "body": "\\Lambda$0",
+    "description": "大写希腊字母 Λ"
+  },
+  "greek/@m": {
+    "prefix": "@m",
+    "body": "\\mu$0",
+    "description": "希腊字母 μ"
+  },
+  "greek/@n": {
+    "prefix": "@n",
+    "body": "\\nu$0",
+    "description": "希腊字母 ν"
+  },
+  "greek/@x": {
+    "prefix": "@x",
+    "body": "\\xi$0",
+    "description": "希腊字母 ξ"
+  },
+  "greek/@X": {
+    "prefix": "@X",
+    "body": "\\Xi$0",
+    "description": "大写希腊字母 Ξ"
+  },
+  "greek/@p": {
+    "prefix": "@p",
+    "body": "\\pi$0",
+    "description": "希腊字母 π"
+  },
+  "greek/@P": {
+    "prefix": "@P",
+    "body": "\\Pi$0",
+    "description": "大写希腊字母 Π"
+  },
+  "greek/@r": {
+    "prefix": "@r",
+    "body": "\\rho$0",
+    "description": "希腊字母 ρ"
+  },
+  "greek/@s": {
+    "prefix": "@s",
+    "body": "\\sigma$0",
+    "description": "希腊字母 σ"
+  },
+  "greek/@S": {
+    "prefix": "@S",
+    "body": "\\Sigma$0",
+    "description": "大写希腊字母 Σ"
+  },
+  "greek/@f": {
+    "prefix": "@f",
+    "body": "\\phi$0",
+    "description": "希腊字母 φ"
+  },
+  "greek/@F": {
+    "prefix": "@F",
+    "body": "\\Phi$0",
+    "description": "大写希腊字母 Φ"
+  },
+  "greek/@c": {
+    "prefix": "@c",
+    "body": "\\chi$0",
+    "description": "希腊字母 χ"
+  },
+  "greek/@y": {
+    "prefix": "@y",
+    "body": "\\psi$0",
+    "description": "希腊字母 ψ"
+  },
+  "greek/@Y": {
+    "prefix": "@Y",
+    "body": "\\Psi$0",
+    "description": "大写希腊字母 Ψ"
+  },
+  "greek/@o": {
+    "prefix": "@o",
+    "body": "\\omega$0",
+    "description": "希腊字母 ω"
+  },
+  "greek/@O": {
+    "prefix": "@O",
+    "body": "\\Omega$0",
+    "description": "大写希腊字母 Ω"
+  },
+  "greek/@u": {
+    "prefix": "@u",
+    "body": "\\upsilon$0",
+    "description": "希腊字母 υ（旧习惯）"
+  },
+  "greek/@U": {
+    "prefix": "@U",
+    "body": "\\Upsilon$0",
+    "description": "大写希腊字母 Υ（旧习惯）"
+  },
+  "greek/eta": {
+    "prefix": "eta",
+    "body": "\\eta$0",
+    "description": "希腊字母 η（旧习惯）"
+  },
+  "symbols/ooo": {
+    "prefix": "ooo",
+    "body": "\\infty$0",
+    "description": "无穷 ∞（旧习惯）"
+  },
+  "symbols/nabl": {
+    "prefix": "nabl",
+    "body": "\\nabla$0",
+    "description": "梯度 ∇（旧习惯）"
+  },
+  "symbols/partial": {
+    "prefix": "partial",
+    "body": "\\partial$0",
+    "description": "偏导符号 ∂"
+  },
+  "symbols/forall": {
+    "prefix": "forall",
+    "body": "\\forall$0",
+    "description": "全称量词 ∀"
+  },
+  "symbols/cunz": {
+    "prefix": "cunz",
+    "body": "\\exists$0",
+    "description": "存在量词 ∃（旧习惯）"
+  },
+  "symbols/emp": {
+    "prefix": "emp",
+    "body": "\\emptyset$0",
+    "description": "空集 ∅（旧习惯）"
+  },
+  "symbols/notin": {
+    "prefix": "notin",
+    "body": "\\notin$0",
+    "description": "不属于 ∉"
+  },
+  "symbols/sub=": {
+    "prefix": "sub=",
+    "body": "\\subseteq$0",
+    "description": "子集或相等 ⊆（旧习惯；以 = 结尾需 ctrl-space）"
+  },
+  "symbols/sup=": {
+    "prefix": "sup=",
+    "body": "\\supseteq$0",
+    "description": "超集或相等 ⊇（旧习惯；以 = 结尾需 ctrl-space）"
+  },
+  "symbols/and": {
+    "prefix": "and",
+    "body": "\\cap$0",
+    "description": "交集 ∩（旧习惯）"
+  },
+  "symbols/orr": {
+    "prefix": "orr",
+    "body": "\\cup$0",
+    "description": "并集 ∪（旧习惯）"
+  },
+  "symbols/CC": {
+    "prefix": "CC",
+    "body": "\\mathbb{C}$0",
+    "description": "复数集 ℂ"
+  },
+  "symbols/RR": {
+    "prefix": "RR",
+    "body": "\\mathbb{R}$0",
+    "description": "实数集 ℝ"
+  },
+  "symbols/ZZ": {
+    "prefix": "ZZ",
+    "body": "\\mathbb{Z}$0",
+    "description": "整数集 ℤ"
+  },
+  "symbols/NN": {
+    "prefix": "NN",
+    "body": "\\mathbb{N}$0",
+    "description": "自然数集 ℕ"
+  },
+  "symbols/EE": {
+    "prefix": "EE",
+    "body": "\\mathbb{E}$0",
+    "description": "期望符号 𝔼"
+  },
+  "symbols/PP": {
+    "prefix": "PP",
+    "body": "\\mathbb{P}$0",
+    "description": "概率符号 ℙ"
+  },
+  "operators/+-": {
+    "prefix": "+-",
+    "body": "\\pm$0",
+    "description": "正负号 ±"
+  },
+  "operators/...": {
+    "prefix": "...",
+    "body": "\\dots$0",
+    "description": "居中标点省略号 ⋯"
+  },
+  "operators/**": {
+    "prefix": "**",
+    "body": "\\cdot$0",
+    "description": "点乘 ⋅（旧习惯；ctrl-space 触发）"
+  },
+  "operators/xx": {
+    "prefix": "xx",
+    "body": "\\times$0",
+    "description": "乘号 ×（旧习惯）"
+  },
+  "operators/!=": {
+    "prefix": "!=",
+    "body": "\\neq$0",
+    "description": "不等 ≠（旧习惯；ctrl-space 触发）"
+  },
+  "operators/>=": {
+    "prefix": ">=",
+    "body": "\\geqslant$0",
+    "description": "大于等于 ⩾（旧习惯；ctrl-space 触发）"
+  },
+  "operators/<=": {
+    "prefix": "<=",
+    "body": "\\leqslant$0",
+    "description": "小于等于 ⩽（旧习惯；ctrl-space 触发）"
+  },
+  "operators/approx": {
+    "prefix": "approx",
+    "body": "\\approx$0",
+    "description": "约等于 ≈"
+  },
+  "operators/prop": {
+    "prefix": "prop",
+    "body": "\\propto$0",
+    "description": "正比于 ∝（旧习惯）"
+  },
+  "operators/<->": {
+    "prefix": "<->",
+    "body": "\\leftrightarrow$0",
+    "description": "双向箭头 ↔（旧习惯；ctrl-space 触发）"
+  },
+  "operators/->": {
+    "prefix": "->",
+    "body": "\\to$0",
+    "description": "右箭头 →（旧习惯；ctrl-space 触发）"
+  },
+  "operators/=>": {
+    "prefix": "=>",
+    "body": "\\implies$0",
+    "description": "推出 ⟹（旧习惯；ctrl-space 触发）"
+  },
+  "algebra/ff": {
+    "prefix": "ff",
+    "body": "\\frac{${1}}{${2}}$0",
+    "description": "分数"
+  },
+  "algebra/sq": {
+    "prefix": "sq",
+    "body": "\\sqrt{${1}}$0",
+    "description": "平方根"
+  },
+  "algebra/sr": {
+    "prefix": "sr",
+    "body": "^{2}$0",
+    "description": "平方（旧习惯）"
+  },
+  "algebra/cb": {
+    "prefix": "cb",
+    "body": "^{3}$0",
+    "description": "立方（旧习惯）"
+  },
+  "algebra/rd": {
+    "prefix": "rd",
+    "body": "^{${1}}$0",
+    "description": "任意次幂（旧习惯）"
+  },
+  "algebra/_": {
+    "prefix": "_",
+    "body": "_{${1}}$0",
+    "description": "下标"
+  },
+  "algebra/sts": {
+    "prefix": "sts",
+    "body": "_\\text{${1}}$0",
+    "description": "文字下标（旧习惯）"
+  },
+  "algebra/bino": {
+    "prefix": "bino",
+    "body": "\\binom{${1}}{${2}}$0",
+    "description": "二项式系数"
+  },
+  "algebra/ee": {
+    "prefix": "ee",
+    "body": "e^{${1}}$0",
+    "description": "指数 e^…（旧习惯）"
+  },
+  "algebra/invs": {
+    "prefix": "invs",
+    "body": "^{-1}$0",
+    "description": "逆 / 倒数（旧习惯）"
+  },
+  "algebra/conj": {
+    "prefix": "conj",
+    "body": "^{*}$0",
+    "description": "共轭（旧习惯）"
+  },
+  "algebra/text": {
+    "prefix": "text",
+    "body": "\\text{${1}}$0",
+    "description": "公式内文本"
+  },
+  "algebra/bf": {
+    "prefix": "bf",
+    "body": "\\mathbf{${1}}$0",
+    "description": "粗体（旧习惯）"
+  },
+  "algebra/rm": {
+    "prefix": "rm",
+    "body": "\\mathrm{${1}}$0",
+    "description": "正体（旧习惯）"
+  },
+  "algebra/mathcal": {
+    "prefix": "mathcal",
+    "body": "\\mathcal{${1}}$0",
+    "description": "花体字母"
+  },
+  "algebra/hat": {
+    "prefix": "hat",
+    "body": "\\hat{${1}}$0",
+    "description": "帽子（旧习惯）"
+  },
+  "algebra/bar": {
+    "prefix": "bar",
+    "body": "\\overline{${1}}$0",
+    "description": "上划线（旧习惯）"
+  },
+  "algebra/dot": {
+    "prefix": "dot",
+    "body": "\\dot{${1}}$0",
+    "description": "单点（旧习惯）"
+  },
+  "algebra/ddot": {
+    "prefix": "ddot",
+    "body": "\\ddot{${1}}$0",
+    "description": "双点（旧习惯）"
+  },
+  "algebra/tilde": {
+    "prefix": "tilde",
+    "body": "\\tilde{${1}}$0",
+    "description": "波浪号（旧习惯）"
+  },
+  "algebra/und": {
+    "prefix": "und",
+    "body": "\\underline{${1}}$0",
+    "description": "下划线（旧习惯）"
+  },
+  "algebra/vec": {
+    "prefix": "vec",
+    "body": "\\vec{${1}}$0",
+    "description": "向量箭头（旧习惯）"
+  },
+  "algebra/norm": {
+    "prefix": "norm",
+    "body": "\\lvert ${1} \\rvert$0",
+    "description": "单竖线（旧习惯）"
+  },
+  "algebra/Norm": {
+    "prefix": "Norm",
+    "body": "\\lVert ${1} \\rVert$0",
+    "description": "双竖线（旧习惯）"
+  },
+  "algebra/ceil": {
+    "prefix": "ceil",
+    "body": "\\lceil ${1} \\rceil$0",
+    "description": "上取整"
+  },
+  "algebra/floor": {
+    "prefix": "floor",
+    "body": "\\lfloor ${1} \\rfloor$0",
+    "description": "下取整"
+  },
+  "algebra/avg": {
+    "prefix": "avg",
+    "body": "\\langle ${1} \\rangle$0",
+    "description": "尖括号"
+  },
+  "algebra/lr(": {
+    "prefix": "lr(",
+    "body": "\\left( ${1} \\right)$0",
+    "description": "自动大小的圆括号（ctrl-space 触发）"
+  },
+  "algebra/lr[": {
+    "prefix": "lr[",
+    "body": "\\left[ ${1} \\right]$0",
+    "description": "自动大小的方括号（ctrl-space 触发）"
+  },
+  "algebra/lr{": {
+    "prefix": "lr{",
+    "body": "\\left\\lbrace ${1} \\right\\rbrace$0",
+    "description": "自动大小的花括号（ctrl-space 触发）"
+  },
+  "algebra/lr|": {
+    "prefix": "lr|",
+    "body": "\\left| ${1} \\right|$0",
+    "description": "自动大小的竖线（ctrl-space 触发）"
+  },
+  "algebra/lra": {
+    "prefix": "lra",
+    "body": "\\left< ${1} \\right>$0",
+    "description": "自动大小的尖括号"
+  },
+  "calculus/lim": {
+    "prefix": "lim",
+    "body": "\\lim_{${1:x} \\to ${2:\\infty}} ${3}$0",
+    "description": "极限"
+  },
+  "calculus/suplim": {
+    "prefix": "suplim",
+    "body": "\\varlimsup\\limits_{${1:n} \\to ${2:\\infty}} ${3}$0",
+    "description": "上极限（旧习惯）"
+  },
+  "calculus/inflim": {
+    "prefix": "inflim",
+    "body": "\\varliminf\\limits_{${1:n} \\to ${2:\\infty}} ${3}$0",
+    "description": "下极限（旧习惯）"
+  },
+  "calculus/ddt": {
+    "prefix": "ddt",
+    "body": "\\frac{d}{dt}$0",
+    "description": "对 t 求导（旧习惯）"
+  },
+  "calculus/par": {
+    "prefix": "par",
+    "body": "\\frac{\\partial ${1:y}}{\\partial ${2:x}}$0",
+    "description": "偏导分式（旧习惯）"
+  },
+  "calculus/int": {
+    "prefix": "int",
+    "body": "\\int ${1} \\, d${2:x}$0",
+    "description": "不定积分"
+  },
+  "calculus/dint": {
+    "prefix": "dint",
+    "body": "\\int_{${1:0}}^{${2:1}} ${3} \\, d${4:x}$0",
+    "description": "定积分（旧习惯）"
+  },
+  "calculus/iint": {
+    "prefix": "iint",
+    "body": "\\iint ${1} \\, d${2:x}$0",
+    "description": "二重积分（旧习惯）"
+  },
+  "calculus/iiint": {
+    "prefix": "iiint",
+    "body": "\\iiint ${1} \\, d${2:x}$0",
+    "description": "三重积分（旧习惯）"
+  },
+  "calculus/oint": {
+    "prefix": "oint",
+    "body": "\\oint ${1} \\, d${2:x}$0",
+    "description": "环路积分（旧习惯）"
+  },
+  "calculus/oinf": {
+    "prefix": "oinf",
+    "body": "\\int_{0}^{\\infty} ${1} \\, d${2:x}$0",
+    "description": "0 到 ∞ 的积分（旧习惯）"
+  },
+  "calculus/infi": {
+    "prefix": "infi",
+    "body": "\\int_{-\\infty}^{\\infty} ${1} \\, d${2:x}$0",
+    "description": "-∞ 到 ∞ 的积分（旧习惯）"
+  },
+  "calculus/sum": {
+    "prefix": "sum",
+    "body": "\\sum_{${1:i}=${2:1}}^{${3:n}} ${4}$0",
+    "description": "求和"
+  },
+  "calculus/prod": {
+    "prefix": "prod",
+    "body": "\\prod_{${1:i}=${2:1}}^{${3:n}} ${4}$0",
+    "description": "连乘"
+  },
+  "linear_algebra/mat": {
+    "prefix": "mat",
+    "body": "\\begin{pmatrix}\n${1} & ${2} \\\\\\\\\n${3} & ${4}\n\\end{pmatrix}$0",
+    "description": "2×2 圆括号矩阵"
+  },
+  "linear_algebra/pmat": {
+    "prefix": "pmat",
+    "body": "\\begin{pmatrix}\n${1}\n\\end{pmatrix}$0",
+    "description": "圆括号矩阵（旧习惯）"
+  },
+  "linear_algebra/bmat": {
+    "prefix": "bmat",
+    "body": "\\begin{bmatrix}\n${1} & ${2} \\\\\\\\\n${3} & ${4}\n\\end{bmatrix}$0",
+    "description": "方括号矩阵（旧习惯）"
+  },
+  "linear_algebra/vmat": {
+    "prefix": "vmat",
+    "body": "\\begin{vmatrix}\n${1} & ${2} \\\\\\\\\n${3} & ${4}\n\\end{vmatrix}$0",
+    "description": "行列式竖线矩阵（旧习惯）"
+  },
+  "linear_algebra/matrix": {
+    "prefix": "matrix",
+    "body": "\\begin{matrix}\n${1} & ${2} \\\\\\\\\n${3} & ${4}\n\\end{matrix}$0",
+    "description": "无括号矩阵（旧习惯）"
+  },
+  "linear_algebra/array": {
+    "prefix": "array",
+    "body": "\\begin{array}{${1:cc}}\n${2}\n\\end{array}$0",
+    "description": "LaTeX array 环境（仅 Markdown/LaTeX）"
+  },
+  "linear_algebra/det": {
+    "prefix": "det",
+    "body": "\\det(${1})$0",
+    "description": "行列式"
+  },
+  "linear_algebra/trace": {
+    "prefix": "trace",
+    "body": "\\mathrm{Tr}$0",
+    "description": "矩阵的迹"
+  },
+  "linear_algebra/ip": {
+    "prefix": "ip",
+    "body": "\\langle ${1}, ${2} \\rangle$0",
+    "description": "内积"
+  },
+  "linear_algebra/tp": {
+    "prefix": "tp",
+    "body": "^{\\mathsf{T}}$0",
+    "description": "转置"
+  },
+  "linear_algebra/colv": {
+    "prefix": "colv",
+    "body": "\\begin{pmatrix}\n${1} \\\\\\\\\n${2}\n\\end{pmatrix}$0",
+    "description": "2 行列向量"
+  },
+  "linear_algebra/dag": {
+    "prefix": "dag",
+    "body": "^{\\dagger}$0",
+    "description": "共轭转置（旧习惯）"
+  },
+  "linear_algebra/o+": {
+    "prefix": "o+",
+    "body": "\\oplus$0",
+    "description": "直和 ⊕（旧习惯；ctrl-space 触发）"
+  },
+  "linear_algebra/ox": {
+    "prefix": "ox",
+    "body": "\\otimes$0",
+    "description": "张量积 ⊗（旧习惯）"
+  },
+  "probability/measpace": {
+    "prefix": "measpace",
+    "body": "(\\Omega, \\mathscr{F})$0",
+    "description": "测度空间（旧习惯）"
+  },
+  "probability/probspace": {
+    "prefix": "probspace",
+    "body": "(\\Omega, \\mathscr{F}, P)$0",
+    "description": "概率空间（旧习惯）"
+  },
+  "probability/scrf": {
+    "prefix": "scrf",
+    "body": "\\mathscr{F}$0",
+    "description": "σ-代数（旧习惯）"
+  },
+  "probability/IID": {
+    "prefix": "IID",
+    "body": "\\overset{\\text{iid}}{\\sim}$0",
+    "description": "独立同分布（旧习惯）"
+  },
+  "probability/ev": {
+    "prefix": "ev",
+    "body": "\\mathbb{E}[${1}]$0",
+    "description": "期望"
+  },
+  "probability/var": {
+    "prefix": "var",
+    "body": "\\operatorname{Var}[${1}]$0",
+    "description": "方差"
+  },
+  "probability/cov": {
+    "prefix": "cov",
+    "body": "\\operatorname{Cov}[${1}, ${2}]$0",
+    "description": "协方差"
+  },
+  "probability/prob": {
+    "prefix": "prob",
+    "body": "\\mathbb{P}(${1})$0",
+    "description": "概率"
+  },
+  "probability/cond": {
+    "prefix": "cond",
+    "body": "\\mathbb{P}(${1} \\mid ${2})$0",
+    "description": "条件概率"
+  },
+  "templates/mk": {
+    "prefix": "mk",
+    "body": "\\$${1}\\$$0",
+    "description": "行内公式 $…$"
+  },
+  "templates/dm": {
+    "prefix": "dm",
+    "body": "\\$\\$\n${1}\n\\$\\$\n$0",
+    "description": "行间公式（md: $$…$$；latex: \\[…\\]；typst: 带空白的 $…$）"
+  },
+  "templates/cases": {
+    "prefix": "cases",
+    "body": "\\begin{cases}\n${1} & ${2} \\\\\\\\\n${3} & ${4}\n\\end{cases}$0",
+    "description": "分段函数 cases"
+  },
+  "templates/align": {
+    "prefix": "align",
+    "body": "\\begin{aligned}\n${1} &= ${2} \\\\\\\\\n${3} &= ${4}\n\\end{aligned}$0",
+    "description": "多行对齐公式"
+  },
+  "templates/beg": {
+    "prefix": "beg",
+    "body": "\\begin{${1:env}}\n${2}\n\\end{${1:env}}$0",
+    "description": "通用环境（仅 Markdown/LaTeX）"
+  }
+}

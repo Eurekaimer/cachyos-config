@@ -1,0 +1,54 @@
+# templates.toml — 公式模板：行内、行间、分段函数、多行对齐、通用环境
+
+[[snippet]]
+prefix = "mk"
+description = "行内公式 $…$"
+latex = '\$${1}\$$0'
+typst = '\$${1}\$$0'
+
+[[snippet]]
+prefix = "dm"
+description = '行间公式（md: $$…$$；latex: \[…\]；typst: 带空白的 $…$）'
+markdown = '''\$\$
+${1}
+\$\$
+$0'''
+latex = '''\[
+${1}
+\]
+$0'''
+typst = '''\$
+${1}
+\$
+$0'''
+
+[[snippet]]
+prefix = "cases"
+description = "分段函数 cases"
+latex = '''\begin{cases}
+${1} & ${2} \\\\
+${3} & ${4}
+\end{cases}$0'''
+typst = 'cases(${1} & ${2}, ${3} & ${4})$0'
+
+# Typst 数学换行是行末单个反斜杠，不是 \\
+[[snippet]]
+prefix = "align"
+description = "多行对齐公式"
+latex = '''\begin{aligned}
+${1} &= ${2} \\\\
+${3} &= ${4}
+\end{aligned}$0'''
+typst = '''\$
+  ${1} &= ${2} \
+  ${3} &= ${4}
+\$$0'''
+
+# Typst 没有环境语法，仅生成 Markdown/LaTeX
+[[snippet]]
+prefix = "beg"
+description = "通用环境（仅 Markdown/LaTeX）"
+langs = ["markdown", "latex"]
+latex = '''\begin{${1:env}}
+${2}
+\end{${1:env}}$0'''

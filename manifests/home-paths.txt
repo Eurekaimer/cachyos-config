@@ -35,6 +35,7 @@
 .config/yazi
 .config/zed/keymap.json
 .config/zed/settings.json
+.config/zed/snippets
 .gitconfig
 .local/bin/fcitx5-toggle-japanese
 .local/bin/niri-hotkeys-zh

@@ -1,0 +1,56 @@
+# probability.toml — 概率空间、期望、方差、协方差与条件概率
+
+[[snippet]]
+prefix = "measpace"
+description = "测度空间（旧习惯）"
+latex = '(\Omega, \mathscr{F})$0'
+typst = '(Omega, cal(F))$0'
+
+[[snippet]]
+prefix = "probspace"
+description = "概率空间（旧习惯）"
+latex = '(\Omega, \mathscr{F}, P)$0'
+typst = '(Omega, cal(F), P)$0'
+
+[[snippet]]
+prefix = "scrf"
+description = "σ-代数（旧习惯）"
+latex = '\mathscr{F}$0'
+typst = 'cal(F)$0'
+
+# Typst 没有 \overset；用 attach 把 iid 放在 ∼ 上方
+[[snippet]]
+prefix = "IID"
+description = "独立同分布（旧习惯）"
+latex = '\overset{\text{iid}}{\sim}$0'
+typst = 'attach(tilde.op, t: "iid")$0'
+
+[[snippet]]
+prefix = "ev"
+description = "期望"
+latex = '\mathbb{E}[${1}]$0'
+typst = 'bb(E)[${1}]$0'
+
+[[snippet]]
+prefix = "var"
+description = "方差"
+latex = '\operatorname{Var}[${1}]$0'
+typst = '"Var"[${1}]$0'
+
+[[snippet]]
+prefix = "cov"
+description = "协方差"
+latex = '\operatorname{Cov}[${1}, ${2}]$0'
+typst = '"Cov"(${1}, ${2})$0'
+
+[[snippet]]
+prefix = "prob"
+description = "概率"
+latex = '\mathbb{P}(${1})$0'
+typst = 'bb(P)(${1})$0'
+
+[[snippet]]
+prefix = "cond"
+description = "条件概率"
+latex = '\mathbb{P}(${1} \mid ${2})$0'
+typst = 'bb(P)(${1} | ${2})$0'

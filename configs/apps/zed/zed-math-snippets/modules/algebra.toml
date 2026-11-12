@@ -1,0 +1,195 @@
+# algebra.toml — 分数、根号、上下标、括号、 accents、常用函数
+
+[[snippet]]
+prefix = "ff"
+description = "分数"
+latex = '\frac{${1}}{${2}}$0'
+typst = 'frac(${1}, ${2})$0'
+
+[[snippet]]
+prefix = "sq"
+description = "平方根"
+latex = '\sqrt{${1}}$0'
+typst = 'sqrt(${1})$0'
+
+[[snippet]]
+prefix = "sr"
+description = "平方（旧习惯）"
+latex = '^{2}$0'
+typst = '^2$0'
+
+[[snippet]]
+prefix = "cb"
+description = "立方（旧习惯）"
+latex = '^{3}$0'
+typst = '^3$0'
+
+[[snippet]]
+prefix = "rd"
+description = "任意次幂（旧习惯）"
+latex = '^{${1}}$0'
+typst = '^(${1})$0'
+
+[[snippet]]
+prefix = "_"
+description = "下标"
+latex = '_{${1}}$0'
+typst = '_(${1})$0'
+
+[[snippet]]
+prefix = "sts"
+description = "文字下标（旧习惯）"
+latex = '_\text{${1}}$0'
+typst = '_("${1}")$0'
+
+[[snippet]]
+prefix = "bino"
+description = "二项式系数"
+latex = '\binom{${1}}{${2}}$0'
+typst = 'binom(${1}, ${2})$0'
+
+[[snippet]]
+prefix = "ee"
+description = "指数 e^…（旧习惯）"
+latex = 'e^{${1}}$0'
+typst = 'e^(${1})$0'
+
+[[snippet]]
+prefix = "invs"
+description = "逆 / 倒数（旧习惯）"
+latex = '^{-1}$0'
+typst = '^(-1)$0'
+
+[[snippet]]
+prefix = "conj"
+description = "共轭（旧习惯）"
+latex = '^{*}$0'
+typst = '^*$0'
+
+[[snippet]]
+prefix = "text"
+description = "公式内文本"
+latex = '\text{${1}}$0'
+typst = '"${1}"$0'
+
+[[snippet]]
+prefix = "bf"
+description = "粗体（旧习惯）"
+latex = '\mathbf{${1}}$0'
+typst = 'bold(${1})$0'
+
+[[snippet]]
+prefix = "rm"
+description = "正体（旧习惯）"
+latex = '\mathrm{${1}}$0'
+typst = 'upright(${1})$0'
+
+[[snippet]]
+prefix = "mathcal"
+description = "花体字母"
+latex = '\mathcal{${1}}$0'
+typst = 'cal(${1})$0'
+
+[[snippet]]
+prefix = "hat"
+description = "帽子（旧习惯）"
+latex = '\hat{${1}}$0'
+typst = 'hat(${1})$0'
+
+[[snippet]]
+prefix = "bar"
+description = "上划线（旧习惯）"
+latex = '\overline{${1}}$0'
+typst = 'overline(${1})$0'
+
+[[snippet]]
+prefix = "dot"
+description = "单点（旧习惯）"
+latex = '\dot{${1}}$0'
+typst = 'dot(${1})$0'
+
+[[snippet]]
+prefix = "ddot"
+description = "双点（旧习惯）"
+latex = '\ddot{${1}}$0'
+typst = 'dot.double(${1})$0'
+
+[[snippet]]
+prefix = "tilde"
+description = "波浪号（旧习惯）"
+latex = '\tilde{${1}}$0'
+typst = 'tilde(${1})$0'
+
+[[snippet]]
+prefix = "und"
+description = "下划线（旧习惯）"
+latex = '\underline{${1}}$0'
+typst = 'underline(${1})$0'
+
+[[snippet]]
+prefix = "vec"
+description = "向量箭头（旧习惯）"
+latex = '\vec{${1}}$0'
+typst = 'arrow(${1})$0'
+
+[[snippet]]
+prefix = "norm"
+description = "单竖线（旧习惯）"
+latex = '\lvert ${1} \rvert$0'
+typst = 'abs(${1})$0'
+
+[[snippet]]
+prefix = "Norm"
+description = "双竖线（旧习惯）"
+latex = '\lVert ${1} \rVert$0'
+typst = 'norm(${1})$0'
+
+[[snippet]]
+prefix = "ceil"
+description = "上取整"
+latex = '\lceil ${1} \rceil$0'
+typst = 'ceil(${1})$0'
+
+[[snippet]]
+prefix = "floor"
+description = "下取整"
+latex = '\lfloor ${1} \rfloor$0'
+typst = 'floor(${1})$0'
+
+[[snippet]]
+prefix = "avg"
+description = "尖括号"
+latex = '\langle ${1} \rangle$0'
+typst = 'chevron.l ${1} chevron.r$0'
+
+# 括号类前缀以标点结尾，Zed 不会自动弹菜单；ctrl-space 后 Tab
+[[snippet]]
+prefix = "lr("
+description = "自动大小的圆括号（ctrl-space 触发）"
+latex = '\left( ${1} \right)$0'
+typst = '( ${1} )$0'
+
+[[snippet]]
+prefix = "lr["
+description = "自动大小的方括号（ctrl-space 触发）"
+latex = '\left[ ${1} \right]$0'
+typst = '[ ${1} ]$0'
+
+# 用 \lbrace/\rbrace 避免 snippet 解析器吞掉 \}
+[[snippet]]
+prefix = "lr{"
+description = "自动大小的花括号（ctrl-space 触发）"
+latex = '\left\lbrace ${1} \right\rbrace$0'
+typst = 'brace.l ${1} brace.r$0'
+
+[[snippet]]
+prefix = "lr|"
+description = "自动大小的竖线（ctrl-space 触发）"
+latex = '\left| ${1} \right|$0'
+typst = '|${1}|$0'
+
+[[snippet]]
+prefix = "lra"
+description = "自动大小的尖括号"
+latex = '\left< ${1} \right>$0'
+typst = 'chevron.l ${1} chevron.r$0'

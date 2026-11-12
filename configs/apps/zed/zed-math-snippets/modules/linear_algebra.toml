@@ -1,0 +1,107 @@
+# linear_algebra.toml — 矩阵、向量、行列式、迹、内积、转置
+# 注意：LaTeX 换行 \\ 在 snippet 源里必须写 4 个反斜杠（解析器会把 \\ 折叠成一个 \）
+
+[[snippet]]
+prefix = "mat"
+description = "2×2 圆括号矩阵"
+latex = '''\begin{pmatrix}
+${1} & ${2} \\\\
+${3} & ${4}
+\end{pmatrix}$0'''
+typst = 'mat(${1}, ${2}; ${3}, ${4})$0'
+
+[[snippet]]
+prefix = "pmat"
+description = "圆括号矩阵（旧习惯）"
+latex = '''\begin{pmatrix}
+${1}
+\end{pmatrix}$0'''
+typst = 'mat(${1})$0'
+
+[[snippet]]
+prefix = "bmat"
+description = "方括号矩阵（旧习惯）"
+latex = '''\begin{bmatrix}
+${1} & ${2} \\\\
+${3} & ${4}
+\end{bmatrix}$0'''
+typst = 'mat(delim: "[", ${1}, ${2}; ${3}, ${4})$0'
+
+[[snippet]]
+prefix = "vmat"
+description = "行列式竖线矩阵（旧习惯）"
+latex = '''\begin{vmatrix}
+${1} & ${2} \\\\
+${3} & ${4}
+\end{vmatrix}$0'''
+typst = 'mat(delim: "|", ${1}, ${2}; ${3}, ${4})$0'
+
+[[snippet]]
+prefix = "matrix"
+description = "无括号矩阵（旧习惯）"
+latex = '''\begin{matrix}
+${1} & ${2} \\\\
+${3} & ${4}
+\end{matrix}$0'''
+typst = 'mat(${1}, ${2}; ${3}, ${4})$0'
+
+# Typst 没有 LaTeX 的 array 环境，仅生成 Markdown/LaTeX
+[[snippet]]
+prefix = "array"
+description = "LaTeX array 环境（仅 Markdown/LaTeX）"
+langs = ["markdown", "latex"]
+latex = '''\begin{array}{${1:cc}}
+${2}
+\end{array}$0'''
+
+[[snippet]]
+prefix = "det"
+description = "行列式"
+latex = '\det(${1})$0'
+typst = 'det(${1})$0'
+
+[[snippet]]
+prefix = "trace"
+description = "矩阵的迹"
+latex = '\mathrm{Tr}$0'
+typst = '"Tr"$0'
+
+[[snippet]]
+prefix = "ip"
+description = "内积"
+latex = '\langle ${1}, ${2} \rangle$0'
+typst = 'chevron.l ${1}, ${2} chevron.r$0'
+
+[[snippet]]
+prefix = "tp"
+description = "转置"
+latex = '^{\mathsf{T}}$0'
+typst = '^T$0'
+
+# 列向量：Typst 用 vec()
+[[snippet]]
+prefix = "colv"
+description = "2 行列向量"
+latex = '''\begin{pmatrix}
+${1} \\\\
+${2}
+\end{pmatrix}$0'''
+typst = 'vec(${1}, ${2})$0'
+
+[[snippet]]
+prefix = "dag"
+description = "共轭转置（旧习惯）"
+latex = '^{\dagger}$0'
+typst = '^dagger$0'
+
+[[snippet]]
+prefix = "o+"
+description = "直和 ⊕（旧习惯；ctrl-space 触发）"
+latex = '\oplus$0'
+typst = 'plus.o$0'
+
+[[snippet]]
+prefix = "ox"
+description = "张量积 ⊗（旧习惯）"
+latex = '\otimes$0'
+typst = 'times.o$0'

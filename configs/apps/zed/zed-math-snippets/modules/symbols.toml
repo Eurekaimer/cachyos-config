@@ -1,0 +1,103 @@
+# symbols.toml — 常用数学符号（保留核心集合，旧别名已去掉）
+
+[[snippet]]
+prefix = "ooo"
+description = "无穷 ∞（旧习惯）"
+latex = '\infty$0'
+typst = 'oo$0'
+
+[[snippet]]
+prefix = "nabl"
+description = "梯度 ∇（旧习惯）"
+latex = '\nabla$0'
+typst = 'nabla$0'
+
+[[snippet]]
+prefix = "partial"
+description = "偏导符号 ∂"
+latex = '\partial$0'
+typst = 'partial$0'
+
+[[snippet]]
+prefix = "forall"
+description = "全称量词 ∀"
+latex = '\forall$0'
+typst = 'forall$0'
+
+[[snippet]]
+prefix = "cunz"
+description = "存在量词 ∃（旧习惯）"
+latex = '\exists$0'
+typst = 'exists$0'
+
+[[snippet]]
+prefix = "emp"
+description = "空集 ∅（旧习惯）"
+latex = '\emptyset$0'
+typst = 'emptyset$0'
+
+[[snippet]]
+prefix = "notin"
+description = "不属于 ∉"
+latex = '\notin$0'
+typst = 'in.not$0'
+
+[[snippet]]
+prefix = "sub="
+description = "子集或相等 ⊆（旧习惯；以 = 结尾需 ctrl-space）"
+latex = '\subseteq$0'
+typst = 'subset.eq$0'
+
+[[snippet]]
+prefix = "sup="
+description = "超集或相等 ⊇（旧习惯；以 = 结尾需 ctrl-space）"
+latex = '\supseteq$0'
+typst = 'supset.eq$0'
+
+[[snippet]]
+prefix = "and"
+description = "交集 ∩（旧习惯）"
+latex = '\cap$0'
+typst = 'inter$0'
+
+[[snippet]]
+prefix = "orr"
+description = "并集 ∪（旧习惯）"
+latex = '\cup$0'
+typst = 'union$0'
+
+[[snippet]]
+prefix = "CC"
+description = "复数集 ℂ"
+latex = '\mathbb{C}$0'
+typst = 'bb(C)$0'
+
+[[snippet]]
+prefix = "RR"
+description = "实数集 ℝ"
+latex = '\mathbb{R}$0'
+typst = 'bb(R)$0'
+
+[[snippet]]
+prefix = "ZZ"
+description = "整数集 ℤ"
+latex = '\mathbb{Z}$0'
+typst = 'bb(Z)$0'
+
+[[snippet]]
+prefix = "NN"
+description = "自然数集 ℕ"
+latex = '\mathbb{N}$0'
+typst = 'bb(N)$0'
+
+[[snippet]]
+prefix = "EE"
+description = "期望符号 𝔼"
+latex = '\mathbb{E}$0'
+typst = 'bb(E)$0'
+
+[[snippet]]
+prefix = "PP"
+description = "概率符号 ℙ"
+latex = '\mathbb{P}$0'
+typst = 'bb(P)$0'

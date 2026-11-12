@@ -1,0 +1,69 @@
+% demo.tex — 验证 Markdown/LaTeX 输出的语法是否可编译
+% 每段注释给出触发词；内容是展开后的结果
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb,mathrsfs}
+\begin{document}
+
+% @a @b @G
+$\alpha + \beta + \Gamma$
+
+% ff
+$\frac{1}{2}$
+
+% sq
+$\sqrt{x}$
+
+% sr / cb / rd
+$x^{2} + y^{3} + z^{n}$
+
+% sum
+\[
+  \sum_{i=1}^{n} i = \frac{n(n+1)}{2}
+\]
+
+% int / dint
+\[
+  \int_{0}^{1} x^{2} \, dx = \frac{1}{3}
+\]
+
+% lim
+\[
+  \lim_{x \to \infty} \frac{1}{x} = 0
+\]
+
+% mat
+\[
+  \begin{pmatrix}
+    1 & 2 \\
+    3 & 4
+  \end{pmatrix}
+\]
+
+% cases
+\[
+  \begin{cases}
+    x & x > 0 \\
+    -x & \text{otherwise}
+  \end{cases}
+\]
+
+% align
+\[
+  \begin{aligned}
+    a &= b + c \\
+    d &= e + f
+  \end{aligned}
+\]
+
+% 数集 / 花体 / 范数 / 花括号
+\[
+  \mathbb{R},\ \mathscr{F},\ \lVert v \rVert,\ \lbrace 1, 2 \rbrace
+\]
+
+% 概率
+\[
+  \operatorname{Var}[X] + \operatorname{Cov}[X, Y] + \mathbb{P}(A \mid B)
+\]
+
+\end{document}
