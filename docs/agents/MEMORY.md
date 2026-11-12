@@ -20,17 +20,23 @@ open gaps live in `TASKS.md`.
   `configs/home/` install tree, and `scripts/audit.sh` fails if one reappears.
 - **`manifests/home-paths.txt` is generated** from `configs/apps/*/paths` by the
   same script; `scripts/audit.sh` fails when the two disagree.
-- **`packages/inventory/`, `packages/services/`, `packages/toolchains/` are
-  capture output.** Only `packages/profiles/` and `packages/required-extra.txt`
-  are installer inputs.
+- **`packages/inventory/explicit.txt` records pacman's explicit install
+  reasons**, from repositories and foreign sources, without dependencies.
+  It is capture output, not a package-install input. Package installation reads
+  `packages/profiles/` and `packages/required-extra.txt`; captured services and
+  toolchains are also used during recovery.
+- **Core software is protected.** Never uninstall a package in
+  `packages/core.txt` or remove it from the full profile unless the user first
+  explicitly changes its tier. Other packages remain unclassified, not
+  automatically removable; ask before any package operation.
 - **Publishing is capture → audit → commit.** `scripts/capture.sh` rewrites the
   snapshot from the live machine, `scripts/audit.sh` refuses to publish when a
   secret, a runtime path or a stale backup leaked in, and only then does the
   operator `git add/commit/push`. Nothing else tracks sync position, and no
   per-machine state file is committed; `scripts/sync-configs.sh --check` is the
   only way to ask whether the live `$HOME` still matches.
-- **`niri`, `noctalia`, `zsh`, `nodejs` must be listed explicitly in every
-  profile.** Dependency-installed packages may not appear in `pacman -Qqen`.
+- **`niri`, `noctalia`, `zsh`, `nodejs` must be listed in every profile.**
+  Profile membership and pacman's explicit/dependency install reasons differ.
 - **The desktop shell is native `/usr/bin/noctalia`**, observed as
   `v5.2.1 (5.2.1-1-dirty)` on 2026-10-10 and `v5.4.1 (5.4.1-1-dirty)` on
   2026-11-01. Use `noctalia msg`, not QuickShell IPC.
@@ -112,7 +118,7 @@ means upstream code that must stay untouched.
 | mimeapps | `.config/mimeapps.list` | yes | — | — |
 | mpv | `.config/mpv/` | `mpv.conf`, `input.conf`, `profiles.conf`, `script-opts/*.conf`, `scripts/memo.lua` | `scripts/uosc/` + `fonts/` + `scripts/{autoload,evafast,inputevent,thumbfast}.lua` + `script-opts/uosc.conf`'s upstream defaults | `memo.lua` is ours; `script-opts/uosc.conf` is locally tuned; the playback cache and `memo-history.log` are runtime state |
 | niri | `.config/niri/`, `.local/bin/niri-hotkeys-zh`, `.local/bin/niri-screenshot-window`, `.local/bin/niri-stack-column`, `.local/share/niri/hotkeys-zh.txt` | all | — | `cfg/display.kdl` output scaling is machine-specific and re-applied by `post-restore-tweaks.sh`. `niri-stack-column` requires `jq`; opaque window screenshots require Python, ImageMagick and `wl-clipboard`, all in `required-extra.txt`. Niri writes PNGs asynchronously; the screenshot helper waits for IEND before conversion |
-| noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; history/cache/private state are excluded. No backup backfill |
+| noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; the local storage widget displays Chinese labels and decimal GB. History/cache/private state are excluded. No backup backfill |
 | nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; `clangd` comes from the system `clang` package, not Mason. Required extras also include `fd`, `tree-sitter-cli` and `curl` |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |
 | omp | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/` | all three | everything else in `.omp/` | Only secret-free configuration is portable: `models.yml` must reference API keys by env var, custom themes stay JSON; `audit.sh` rejects any other `.omp` content |
@@ -146,9 +152,8 @@ means upstream code that must stay untouched.
 - **`comm` must run under the same collation as the preceding `sort`.** Pair
   `LC_ALL=C sort -u` with `LC_ALL=C comm`, or it reports "input is not in sorted
   order" on perfectly sorted UTF-8 input.
-- **A profile is not a package list of the machine.** `pacman -Qqen` misses
-  dependency-installed desktop packages; the six-name invariant above exists
-  because of exactly that gap.
+- **A profile is not a package list of the machine.** `pacman -Qqe` excludes
+  dependency-installed packages even when a profile lists them.
 - **`pacman -Qm` output changes when models are added.** The old capture deleted
   `llama-cpp`/`ollama` by name; that special case is gone — a profile decides
   whether a model runtime is installed.

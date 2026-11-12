@@ -10,9 +10,10 @@ packages/
   profiles/full.txt            # install input: current workstation
   profiles/minimal.txt         # install input: ThinkPad T480 class
   required-extra.txt           # install input: recovery-tool dependencies
-  inventory/                   # capture output: pacman -Qqen / -Qqm
-  services/{system,user}.txt   # capture output: enabled units
-  toolchains/{rustup,bun}.txt  # capture output: toolchains and global tools
+  core.txt                     # user-protected core packages; not auto-generated
+  inventory/explicit.txt       # capture output: pacman -Qqe, dependencies excluded
+  services/{system,user}.txt   # captured enabled units, used by restore
+  toolchains/{rustup,bun}.txt  # captured toolchains and global tools, used by install
 manifests/
   home-paths.txt               # GENERATED from configs/apps/*/paths
   captured-home.txt            # the $HOME the snapshot came from

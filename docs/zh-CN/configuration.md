@@ -105,12 +105,13 @@
 
 ## 软件与服务
 
-`packages/profiles/` 与 `packages/required-extra.txt` 是**安装输入**；
-`packages/inventory/`、`packages/services/`、`packages/toolchains/` 是**采集产物**，
-记录采集机器当时的实际状态。详见[软件包与服务](packages-services.md)。
+`packages/profiles/` 与 `packages/required-extra.txt` 是软件包安装输入；
+`packages/inventory/explicit.txt` 记录显式安装的软件；`packages/services/` 和
+`packages/toolchains/` 记录采集状态，也会在恢复时使用。详见
+[软件包与服务](packages-services.md)。
 
-只有 `profiles/` 参与安装。用 `scripts/profile.sh use NAME` 选择档位，
-用 `scripts/profile.sh diff full minimal` 查看两档差异。
+用 `scripts/profile.sh use NAME` 选择档位，用
+`scripts/profile.sh diff full minimal` 查看两档差异。
 
 ### Clash Verge 国内直连
 

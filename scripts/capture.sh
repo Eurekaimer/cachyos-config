@@ -144,8 +144,13 @@ else
 fi
 
 log "Capturing package and service state"
-pacman -Qqen | LC_ALL=C sort -u >"$packages_root/inventory/pacman-explicit.txt"
-pacman -Qqm | LC_ALL=C sort -u >"$packages_root/inventory/aur-explicit.txt"
+# Record the current explicitly installed packages, regardless of source.
+inventory_tmp=$(mktemp "$packages_root/inventory/.explicit.XXXXXXXX")
+if ! pacman -Qqe | LC_ALL=C sort -u >"$inventory_tmp"; then
+    rm -f -- "$inventory_tmp"
+    die "Could not capture the explicitly installed package list"
+fi
+mv -- "$inventory_tmp" "$packages_root/inventory/explicit.txt"
 
 if command -v rustup >/dev/null 2>&1; then
     rustup toolchain list | sed -E 's/[[:space:]]+\([^)]*\)//g' | LC_ALL=C sort -u >"$packages_root/toolchains/rustup.txt"

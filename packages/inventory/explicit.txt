@@ -3,6 +3,7 @@ alsa-firmware
 alsa-plugins
 alsa-utils
 aria2
+baidunetdisk
 base
 base-devel
 bash-completion
@@ -35,6 +36,7 @@ cachyos-wallpapers
 cachyos-zsh-config
 cantarell-fonts
 chwd
+clash-verge-rev-bin
 cpupower
 cryptsetup
 ddcutil
@@ -62,13 +64,17 @@ fcitx5-gtk
 fcitx5-mozc
 fcitx5-pinyin-zhwiki
 fcitx5-qt
+feishu-bin
 ffmpegthumbnailer
 firefox
 fsarchiver
 gamemode
 git
 github-cli
+github-desktop-bin
 go
+go-musicfox
+google-chrome
 gopls
 grim
 gst-libav
@@ -84,6 +90,7 @@ jdk-openjdk
 jdk21-openjdk
 jfsutils
 kitty
+koreader-bin
 lazygit
 less
 lib32-gamemode
@@ -103,6 +110,7 @@ linux-cachyos-lts-headers
 linux-cachyos-lts-nvidia-open
 linux-cachyos-nvidia-open
 linux-firmware
+linuxqq
 llama-cpp
 logrotate
 lsb-release
@@ -140,7 +148,9 @@ pacman-contrib
 paru
 pavucontrol
 pdfarranger
+peazip-qt-bin
 perl
+picgo-appimage
 pinta
 pipewire-alsa
 pipewire-pulse
@@ -167,6 +177,7 @@ rustup
 sddm
 shellcheck
 shelly
+sioyek-git
 smartmontools
 snapper
 sof-firmware
@@ -188,6 +199,8 @@ tinymist
 tmux
 ttf-dejavu
 ttf-liberation
+ttf-lxgw-wenkai
+ttf-lxgw-wenkai-mono-nerd
 typst
 ufw
 ufw-extras
@@ -198,7 +211,9 @@ usbutils
 uv
 virt-manager
 virt-viewer
+virtio-win
 vulkan-icd-loader
+wechat-bin
 wget
 which
 wine
@@ -210,4 +225,5 @@ xfsprogs
 yazi
 yt-dlp
 zed
+zoom
 zotero

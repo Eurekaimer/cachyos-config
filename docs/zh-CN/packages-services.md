@@ -2,7 +2,7 @@
 
 [English](../en/packages-services.md)
 
-`packages/` 里只有两类文件，其中一类真正参与安装。
+`packages/` 分别保存软件包安装输入和本机采集记录。
 
 **安装输入**——由 `scripts/install-packages.sh` 读取：
 
@@ -11,25 +11,35 @@
 | `packages/profiles/full.txt` | 工作站档：NVIDIA 独显、游戏、容器、通讯 |
 | `packages/profiles/minimal.txt` | ThinkPad T480 级档：Intel 核显、无游戏/容器、中英精简 TeX |
 | `packages/required-extra.txt` | 托管配置或恢复脚本自身依赖的软件 |
+| `packages/core.txt` | 用户指定的核心保护软件；不会被采集覆盖 |
 
-`profiles/*.txt` 是安装器唯一读取的软件清单；安装器先把每个名字解析到仓库，
-剩下的交给 AUR helper，所以新增软件只需加一行。不再需要的软件要从两个档位里
-都删掉——安装器没有分组过滤，留在文件里的行就会被安装。
+安装器合并选定的 profile 与 `required-extra.txt`，先解析仓库软件包，其余交给
+AUR helper。profile 是恢复时的安装选择，不等于本机当前已安装软件的清单。
 
-**采集产物**——由 `scripts/capture.sh` 写入，描述快照来源机器：
+**采集产物**——由 `scripts/capture.sh` 写入：
 
 | 路径 | 内容 |
 | --- | --- |
-| `packages/inventory/pacman-explicit.txt` | 显式安装的仓库软件包 |
-| `packages/inventory/aur-explicit.txt` | 显式安装的 AUR/外部软件包 |
+| `packages/inventory/explicit.txt` | 显式安装的仓库及外部软件包，不含作为依赖安装的软件 |
 | `packages/services/system.txt` | 已启用的、由已安装软件包提供的系统服务 |
 | `packages/services/user.txt` | 已启用的、由已安装软件包提供的用户服务 |
 | `packages/toolchains/rustup.txt` | Rust 工具链 |
 | `packages/toolchains/bun.txt` | Bun 全局工具，包括 Oh My Pi agent |
 
-服务快照不是安装清单：只记录由已安装软件包提供的单元，因此模块安装或手工安装
-的服务不会让目标机器上的 `restore-services.sh` 报警。软件包清单是来源机器的记录，
-不是安装输入——某软件从档位移除并卸载后，要等下一次采集清单才会再次一致。
+软件清单依据 pacman 的显式安装标记（`pacman -Qqe`），包括通过 pacman 或 paru
+安装的软件，不包含标记为依赖的软件。它是当前状态，不是历史命令记录：更改软件包
+安装原因会改变清单内容。该清单不作为安装输入；服务与工具链清单也会用于恢复。
+
+`packages/core.txt` 中的核心软件不得卸载或从完整恢复档移除，除非用户先明确
+调整分级。其他软件在用户决定前均为待分级，不代表可以删除；`scripts/audit.sh`
+会检查核心软件是否仍在完整恢复档中。
+
+只统计记录的数量，或仅刷新软件清单而不采集本机配置：
+
+```bash
+wc -l packages/inventory/explicit.txt
+pacman -Qqe | LC_ALL=C sort -u > packages/inventory/explicit.txt
+```
 
 用 `./scripts/profile.sh diff full minimal` 比较两档，用
 `./scripts/profile.sh use minimal` 或

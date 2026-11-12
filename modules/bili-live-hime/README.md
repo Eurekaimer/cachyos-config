@@ -43,7 +43,7 @@ Windows/macOS 或不想构建时，可直接使用上游
 
 ## 依赖
 
-- Node.js 20+（`npm`，打包在 `pacman-explicit.txt`）；
+- Node.js 20+（`npm`，记录在 `packages/inventory/explicit.txt`）；
 - Rust 工具链（`rustup`）；
 - Tauri/WebKitGTK 原生依赖：`webkit2gtk-4.1`、`libsoup3`、`gtk3`、`librsvg`。
 

@@ -116,14 +116,13 @@ cleared first so one backup generation is kept.
 
 ## Software and services
 
-`packages/profiles/` and `packages/required-extra.txt` are **install inputs**;
-`packages/inventory/`, `packages/services/` and `packages/toolchains/` are
-**capture outputs** recording what the capturing machine actually had. See
-[packages and services](packages-services.md).
+`packages/profiles/` and `packages/required-extra.txt` are package-install
+inputs. `packages/inventory/explicit.txt` records explicitly installed packages;
+`packages/services/` and `packages/toolchains/` record the captured machine and
+are also used during recovery. See [packages and services](packages-services.md).
 
-Only `profiles/` feeds the installer. Select a profile with
-`scripts/profile.sh use NAME` and inspect the difference with
-`scripts/profile.sh diff full minimal`.
+Select a profile with `scripts/profile.sh use NAME` and inspect the difference
+with `scripts/profile.sh diff full minimal`.
 
 ### Clash Verge domestic routing
 

@@ -13,8 +13,8 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
-`capture.sh` 按 `manifests/` 中的白名单重建快照，导出 dconf，并记录显式安装的
-Pacman/AUR 软件包、Rust 与 Bun 工具以及已启用服务。
+`capture.sh` 按 `manifests/` 中的白名单重建快照，导出 dconf，把显式安装的软件包
+记录到 `packages/inventory/explicit.txt`，并记录 Rust 与 Bun 工具和已启用服务。
 
 `$HOME` 层交给 `scripts/sync-configs.sh --to-snapshot`：它把
 `configs/apps/<应用>/paths` 声明的每条路径从 `$HOME` 复制到对应应用目录，按下面的

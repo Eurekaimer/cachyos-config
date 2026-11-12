@@ -13,7 +13,7 @@ git commit -m "sync: refresh snapshot"
 git push
 ```
 
-`capture.sh` rebuilds the managed snapshot from the allowlists in `manifests/`, exports dconf, records explicit Pacman/AUR packages, Rust and Bun tools, and enabled services.
+`capture.sh` rebuilds the managed snapshot from the allowlists in `manifests/`, exports dconf, records explicitly installed packages in `packages/inventory/explicit.txt`, and records Rust and Bun tools and enabled services.
 
 The `$HOME` layer is delegated to `scripts/sync-configs.sh --to-snapshot`, which copies every path declared in `configs/apps/<app>/paths` from `$HOME` into the matching application directory, scrubs the content below, and regenerates `manifests/home-paths.txt`. That application tree is the only copy: there is no generated `configs/home/` install tree, and `audit.sh` fails if one reappears. Whether a model runtime such as `llama-cpp` is installed is a profile decision (`packages/profiles/`), not a capture-time special case.
 
