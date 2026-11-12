@@ -6,6 +6,8 @@
 > 软件包保护：`packages/core.txt` 中的核心软件不得卸载或从完整恢复档移除，除非
 > 用户先明确调整其分级。其他软件未分级时也不得擅自卸载；每次本机安装、卸载或
 > 更改安装原因前，必须向用户列出具体操作并取得同意。
+> 调整保护清单：编辑 `~/cachyos-packages.txt` 的 `## core` 段后执行
+> `scripts/packages.sh apply`，不要手改 `packages/core.txt`。
 
 ## 1. 前置：代理、基础工具链、子模块
 

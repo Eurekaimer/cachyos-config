@@ -34,6 +34,12 @@ AUR helper。profile 是恢复时的安装选择，不等于本机当前已安�
 调整分级。其他软件在用户决定前均为待分级，不代表可以删除；`scripts/audit.sh`
 会检查核心软件是否仍在完整恢复档中。
 
+`~/cachyos-packages.txt` 是可编辑的分级清单。`scripts/packages.sh export` 从本机
+重新生成，排除依赖包以及 `core` 仓库和全部 `cachyos*` 仓库的包，因此内核、固件与
+发行版工具不会出现。把包移入其 `## core` 段后执行 `scripts/packages.sh apply`，
+该段即写回 `packages/core.txt`；核心包不在完整档时 `apply` 会拒绝（`--sync-profile`
+可自动追加），成功后自动运行 `scripts/audit.sh`。该文件刻意不进入快照。
+
 只统计记录的数量，或仅刷新软件清单而不采集本机配置：
 
 ```bash

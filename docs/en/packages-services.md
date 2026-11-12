@@ -39,6 +39,15 @@ packages are unclassified until the user decides; they are not deletion
 candidates by default. `scripts/audit.sh` checks that each core package remains
 in the full profile.
 
+`~/cachyos-packages.txt` is the editable tier list. `scripts/packages.sh export`
+rebuilds it from the live system and skips dependency-installed packages plus
+every package from the `core` repository or a `cachyos*` repository, so kernels,
+firmware and distro tooling never appear. Move a package into its `## core`
+section and run `scripts/packages.sh apply` to write that section back to
+`packages/core.txt`; `apply` refuses a core package the full profile lacks
+(`--sync-profile` appends it) and then runs `scripts/audit.sh`. The file stays
+outside the snapshot on purpose.
+
 To count the recorded packages or refresh only this list without capturing
 home configuration:
 
