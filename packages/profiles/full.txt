@@ -222,6 +222,7 @@ sioyek-git
 bun
 git
 github-cli
+github-desktop-bin
 go
 gopls
 jdk-openjdk

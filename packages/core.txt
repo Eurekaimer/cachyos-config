@@ -1,0 +1,10 @@
+# 核心软件：未经用户明确调整分级，不得卸载或从完整恢复档移除。
+clash-verge-rev-bin
+feishu-bin
+github-desktop-bin
+google-chrome
+linuxqq
+mpv
+obsidian
+wechat-bin
+zed

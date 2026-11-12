@@ -42,6 +42,18 @@ for banned in llama-cpp shelly; do
     fi
 done
 
+log "Checking protected core packages"
+core_packages="$REPO_ROOT/packages/core.txt"
+if [[ ! -s "$core_packages" ]]; then
+    fail "Missing or empty core package list: packages/core.txt"
+else
+    while IFS= read -r package; do
+        if ! grep -Fxq -- "$package" "$REPO_ROOT/packages/profiles/full.txt"; then
+            fail "Core package missing from full profile: $package"
+        fi
+    done < <(read_list "$core_packages")
+fi
+
 log "Checking generated home manifest"
 if [[ -d "$REPO_ROOT/configs/apps" ]]; then
     generated=$(mktemp)
