@@ -30,7 +30,9 @@ chrome-open = [
 sioyek-new = [
 	{ run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
 ]
-# Use the Markdown launcher even when a .md file is detected as text/plain.
+# Markdown and plain text always beat the content-sniffed MIME: `file` reports a
+# README full of <img>/<table> as text/html, and Yazi trusts that, so the .md
+# extension has to win in [open] before any HTML rule.
 markdown-open = [
 	{ run = 'gtk-launch neovim-markdown %s', desc = "Open Markdown in Neovim (new window)", orphan = true },
 ]
@@ -40,13 +42,14 @@ neovim-open = [
 
 [open]
 prepend_rules = [
+	{ use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
+	{ use = "markdown-open", mime = "text/{markdown,x-markdown}" },
+	{ use = "neovim-open", url = "*.gitignore" },
+	{ use = "markdown-open", mime = "text/plain" },
 	{ use = "chrome-open", mime = "text/html" },
 	{ use = "chrome-open", mime = "application/xhtml+xml" },
 	{ use = "chrome-open", url = "*.{html,htm,HTML,HTM,xhtml}" },
-	{ use = "neovim-open", url = "*.gitignore" },
 	{ use = "sioyek-new", mime = "application/pdf" },
-	{ use = "markdown-open", mime = "text/{markdown,x-markdown}" },
-	{ use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
 ]
 
 [plugin]
