@@ -1,0 +1,7 @@
+# Zen (Firefox-derived) keeps configuration and personal data in one profile.
+# Only the profile layout and the user-facing preferences survive capture:
+# bookmarks, history, cookies, logins, sessions and extension storage are not
+# declared. prefs.js is filtered by scripts/lib/sanitize.sh.
+.config/zen/profiles.ini
+.config/zen/ocej2jag.Default (release)/prefs.js
+.config/zen/ocej2jag.Default (release)/zen-themes.json

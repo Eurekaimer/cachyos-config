@@ -143,6 +143,7 @@ vulkan-intel
 
 # [09-browser] 浏览器 / HTML 默认打开器
 google-chrome
+zen-browser-bin
 
 # [10-editor] 编辑器：Neovim 主力，其余为补充
 neovim

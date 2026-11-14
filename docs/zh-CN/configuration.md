@@ -45,6 +45,7 @@
 | XDG 用户目录 | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.dirs`、`.config/user-dirs.locale` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
 | Zed | `configs/apps/zed/` | `.config/zed/settings.json`、`.config/zed/keymap.json`、`.config/zed/snippets/` |
+| Zen | `configs/apps/zen/` | `.config/zen/profiles.ini`、`.config/zen/<profile>/prefs.js`（白名单过滤）、`.config/zen/<profile>/zen-themes.json` |
 
 每次提交前，采集清洗器（`scripts/lib/sanitize.sh`）会作用在每个应用目录上：
 
@@ -54,6 +55,8 @@
 - 凭据清空但保留结构：shell rc 中 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的值、
   OBS `service.json` 推流密钥、git `user.email`、ani-rss 下载器密码/API Key/UUID，
   以及 `.omp`、`.pi` 运行态与 `agent/auth.json`。
+- Zen 的 `prefs.js` 只保留固定白名单键：书签、历史、Cookie、登录信息、同步 ID、
+  遥测标识与会话状态不入库；`profiles.ini` 归一为单个默认档案。
 
 用户层恢复入口：
 
@@ -155,7 +158,8 @@ Sioyek `prefs.config`、Zed 设置、Micro 键位、fcitx5 profile 格式），�
 | mpv | 0.41.0 | `mpv.conf` 选项、`script-opts/uosc.conf` |
 | KOReader | 2026.07.1 | `settings.reader.lua`、`defaults.lua`、插件目录 |
 | Sioyek | 2.0.0 | `prefs.config` 共享键 |
-| Zed | 1.26.2 | `settings.json` 键、snippet JSON 结构 |
+| Zed | 1.28.1 | `settings.json` 键、snippet JSON 结构 |
+| Zen | 1.24.1b | `prefs.js` 白名单、`profiles.ini` 结构 |
 | Neovim | 0.12.6 | 插件 API、LSP `vim.lsp.config` 结构 |
 | Micro | 2.0.15 | `settings.json` 键、`bindings.json` action |
 | fcitx5 | 5.1.23 | `profile`/`config` 选项名 |

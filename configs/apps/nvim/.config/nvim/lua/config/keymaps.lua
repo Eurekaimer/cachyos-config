@@ -46,6 +46,12 @@ map({ "i", "s" }, "<Tab>", function()
   end
   return "<Tab>"
 end, { expr = true, silent = true, desc = "补全文件内关键词或展开片段" })
+map({ "i", "s" }, "<S-Tab>", function()
+  if vim.fn.pumvisible() == 1 then
+    return "<C-p>"
+  end
+  return snippet_backward() or "<S-Tab>"
+end, { expr = true, silent = true, desc = "补全上一项或返回片段" })
 
 local bracket_pairs = { { "(", ")" }, { "\\[", "\\]" }, { "{", "}" } }
 local function skip_string_or_comment()
@@ -62,7 +68,7 @@ local function skip_string_or_comment()
   return syntax:find("string", 1, true) ~= nil or syntax:find("comment", 1, true) ~= nil
 end
 
-local function bracket_jump()
+local function jump_out_of_bracket()
   local target
   for _, pair in ipairs(bracket_pairs) do
     local pos = vim.fn.searchpairpos(pair[1], "", pair[2], "cnW", skip_string_or_comment, 0, 50)
@@ -70,27 +76,13 @@ local function bracket_jump()
       target = pos
     end
   end
+  -- Accept the displayed candidate and close its menu before moving the cursor.
+  local accept = vim.fn.pumvisible() == 1 and "<C-y>" or ""
   if target then
-    -- Accept the displayed candidate before moving past the closer.
-    local accept = vim.fn.pumvisible() == 1 and "<C-y>" or ""
     -- Search columns are one-based; that same number is just past the ASCII closer.
     return accept .. ("<Cmd>lua vim.api.nvim_win_set_cursor(0, {%d, %d})<CR>"):format(target[1], target[2])
   end
-end
-
-map({ "i", "s" }, "<S-Tab>", function()
-  local jump = bracket_jump()
-  if jump then
-    return jump
-  end
-  if vim.fn.pumvisible() == 1 then
-    return "<C-p>"
-  end
-  return snippet_backward() or "<S-Tab>"
-end, { expr = true, silent = true, desc = "跳出括号、补全上一项或返回片段" })
-
-local function jump_out_of_bracket()
-  return bracket_jump() or (vim.fn.pumvisible() == 1 and "<C-y>" or "")
+  return accept
 end
 
 map("i", "<C-Tab>", jump_out_of_bracket, { expr = true, silent = true, desc = "跳出当前括号" })

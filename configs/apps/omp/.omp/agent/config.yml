@@ -1,5 +1,5 @@
 modelRoles:
-  smol: openai-codex/gpt-6.1-sol:high
+  smol: commandcode/deepseek/deepseek-v4.1-flash-fast:high
   default: commandcode/deepseek/deepseek-v4.1-flash-fast:max
 symbolPreset: nerd
 theme:

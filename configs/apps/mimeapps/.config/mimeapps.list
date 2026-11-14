@@ -1,11 +1,11 @@
 [Default Applications]
 x-scheme-handler/clash=clash-verge.desktop;
 x-scheme-handler/clash-verge=clash-verge.desktop;
-text/html=google-chrome.desktop
-x-scheme-handler/http=google-chrome.desktop
-x-scheme-handler/https=google-chrome.desktop
-x-scheme-handler/about=google-chrome.desktop
-x-scheme-handler/unknown=google-chrome.desktop
+text/html=zen.desktop
+x-scheme-handler/http=zen.desktop
+x-scheme-handler/https=zen.desktop
+x-scheme-handler/about=firefox.desktop
+x-scheme-handler/unknown=firefox.desktop
 text/markdown=neovim-markdown.desktop
 text/x-markdown=neovim-markdown.desktop
 application/vnd.comicbook+zip=com.github.johnfactotum.Foliate.desktop
@@ -34,14 +34,21 @@ x-scheme-handler/com.googleusercontent.apps.209390247301-ctpmep68ppfa56r1b8tr35e
 application/pdf=sioyek.desktop
 x-scheme-handler/sioyek-ecdict=sioyek-ecdict.desktop
 x-scheme-handler/baiduyunguanjia=baidunetdisk.desktop
-text/plain=org.kde.kate.desktop
+text/plain=neovim-markdown.desktop
 x-scheme-handler/book=book-open.desktop
 application/epub+zip=com.github.johnfactotum.Foliate.desktop
 application/vnd.microsoft.portable-executable=wine.desktop
 application/x-ms-dos-executable=wine.desktop
+x-scheme-handler/chrome=zen.desktop
+application/x-extension-htm=zen.desktop
+application/x-extension-html=zen.desktop
+application/x-extension-shtml=zen.desktop
+application/xhtml+xml=zen.desktop
+application/x-extension-xhtml=zen.desktop
+application/x-extension-xht=zen.desktop
 
 [Added Associations]
-text/plain=org.kde.kate.desktop;
+text/plain=neovim-markdown.desktop;
 x-scheme-handler/clash=clash-verge.desktop;
 x-scheme-handler/clash-verge=clash-verge.desktop;
 application/vnd.comicbook+zip=com.github.johnfactotum.Foliate.desktop;
@@ -52,3 +59,13 @@ application/x-cbr=com.github.johnfactotum.Foliate.desktop;
 application/epub+zip=rocks.koreader.KOReader.desktop;
 application/vnd.microsoft.portable-executable=wine.desktop;
 application/x-ms-dos-executable=wine.desktop;
+x-scheme-handler/http=zen.desktop;
+x-scheme-handler/https=zen.desktop;
+x-scheme-handler/chrome=zen.desktop;
+text/html=zen.desktop;
+application/x-extension-htm=zen.desktop;
+application/x-extension-html=zen.desktop;
+application/x-extension-shtml=zen.desktop;
+application/xhtml+xml=zen.desktop;
+application/x-extension-xhtml=zen.desktop;
+application/x-extension-xht=zen.desktop;

@@ -225,5 +225,6 @@ xfsprogs
 yazi
 yt-dlp
 zed
+zen-browser-bin
 zoom
 zotero

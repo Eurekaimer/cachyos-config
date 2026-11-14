@@ -8,5 +8,5 @@ Icon=nvim
 Terminal=false
 NoDisplay=false
 Categories=Utility;TextEditor;Development;
-MimeType=text/markdown;text/x-markdown;
+MimeType=text/markdown;text/x-markdown;text/plain;
 StartupNotify=true

@@ -48,6 +48,7 @@ install tree in between.
 | XDG user dirs | `configs/apps/xdg-user-dirs/` | `.config/user-dirs.dirs`, `.config/user-dirs.locale` |
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
 | Zed | `configs/apps/zed/` | `.config/zed/settings.json`, `.config/zed/keymap.json`, `.config/zed/snippets/` |
+| Zen | `configs/apps/zen/` | `.config/zen/profiles.ini`, `.config/zen/<profile>/prefs.js` (filtered allowlist), `.config/zen/<profile>/zen-themes.json` |
 
 The capture sanitizer (`scripts/lib/sanitize.sh`) runs on every app tree before
 it is committed:
@@ -61,6 +62,9 @@ it is committed:
   `PASSWORD` values in shell rc files, OBS `service.json` stream keys, the git
   `user.email`, ani-rss downloader password/API key/UUID, `.omp` and `.pi`
   runtime state, and `agent/auth.json`.
+- Zen's profile keeps only a fixed `prefs.js` allowlist: bookmarks, history,
+  cookies, logins, sync IDs, telemetry identifiers and session state are never
+  copied; `profiles.ini` is reduced to one default profile.
 
 Restore this layer with:
 
@@ -169,7 +173,8 @@ both the config and this table in the same commit.
 | mpv | 0.41.0 | `mpv.conf` options, `script-opts/uosc.conf` |
 | KOReader | 2026.07.1 | `settings.reader.lua`, `defaults.lua`, plugin layout |
 | Sioyek | 2.0.0 | `prefs.config` shared keys |
-| Zed | 1.26.2 | `settings.json` keys, snippet JSON schema |
+| Zed | 1.28.1 | `settings.json` keys, snippet JSON schema |
+| Zen | 1.24.1b | `prefs.js` allowlist, `profiles.ini` layout |
 | Neovim | 0.12.6 | plugin APIs, LSP `vim.lsp.config` shape |
 | Micro | 2.0.15 | `settings.json` keys, `bindings.json` actions |
 | fcitx5 | 5.1.23 | `profile`/`config` option names |

@@ -133,8 +133,92 @@ PY
     fi
 }
 
+# Zen (Firefox-derived) keeps configuration and personal data in one profile.
+# Only a fixed preference allowlist is portable; sync IDs, account identifiers,
+# telemetry GUIDs and session/bookmark state must never be published.
+sanitize_zen_config() {
+    local root=${1%/}
+    local prefs
+    local profiles
+    [[ -d "$root/.config/zen" ]] || return 0
+
+    while IFS= read -r prefs; do
+        [[ -n "$prefs" ]] || continue
+        python3 - "$prefs" <<'PY'
+import re
+import sys
+
+allowed = {
+    "browser.contentblocking.category",
+    "browser.fullscreen.autohide",
+    "browser.toolbars.bookmarks.visibility",
+    "browser.uiCustomization.state",
+    "intl.locale.requested",
+    "media.eme.enabled",
+    "network.dns.disablePrefetch",
+    "network.http.speculative-parallel-limit",
+    "network.prefetch-next",
+    "nimbus.rollouts.enabled",
+    "privacy.clearOnShutdown_v2.formdata",
+    "privacy.clearSiteData.browsingHistoryAndDownloads",
+    "privacy.clearSiteData.cache",
+    "privacy.clearSiteData.cookiesAndStorage",
+    "privacy.globalprivacycontrol.was_ever_enabled",
+    "sidebar.visibility",
+    "zen.library.media.enabled",
+    "zen.view.compact.enable-at-startup",
+    "zen.view.use-single-toolbar",
+}
+
+path = sys.argv[1]
+kept = []
+with open(path, encoding="utf-8", errors="surrogateescape") as handle:
+    for line in handle:
+        match = re.match(r'user_pref\("([^"]+)",', line)
+        if match and match.group(1) in allowed:
+            kept.append(line.rstrip("\n"))
+
+with open(path, "w", encoding="utf-8", errors="surrogateescape") as handle:
+    handle.write("// Mozilla User Preferences\n")
+    handle.write("// Filtered by scripts/lib/sanitize.sh: portable configuration keys only.\n")
+    for line in kept:
+        handle.write(line + "\n")
+PY
+    done < <(find "$root/.config/zen" -mindepth 2 -maxdepth 2 -name prefs.js -print)
+
+    profiles="$root/.config/zen/profiles.ini"
+    [[ -f "$profiles" ]] || return 0
+    python3 - "$profiles" <<'PY'
+import configparser
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+parser = configparser.ConfigParser(interpolation=None)
+parser.optionxform = str
+parser.read(path, encoding="utf-8")
+name = parser.get("Profile0", "Name", fallback="Default")
+profile_path = parser.get("Profile0", "Path", fallback="")
+if not profile_path:
+    raise SystemExit(f"profiles.ini has no [Profile0] Path: {path}")
+path.write_text(
+    "[General]\n"
+    "StartWithLastProfile=1\n"
+    "Version=2\n"
+    "\n"
+    "[Profile0]\n"
+    f"Name={name}\n"
+    "IsRelative=1\n"
+    f"Path={profile_path}\n"
+    "Default=1\n",
+    encoding="utf-8",
+)
+PY
+}
+
 # Full sanitizer for one tree root.
 sanitize_tree() {
     sanitize_runtime_state "$1"
     sanitize_credentials "$1"
+    sanitize_zen_config "$1"
 }

@@ -34,6 +34,9 @@
 .config/zed/keymap.json
 .config/zed/settings.json
 .config/zed/snippets
+.config/zen/ocej2jag.Default (release)/prefs.js
+.config/zen/ocej2jag.Default (release)/zen-themes.json
+.config/zen/profiles.ini
 .gitconfig
 .local/bin/fcitx5-toggle-japanese
 .local/bin/niri-hotkeys-zh

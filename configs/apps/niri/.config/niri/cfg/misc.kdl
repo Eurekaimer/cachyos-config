@@ -10,6 +10,7 @@
     XDG_SESSION_TYPE "wayland"
     TERMINAL "kitty"
     SHELL "/usr/bin/zsh"
+    LOCAL_NOTEBOOK_DEV "1"
     XCURSOR_THEME "capitaine-cursors-light"
     XCURSOR_SIZE "36"
 
@@ -27,6 +28,8 @@
     HTTP_PROXY "http://127.0.0.1:7897"
     HTTPS_PROXY "http://127.0.0.1:7897"
     ALL_PROXY "socks5h://127.0.0.1:7897"
+
+    PI_PROXY "http://127.0.0.1:7897"
 
     no_proxy "localhost,127.0.0.1,::1,.local"
     NO_PROXY "localhost,127.0.0.1,::1,.local"
