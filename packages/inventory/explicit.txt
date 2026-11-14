@@ -8,6 +8,7 @@ base
 base-devel
 bash-completion
 bat
+blanket
 bluez
 bluez-hid2hci
 bluez-libs
@@ -150,7 +151,6 @@ pavucontrol
 pdfarranger
 peazip-qt-bin
 perl
-picgo-appimage
 pinta
 pipewire-alsa
 pipewire-pulse
@@ -224,6 +224,8 @@ xdg-user-dirs
 xfsprogs
 yazi
 yt-dlp
+zathura
+zathura-pdf-poppler
 zed
 zen-browser-bin
 zoom
