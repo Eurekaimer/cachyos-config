@@ -24,5 +24,17 @@
     "bindings": {
       "ctrl-shift-v": "editor::Paste"
     }
+  },
+  {
+    "context": "(vim_mode == helix_normal || vim_mode == helix_select) && !menu",
+    "unbind": {
+      "ctrl-c": [
+        "editor::ToggleComments",
+        {
+          "advance_downwards": false,
+          "comment_empty_lines": false
+        }
+      ]
+    }
   }
 ]
