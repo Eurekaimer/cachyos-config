@@ -181,7 +181,7 @@ both the config and this table in the same commit.
 | SDDM + Sugar Candy | 0.21.0 / module | `theme.conf`, Qt6 QML API |
 | OBS Studio | 33.0.1 | `basic/profiles/`, `basic/scenes/` JSON schema |
 | Thunar | 4.20.10 | custom action XML (`uca.xml`) |
-| Yazi | 26.9.1 | `yazi.toml`, `keymap.toml` keys |
+| Yazi | 26.9.1 | `yazi.toml` keys (`[opener]` lists, `[open].prepend_rules` order), `keymap.toml` keys |
 | Starship | 1.27.0 | `starship.toml` modules |
 | Clash Verge Rev | 2.5.8 | extension script API (`main(config)`) |
 | Git | 2.56.0 | `.gitconfig` section names |

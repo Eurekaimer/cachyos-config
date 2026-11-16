@@ -166,7 +166,7 @@ Sioyek `prefs.config`、Zed 设置、Micro 键位、fcitx5 profile 格式），�
 | SDDM + Sugar Candy | 0.21.0 / 模块 | `theme.conf`、Qt6 QML API |
 | OBS Studio | 33.0.1 | `basic/profiles/`、`basic/scenes/` JSON 结构 |
 | Thunar | 4.20.10 | 自定义动作 XML（`uca.xml`） |
-| Yazi | 26.9.1 | `yazi.toml`、`keymap.toml` 键 |
+| Yazi | 26.9.1 | `yazi.toml` 键（`[opener]` 列表、`[open].prepend_rules` 顺序）、`keymap.toml` 键 |
 | Starship | 1.27.0 | `starship.toml` 模块 |
 | Clash Verge Rev | 2.5.8 | 扩展脚本 API（`main(config)`） |
 | Git | 2.56.0 | `.gitconfig` 段名 |
