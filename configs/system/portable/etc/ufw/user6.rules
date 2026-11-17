@@ -17,6 +17,9 @@
 :ufw6-user-limit-accept - [0:0]
 ### RULES ###
 
+### tuple ### allow udp 67 ::/0 any ::/0 in_waydroid0
+-A ufw6-user-input -i waydroid0 -p udp --dport 67 -j ACCEPT
+
 ### END RULES ###
 
 ### LOGGING ###
