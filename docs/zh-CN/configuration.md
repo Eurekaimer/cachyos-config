@@ -18,7 +18,7 @@
 | CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
 | Clash Verge | `configs/apps/clash-verge/` | `.config/autostart/Clash Verge.desktop`、`.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js` |
 | Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
-| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`、`.local/bin/fcitx5-toggle-japanese` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/environment.d/10-fcitx.conf`、`.config/fcitx5/`、`.local/bin/fcitx5-toggle-japanese` |
 | Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
 | Git | `configs/apps/git/` | `.gitconfig` |
 | Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
@@ -46,6 +46,17 @@
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
 | Zed | `configs/apps/zed/` | `.config/zed/settings.json`、`.config/zed/keymap.json`、`.config/zed/snippets/` |
 | Zen | `configs/apps/zen/` | `.config/zen/profiles.ini`、`.config/zen/<profile>/prefs.js`（白名单过滤）、`.config/zen/<profile>/zen-themes.json` |
+
+手写的 systemd user 单元不进 `configs/apps/`：`packages/services/user.txt` 由采集只登记
+软件包自带的单元，所以 Noctalia 的托管单元归可选模块 `modules/noctalia-service`
+（投放 `~/.config/systemd/user/noctalia.service`，`Restart=always`，崩溃后约 2 秒重生），
+安装见该模块 `README.md`。niri 的 `autostart.kdl` 不再 `spawn-at-startup "noctalia"`，
+否则重新登录会和单元各起一个实例。
+
+`fcitx5` 里的 `.config/environment.d/10-fcitx.conf` 只提供 `XMODIFIERS=@im=fcitx`：
+niri 的 `environment{}` 只作用于它自己 spawn 的进程，而启动器经 `systemd-run` 拉起的应用
+（例如 X11/XWayland 的 QQ）沿 systemd user 环境，缺这一条就没有 XIM 输入法；Wayland
+原生应用走 text-input-v3，不需要这些变量。
 
 每次提交前，采集清洗器（`scripts/lib/sanitize.sh`）会作用在每个应用目录上：
 
@@ -153,7 +164,7 @@ Sioyek `prefs.config`、Zed 设置、Micro 键位、fcitx5 profile 格式），�
 | 组件 | 采集时版本 | 可能失效的配置格式 |
 | --- | --- | --- |
 | niri | 26.04 | `.config/niri/*.kdl` 的节点与 action 名 |
-| Noctalia | 5.4.0 | `.config/noctalia/` 结构、`settings.toml` 状态键 |
+| Noctalia | 5.5.0 | `.config/noctalia/` 结构、`settings.toml` 状态键（5.5.0 起 `app_icon_colorize`、`dock.monitors`、`workspaces.show_all_outputs` 废弃） |
 | kitty | 0.49.2 | `.config/kitty/kitty.conf` 选项 |
 | mpv | 0.41.0 | `mpv.conf` 选项、`script-opts/uosc.conf` |
 | KOReader | 2026.07.1 | `settings.reader.lua`、`defaults.lua`、插件目录 |

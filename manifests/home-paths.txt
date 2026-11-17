@@ -7,6 +7,7 @@
 .config/Thunar/uca.xml
 .config/autostart/Clash Verge.desktop
 .config/cachyos-hello.json
+.config/environment.d/10-fcitx.conf
 .config/fastfetch
 .config/fcitx5
 .config/fontconfig

@@ -4,10 +4,11 @@ position = "top"
 thickness = 44
 radius = 12
 enabled = true
-auto_hide = false
+# Overlay auto-hide bar: no reserved exclusive zone, revealed from the top edge.
+auto_hide = true
 smart_auto_hide = false
 show_on_workspace_switch = true
-reserve_space = true
+reserve_space = false
 background_opacity = 0.93
 border_width = 0.0
 # Match the ordinary window gaps configured by Niri.
@@ -82,7 +83,6 @@ capsule = false
 [widget.workspaces]
 type = "workspaces"
 hide_when_empty = false
-show_all_outputs = false
 show_labels = true
 label_source = "id"
 labels_only_when_occupied = true
@@ -162,7 +162,6 @@ inactive_opacity = 0.6
 magnification = false
 launcher_position = "none"
 pinned = []
-monitors = []
 
 [control_center]
 shortcuts = [

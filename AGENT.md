@@ -143,10 +143,15 @@ GitHub 完全不可达时才考虑旧克隆离线兜底。
 - 临时提权文件（sudoers.d/askpass）用完必须删除
 - 不让备份目录里堆积多代副本：恢复脚本只保留一份，模块安装器同理
 
-Noctalia 当前为原生 `/usr/bin/noctalia`，实测 `v5.2.1 (5.2.1-1-dirty)`，
+Noctalia 当前为原生 `/usr/bin/noctalia`（CachyOS `5.5.0-1.1`，日志自报 `5.5.0-1-dirty`），
 不是 QuickShell 的 `noctalia-shell`。配置底层在 `~/.config/noctalia/config.toml`
 和 `widgets.toml`，GUI 保存到 `~/.local/state/noctalia/settings.toml` 并覆盖底层值；
 本地插件 `~/.local/share/noctalia/plugins/storage-gb` 也纳管。
+
+Noctalia 由可选模块 `modules/noctalia-service` 的 systemd user 单元托管：
+`Restart=always` + `RestartSec=2`，段错误崩溃后状态栏、壁纸、面板约 2 秒自动回来。
+niri 的 `autostart.kdl` 里**不再**有 `spawn-at-startup "noctalia"`，删了才不会双实例；
+`Mod+CTRL+Shift+R` 等价于 `systemctl --user restart noctalia.service`。
 
 仓库使用**复制快照，不是软链接或自动同步**：`configs/apps/noctalia/` 是唯一副本，
 `restore-user.sh` 直接从它复制部署。GUI 修改保存后运行 `./scripts/capture.sh` 更新快照，
@@ -168,6 +173,19 @@ cat "$XDG_RUNTIME_DIR/cpu-temp/temp1_input"   # 微度，例如 44098
 uid 不是 1000 的机器要把 `config.toml` 里那一行改成自己的
 `$XDG_RUNTIME_DIR/cpu-temp/temp1_input` 再 `noctalia msg config-reload`。
 该模块只做读数的过滤与平滑，不引入任何按温度降频的逻辑。
+
+进程监管同样是可选模块，恢复后必须装，否则状态栏/壁纸/面板一起裸奔：
+
+```bash
+./scripts/module.sh install noctalia-service   # 投放 user unit，daemon-reload 并 enable --now
+systemctl --user show -p MainPID -p NRestarts --value noctalia.service
+niri msg layers | grep -E 'noctalia-(bar-main|wallpaper)'   # DP-3 上两层都应存在
+```
+
+X11/XWayland 应用的输入法依赖 `~/.config/environment.d/10-fcitx.conf` 的
+`XMODIFIERS=@im=fcitx`（已随 fcitx5 应用目录快照纳管）：启动器经 `systemd-run` 拉起的
+进程沿 systemd user 环境，拿不到 niri `environment{}` 里的 IM 变量，QQ 这类 X11 客户端
+会因此完全打不出中文，而原生 Wayland 的微信不受影响。
 
 维护配置时不需要每次全量比对：
 

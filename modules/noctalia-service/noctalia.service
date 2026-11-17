@@ -1,0 +1,14 @@
+[Unit]
+Description=Noctalia Wayland shell (bar, wallpaper, panels)
+Documentation=https://docs.noctalia.dev
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/noctalia
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=graphical-session.target

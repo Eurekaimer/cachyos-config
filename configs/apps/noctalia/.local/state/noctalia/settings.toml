@@ -3,6 +3,12 @@ config_version = 20
 [accessibility]
 ui_scale = 1.2500000111758709
 
+[bar.main]
+auto_hide = true
+layer = "overlay"
+reserve_space = false
+thickness = 43
+
 [control_center]
 sidebar = "full"
 
@@ -56,17 +62,32 @@ enabled = [ "local/storage_gb" ]
 corner_radius_scale = 1.3500000201165676
 screen_time_enabled = true
 
+    [shell.launcher]
+    search_position = "top"
+
+    [shell.panel]
+    launcher_placement = "floating"
+    transparency_mode = "glass"
+
     [shell.screenshot]
     remember_last_region = true
 
 [theme]
+builtin = "Noctalia"
+community_palette = "Oxocarbon"
+mode = "light"
 shell_mode = "light"
+source = "wallpaper"
+wallpaper_scheme = "m3-tonal-spot"
 
-[wallpaper.default]
-path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+[wallpaper]
+fill_mode = "fit"
 
-[wallpaper.last]
-path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+    [wallpaper.default]
+    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
 
-[wallpaper.monitors.DP-3]
-path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+    [wallpaper.last]
+    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+
+    [wallpaper.monitors.DP-3]
+    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"

@@ -20,6 +20,7 @@ binds {
     Mod+Y                               hotkey-overlay-title="打开 Yazi 文件管理器" { spawn "kitty" "zsh" "-ic" "y; exec zsh -i"; }
     Mod+Shift+L                         hotkey-overlay-title="锁定屏幕" { spawn "noctalia" "msg" "session" "lock"; }
     Mod+Shift+Q                         hotkey-overlay-title="打开会话菜单" { spawn "noctalia" "msg" "panel-toggle" "session"; }
+    Mod+CTRL+Shift+R                    hotkey-overlay-title="重启 Noctalia（状态栏 / 壁纸）" { spawn "systemctl" "--user" "restart" "noctalia.service"; }
     Mod+S                               hotkey-overlay-title="打开 ECDICT 英汉词典" { spawn "gdbus" "call" "--session" "--dest" "io.github.sioyek.ecdict" "--object-path" "/io/github/sioyek/ecdict" "--method" "io.github.sioyek.ecdict.Prompt"; }
 
     // Keep the original GNOME file manager as the primary graphical browser.

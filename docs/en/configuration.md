@@ -21,7 +21,7 @@ install tree in between.
 | CachyOS Hello | `configs/apps/cachyos-hello/` | `.config/cachyos-hello.json` |
 | Clash Verge | `configs/apps/clash-verge/` | `.config/autostart/Clash Verge.desktop`, `.local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js` |
 | Fastfetch | `configs/apps/fastfetch/` | `.config/fastfetch/` |
-| Fcitx5 | `configs/apps/fcitx5/` | `.config/fcitx5/`, `.local/bin/fcitx5-toggle-japanese` |
+| Fcitx5 | `configs/apps/fcitx5/` | `.config/environment.d/10-fcitx.conf`, `.config/fcitx5/`, `.local/bin/fcitx5-toggle-japanese` |
 | Fontconfig | `configs/apps/fontconfig/` | `.config/fontconfig/` |
 | Git | `configs/apps/git/` | `.gitconfig` |
 | Go-musicfox | `configs/apps/go-musicfox/` | `.config/go-musicfox/` |
@@ -49,6 +49,20 @@ install tree in between.
 | Yazi | `configs/apps/yazi/` | `.config/yazi/` |
 | Zed | `configs/apps/zed/` | `.config/zed/settings.json`, `.config/zed/keymap.json`, `.config/zed/snippets/` |
 | Zen | `configs/apps/zen/` | `.config/zen/profiles.ini`, `.config/zen/<profile>/prefs.js` (filtered allowlist), `.config/zen/<profile>/zen-themes.json` |
+
+Hand-written systemd user units do not live under `configs/apps/`:
+`packages/services/user.txt` only records units shipped by installed packages, so
+Noctalia's supervising unit belongs to the optional module
+`modules/noctalia-service` (installs `~/.config/systemd/user/noctalia.service`,
+`Restart=always`, back within about 2 seconds of a crash) — see that module's
+`README.md`. niri's `autostart.kdl` no longer runs `spawn-at-startup "noctalia"`,
+otherwise the next login starts two competing instances.
+
+`.config/environment.d/10-fcitx.conf` under `fcitx5` only carries
+`XMODIFIERS=@im=fcitx`: niri's `environment{}` reaches only the processes niri
+spawns itself, while launcher apps started through `systemd-run` (for example an
+X11/XWayland QQ) inherit the systemd user environment and lose XIM without that
+variable. Wayland-native apps use text-input-v3 and need none of it.
 
 The capture sanitizer (`scripts/lib/sanitize.sh`) runs on every app tree before
 it is committed:
@@ -168,7 +182,7 @@ both the config and this table in the same commit.
 | Component | Version at capture | Config format that can break |
 | --- | --- | --- |
 | niri | 26.04 | `.config/niri/*.kdl` layout and action names |
-| Noctalia | 5.4.0 | `.config/noctalia/` schema, `settings.toml` state keys |
+| Noctalia | 5.5.0 | `.config/noctalia/` schema, `settings.toml` state keys (`app_icon_colorize`, `dock.monitors`, `workspaces.show_all_outputs` deprecated since 5.5.0) |
 | kitty | 0.49.2 | `.config/kitty/kitty.conf` options |
 | mpv | 0.41.0 | `mpv.conf` options, `script-opts/uosc.conf` |
 | KOReader | 2026.07.1 | `settings.reader.lua`, `defaults.lua`, plugin layout |
