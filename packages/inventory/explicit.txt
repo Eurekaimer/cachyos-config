@@ -93,6 +93,7 @@ jfsutils
 kitty
 koreader-bin
 lazygit
+lektra-bin
 less
 lib32-gamemode
 lib32-mangohud
@@ -224,8 +225,6 @@ xdg-user-dirs
 xfsprogs
 yazi
 yt-dlp
-zathura
-zathura-pdf-poppler
 zed
 zen-browser-bin
 zoom
