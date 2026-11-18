@@ -21,8 +21,8 @@ shell_offset  = [ 0, 2, 80, 3 ]
 
 [opener]
 # Yazi 26 syntax: one list per opener; %s1 is the first file, %s all files.
-chrome-open = [
-	{ run = '/usr/bin/google-chrome-stable %s', desc = "Open HTML in Google Chrome", orphan = true },
+default-browser = [
+	{ run = 'gio open %s', desc = "Open in default browser", orphan = true },
 ]
 # --new-instance gives each PDF its own window. Use the wrapper directly:
 # apps spawned by niri (Super+Y) have no ~/.local/bin in PATH, and the system
@@ -44,16 +44,16 @@ neovim-open = [
 prepend_rules = [
 	# Structured config/docs go to Neovim by extension. This also has to beat the
 	# MIME rules, since libmagic sniffs TOML/JSON that mention markup in comments
-	# or values as text/html (Chrome), and plain JSON as application/json (the
-	# default `edit` opener).
+	# or values as text/html (system browser), and plain JSON as application/json
+	# (the default `edit` opener).
 	{ use = "neovim-open", url = "*.{toml,json,jsonc,json5,jsonl,ndjson}" },
 	{ use = "markdown-open", url = "*.{md,markdown,mdown,mkd}" },
 	{ use = "markdown-open", mime = "text/{markdown,x-markdown}" },
 	{ use = "neovim-open", url = "*.gitignore" },
 	{ use = "markdown-open", mime = "text/plain" },
-	{ use = "chrome-open", mime = "text/html" },
-	{ use = "chrome-open", mime = "application/xhtml+xml" },
-	{ use = "chrome-open", url = "*.{html,htm,HTML,HTM,xhtml}" },
+	{ use = "default-browser", mime = "text/html" },
+	{ use = "default-browser", mime = "application/xhtml+xml" },
+	{ use = "default-browser", url = "*.{html,htm,HTML,HTM,xhtml}" },
 	{ use = "sioyek-new", mime = "application/pdf" },
 ]
 
