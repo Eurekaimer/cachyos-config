@@ -26,9 +26,12 @@ return {
     dependencies = {
       "nvim-lua/plenary.nvim",
       "MunifTanjim/nui.nvim",
+      -- Load first: leetcode.nvim detects image.nvim at module load.
+      "3rd/image.nvim",
     },
     opts = {
       lang = "java",
+      image_support = true,
       description = {
         position = "left",
         width = "50%",

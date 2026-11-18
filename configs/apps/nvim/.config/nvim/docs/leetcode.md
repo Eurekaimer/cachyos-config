@@ -14,6 +14,7 @@
 | `cn.translate_problems` | `true` | 题目标题与描述使用中文 |
 | `description.position` | `left` | 左侧题目描述、右侧代码 |
 | `description.width` | `50%` | 初始左右等分；打开题目及终端尺寸变化后重新等分 |
+| `image_support` | `true` | 在 Kitty 的题目描述窗口显示图片 |
 
 `picker.provider` 保持未设置，由插件自行解析第一个可用 provider（顺序为
 snacks-picker、fzf-lua、telescope、mini-picker）；本配置已有 Snacks，因此不再安装第二个
@@ -21,6 +22,9 @@ picker。
 
 `lua/plugins/syntax.lua` 额外安装了 `html` 解析器：存在 `parser/html.so` 时
 leetcode.nvim 用它格式化题目描述，否则退回纯文本。
+
+题图复用 Markdown 的 `image.nvim` 下载器和 Kitty 后端，需要 ImageMagick（`magick`）。
+未启用 `image.nvim` 时，描述仍显示图片链接。
 
 登录由 `:Leet cookie update` 完成：把浏览器请求头里的 `Cookie` 粘进输入框，插件写到
 `~/.cache/nvim/leetcode/cookie_cn`。本配置不保存任何 Cookie，该缓存目录也不入快照。
@@ -34,9 +38,13 @@ leetcode.nvim 用它格式化题目描述，否则退回纯文本。
 | `:Leet` | 打开刷题面板 |
 | `:Leet list` / `:Leet daily` | 选题 / 每日一题 |
 | `:Leet lists` | 打开题库内题单管理页，包含内置 Hot100 |
+| `:Leet lang` | 切换当前题的语言模板 |
 | `:Leet run` / `:Leet submit` | 运行 / 提交当前题目 |
 | `:Leet cookie update` | 输入或更新 Cookie |
 | `:Leet cache update` | 更新本地题库缓存 |
+
+在代码窗口执行 `:Leet lang`，选中语言后按 `<CR>` 确认（普通模式按 `q` 关闭）。
+选中的语言也用于本次 Neovim 会话中新开的题目；重启后恢复配置的 `lang`。
 
 Cookie 是登录凭据，不要提交到仓库或写入文档。
 
