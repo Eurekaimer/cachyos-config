@@ -39,6 +39,16 @@ packages are unclassified until the user decides; they are not deletion
 candidates by default. `scripts/audit.sh` checks that each core package remains
 in the full profile.
 
+Both the `full` and `minimal` profiles install Zen (`zen-browser-bin`) as the
+protected default browser; core protection moved from `google-chrome` to
+`zen-browser-bin`. The `full` profile also provides the protected desktop QQ
+client (`linuxqq`, present in both `core` and `full`), but recovery installs the
+application only: personal chats, account data, messages and media are not
+restored, and the retired local QQ bot deployment (containers, volumes and
+network) is not recreated. Removing Chrome and its local profile was a one-time
+machine migration, not a step in the normal restore path; it does not clear
+shared dependencies or other applications' Chromium data.
+
 `~/cachyos-packages.txt` is the editable tier list. `scripts/packages.sh export`
 rebuilds it from the live system and skips dependency-installed packages plus
 every package from the `core` repository or a `cachyos*` repository, so kernels,

@@ -2,9 +2,9 @@
 clash-verge-rev-bin
 feishu-bin
 github-desktop-bin
-google-chrome
 linuxqq
 mpv
 obsidian
 wechat-bin
 zed
+zen-browser-bin

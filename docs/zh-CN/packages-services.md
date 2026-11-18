@@ -34,6 +34,13 @@ AUR helper。profile 是恢复时的安装选择，不等于本机当前已安�
 调整分级。其他软件在用户决定前均为待分级，不代表可以删除；`scripts/audit.sh`
 会检查核心软件是否仍在完整恢复档中。
 
+`full` 与 `minimal` 两档都会安装 Zen（`zen-browser-bin`），并把它作为受保护的
+默认浏览器；核心保护已从 `google-chrome` 转给 `zen-browser-bin`。`full` 档还
+提供受保护的桌面 QQ（`linuxqq`，同时位于 `core` 与 `full`），但恢复只安装应用
+本身：个人聊天、账户数据、消息和媒体不会恢复，已退役的本机 QQ 机器人及其容器、
+卷和网络也不会重建。删除 Chrome 及其本机 profile 是一次性的迁移操作，不是常规
+恢复步骤的一部分；它不会清除共享依赖，也不会动其他应用中的 Chromium 数据。
+
 `~/cachyos-packages.txt` 是可编辑的分级清单。`scripts/packages.sh export` 从本机
 重新生成，排除依赖包以及 `core` 仓库和全部 `cachyos*` 仓库的包，因此内核、固件与
 发行版工具不会出现。把包移入其 `## core` 段后执行 `scripts/packages.sh apply`，
