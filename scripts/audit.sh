@@ -27,8 +27,9 @@ if [[ -d "$REPO_ROOT/packages/profiles" ]]; then
             package=$(printf '%s' "$package" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
             [[ -n "$package" ]] || continue
             if ! pacman -Si -- "$package" >/dev/null 2>&1 && \
-               ! pacman -Qq -- "$package" >/dev/null 2>&1; then
-                fail "Profile entry resolves neither to a repository package nor to an installed/AUR name: ${package} (${profile_file#"$REPO_ROOT/"})"
+               ! pacman -Qq -- "$package" >/dev/null 2>&1 && \
+               ! paru -Si --aur -- "$package" >/dev/null 2>&1; then
+                fail "Could not verify repository, installed or AUR package: ${package} (${profile_file#"$REPO_ROOT/"})"
             fi
         done <"$profile_file"
     done < <(find "$REPO_ROOT/packages/profiles" -type f -name '*.txt' | sort)
