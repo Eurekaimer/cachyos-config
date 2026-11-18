@@ -70,12 +70,12 @@ ffmpegthumbnailer
 firefox
 fsarchiver
 gamemode
+gdu
 git
 github-cli
 github-desktop-bin
 go
 go-musicfox
-google-chrome
 gopls
 grim
 gst-libav
@@ -93,7 +93,7 @@ jfsutils
 kitty
 koreader-bin
 lazygit
-lektra-bin
+lektra-git
 less
 lib32-gamemode
 lib32-mangohud
