@@ -63,7 +63,7 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 用户指定的优先级：**浏览器/常用应用 → 中文输入法 → 前端外壳(noctalia)**。
 
 ```bash
-# B1. 应用层（google-chrome/linuxqq/wechat-bin/zoom 等）
+# B1. 应用层（zen-browser-bin/linuxqq/wechat-bin/zoom 等）
 ./scripts/install-packages.sh                 # 幂等，一次装完所有包
 
 # B2. 用户配置层（fcitx5 双拼/classicui、niri 键位、noctalia 配置、壁纸）
@@ -75,13 +75,13 @@ test -f modules/sddm/sugar-candy/Main.qml || echo "STAGE4 WILL DIE"
 # B5. ./scripts/restore-services.sh
 ```
 
-### AUR 提供者清单（避免 paru 非交互卡选择）
+### 包来源清单（避免 paru 非交互卡选择）
 
 | 清单里的包名 | 说明 |
 |---|---|
 | `baidunetdisk-bin` | AUR 真名；`baidunetdisk` 是虚拟名，会触发提供者选择 |
 | `go-musicfox-bin` | AUR 真名；`go-musicfox` 同理 |
-| `google-chrome` | AUR 本体；另有 beta/canary/dev 变体，勿混装 |
+| `zen-browser-bin` | 本机可从 CachyOS 的 `cachyos` 仓库直接安装，无需从 AUR 构建；`Provides: zen-browser`、`Conflicts: zen-browser`，勿混装 `zen-browser`。两档 profile 都列它，且属 `packages/core.txt` 保护项 |
 | paru.conf `Provides` 需注释 | 不注释则无 TTY 下卡在"选择提供者"，多包安装直接挂起 |
 
 登录自启只对下次登录生效；当前会话内立即启用：
@@ -112,6 +112,12 @@ grep -c lxgw <(fc-list :family)   # >0 = LXGW 字体就位（候选框样式依�
 4. `systemctl list-unit-files | grep -Fxf packages/services/system.txt` 抽查 enabled
 5. `niri validate -c ~/.config/niri/config.kdl` 通过
 6. `./scripts/audit.sh` 通过（发布前必跑）
+7. 默认浏览器/MIME 自检：`xdg-settings get default-web-browser` 与
+   `xdg-mime query default text/html` 都输出 `zen.desktop`
+   （`application/xhtml+xml`、`x-scheme-handler/http`、`x-scheme-handler/https` 同理）。Yazi 的
+   `default-browser` opener 走 `gio open`，跟随这套系统默认值而不是写死浏览器
+   路径；`campus-login` 也只在 `zen.desktop` + `zen-browser` 都存在时才启动
+   独立直连实例，否则报错退出
 
 ## 5. 排错决策树
 

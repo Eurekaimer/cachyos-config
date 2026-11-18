@@ -76,9 +76,13 @@ it is committed:
   `PASSWORD` values in shell rc files, OBS `service.json` stream keys, the git
   `user.email`, ani-rss downloader password/API key/UUID, `.omp` and `.pi`
   runtime state, and `agent/auth.json`.
-- Zen's profile keeps only a fixed `prefs.js` allowlist: bookmarks, history,
-  cookies, logins, sync IDs, telemetry identifiers and session state are never
-  copied; `profiles.ini` is reduced to one default profile.
+- Zen contributes exactly three declared paths: `profiles.ini`, the active
+  profile's `prefs.js` and its `zen-themes.json`; nothing else from the profile is
+  copied. `prefs.js` keeps a fixed allowlist; bookmarks, history, cookies,
+  logins, sync IDs, telemetry identifiers and session state are never captured,
+  and `profiles.ini` is reduced to one default profile. The raw profile,
+  password store, extension data and browsing records are never staged or
+  versioned.
 
 Restore this layer with:
 
@@ -90,6 +94,27 @@ Restore this layer with:
 Existing paths are copied to `~/.local/state/cachyos-config/backup/home` first;
 that directory is cleared on every restore, so exactly one backup generation is
 kept.
+
+### Default browser and Yazi
+
+Yazi's `[open].prepend_rules` sends `text/html`, `application/xhtml+xml` and the
+HTML/XHTML extensions to its `default-browser` opener, which runs
+`gio open %s` and therefore follows the system MIME default instead of naming a
+browser. The captured `mimeapps.list` points `text/html`, XHTML and HTTP(S) at
+`zen.desktop`; that is the desktop-entry name MIME queries resolve, while the
+installed package is `zen-browser-bin`. Changing the default browser later needs
+no Yazi edit. `x-scheme-handler/chrome` in the same file is a protocol handler
+registration, not a Chrome installation dependency.
+
+### Neovim Markdown images and LSP
+
+In Kitty, the Markdown preview binds image.nvim's `from_url` to the existing
+`download_image` helper, so remote images are downloaded and rendered locally.
+LeetCode problem images reuse that downloader and Kitty backend, enabled by
+`image_support = true` and the `3rd/image.nvim` dependency; `:Leet lang` switches
+the template language. LSP stays on `vim.lsp.config`/`vim.lsp.enable` with the
+system `clangd` and a separately managed `jdtls`. Neither area needs a plugin or
+language-server reinstall as part of configuration recovery.
 
 ## Portable system layer
 
@@ -188,7 +213,7 @@ both the config and this table in the same commit.
 | KOReader | 2026.07.1 | `settings.reader.lua`, `defaults.lua`, plugin layout |
 | Sioyek | 2.0.0 | `prefs.config` shared keys |
 | Zed | 1.28.1 | `settings.json` keys, snippet JSON schema |
-| Zen | 1.24.1b | `prefs.js` allowlist, `profiles.ini` layout |
+| Zen | 1.24.2b | `prefs.js` allowlist, `profiles.ini` layout |
 | Neovim | 0.12.6 | plugin APIs, LSP `vim.lsp.config` shape |
 | Micro | 2.0.15 | `settings.json` keys, `bindings.json` actions |
 | fcitx5 | 5.1.23 | `profile`/`config` option names |

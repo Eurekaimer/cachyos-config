@@ -66,8 +66,11 @@ niri 的 `environment{}` 只作用于它自己 spawn 的进程，而启动器经
 - 凭据清空但保留结构：shell rc 中 `KEY`/`TOKEN`/`SECRET`/`PASSWORD` 的值、
   OBS `service.json` 推流密钥、git `user.email`、ani-rss 下载器密码/API Key/UUID，
   以及 `.omp`、`.pi` 运行态与 `agent/auth.json`。
-- Zen 的 `prefs.js` 只保留固定白名单键：书签、历史、Cookie、登录信息、同步 ID、
-  遥测标识与会话状态不入库；`profiles.ini` 归一为单个默认档案。
+- Zen 只采集声明的三条路径：`profiles.ini`、活动档案的 `prefs.js` 与
+  `zen-themes.json`，profile 中的其余内容一律不复制。`prefs.js` 只保留固定
+  白名单键：书签、历史、Cookie、登录信息、同步 ID、遥测标识与会话状态不入库；
+  `profiles.ini` 归一为单个默认档案。原始 profile、密码库、扩展数据和浏览记录
+  既不会进入临时暂存区，也不会入库。
 
 用户层恢复入口：
 
@@ -78,6 +81,23 @@ niri 的 `environment{}` 只作用于它自己 spawn 的进程，而启动器经
 
 被替换的路径先复制到 `~/.local/state/cachyos-config/backup/home`；该目录每次
 恢复前清空，因此只保留一份备份。
+
+### 默认浏览器与 Yazi
+
+Yazi 的 `[open].prepend_rules` 把 `text/html`、`application/xhtml+xml` 及
+HTML/XHTML 扩展名交给 `default-browser` opener，执行 `gio open %s`，因此跟随
+系统 MIME 默认应用，而不是写死某个浏览器。入库的 `mimeapps.list` 把 `text/html`、
+XHTML 和 HTTP(S) 指向 `zen.desktop`；这是 MIME 查询解析到的桌面条目名，实际安装的
+软件包是 `zen-browser-bin`。以后更换默认浏览器不需要改 Yazi。同文件中的
+`x-scheme-handler/chrome` 是协议处理注册，不是 Chrome 安装依赖。
+
+### Neovim 题图与 LSP
+
+在 Kitty 中，Markdown 预览把 image.nvim 的 `from_url` 绑定到现有
+`download_image` 下载器，远程图片会先下载再本地渲染。LeetCode 题图复用同一
+下载器和 Kitty 后端，由 `image_support = true` 与 `3rd/image.nvim` 依赖启用；
+`:Leet lang` 用于切换模板语言。LSP 继续使用 `vim.lsp.config`/`vim.lsp.enable`、
+系统 `clangd` 和单独管理的 `jdtls`。恢复配置时不涉及重装插件或语言服务。
 
 ## 系统可移植层
 
@@ -170,7 +190,7 @@ Sioyek `prefs.config`、Zed 设置、Micro 键位、fcitx5 profile 格式），�
 | KOReader | 2026.07.1 | `settings.reader.lua`、`defaults.lua`、插件目录 |
 | Sioyek | 2.0.0 | `prefs.config` 共享键 |
 | Zed | 1.28.1 | `settings.json` 键、snippet JSON 结构 |
-| Zen | 1.24.1b | `prefs.js` 白名单、`profiles.ini` 结构 |
+| Zen | 1.24.2b | `prefs.js` 白名单、`profiles.ini` 结构 |
 | Neovim | 0.12.6 | 插件 API、LSP `vim.lsp.config` 结构 |
 | Micro | 2.0.15 | `settings.json` 键、`bindings.json` action |
 | fcitx5 | 5.1.23 | `profile`/`config` 选项名 |

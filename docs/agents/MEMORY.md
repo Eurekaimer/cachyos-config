@@ -89,11 +89,32 @@ open gaps live in `TASKS.md`.
   `scripts/module.sh list` reports `unknown` when the file is missing.
 - **`modules/campus-login` installs `~/.local/bin/campus-login`** on THIS
   workstation (`./scripts/module.sh install campus-login`; `installed-check`
-  is `$HOME/.local/bin/campus-login`). It launches a throwaway Chrome profile
-  with every proxy variable cleared and `--proxy-server=direct://` to reach the
-  Nankai captive portal. It cannot bypass Clash TUN mode, which intercepts at
-  the network layer. The network itself needs web authentication before any
-  node works; see `modules/campus-login/README.md`.
+  is `$HOME/.local/bin/campus-login`). It refuses to run unless
+  `xdg-settings get default-web-browser` returns `zen.desktop` and
+  `zen-browser` is on `PATH`; any other default browser, a failed query or a
+  missing binary prints a Chinese error and exits non-zero — it must never
+  start a different browser or fall back to plain `xdg-open`. On success it
+  clears every proxy variable, creates a private `mktemp -d` profile
+  (`umask 077`, parent overridable via `TMPDIR`) holding only
+  `user_pref("network.proxy.type", 0);`, and runs
+  `zen-browser --no-remote --profile <tmp> --new-window` on the Nankai portal;
+  an EXIT trap removes that directory once the child exits, so no normal Zen
+  profile is ever written. It cannot bypass Clash TUN mode, which intercepts at
+  the network layer, and a reachable portal is not proof that authentication
+  succeeded. The network needs web authentication before any node works; see
+  `modules/campus-login/README.md`.
+- **Desktop QQ and any QQ bot deployment are separate concerns.** `linuxqq` is
+  core tier, lives in `/opt/QQ`, and keeps its account data under
+  `~/.config/QQ/nt_qq_*` / `~/.config/QQEX`. The full profile installs the
+  client, but a restore never carries chat history, media, databases or
+  logins: those are personal data, and only regenerable
+  `Cache`/`Code Cache`/`GPUCache` directories are ever cleaned on this
+  machine (re-opening the client recreates them). The Docker Compose bot stack
+  that once ran here (NapCat + AstrBot containers, its volumes, network and
+  project images) was retired deliberately; no profile, manifest, module or
+  snapshot may reintroduce it, and its container/volume IDs are never
+  committed. A server-side NTQQ deployment is outside this repository's
+  recovery scope.
 
 ## Per-application configuration notes
 
@@ -119,7 +140,7 @@ means upstream code that must stay untouched.
 | mpv | `.config/mpv/` | `mpv.conf`, `input.conf`, `profiles.conf`, `script-opts/*.conf`, `scripts/memo.lua` | `scripts/uosc/` + `fonts/` + `scripts/{autoload,evafast,inputevent,thumbfast}.lua` + `script-opts/uosc.conf`'s upstream defaults | `memo.lua` is ours; `script-opts/uosc.conf` is locally tuned; the playback cache and `memo-history.log` are runtime state |
 | niri | `.config/niri/`, `.local/bin/niri-hotkeys-zh`, `.local/bin/niri-screenshot-window`, `.local/bin/niri-stack-column`, `.local/share/niri/hotkeys-zh.txt` | all | — | `cfg/display.kdl` output scaling is machine-specific and re-applied by `post-restore-tweaks.sh`. `niri-stack-column` requires `jq`; opaque window screenshots require Python, ImageMagick and `wl-clipboard`, all in `required-extra.txt`. Niri writes PNGs asynchronously; the screenshot helper waits for IEND before conversion |
 | noctalia | `.config/noctalia/`, `.local/state/noctalia/settings.toml`, `.local/share/noctalia/plugins/storage-gb` | `config.toml`, `widgets.toml`, GUI overrides, local `storage_gb` plugin | native plugin files | GUI settings override config defaults; the local storage widget displays Chinese labels and decimal GB. History/cache/private state are excluded. No backup backfill |
-| nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; `clangd` comes from the system `clang` package, not Mason. Required extras also include `fd`, `tree-sitter-cli` and `curl` |
+| nvim | `.config/nvim/`, `.local/share/applications/neovim-markdown.desktop` | `init.lua`, `lua/**` | `doc/` | Lazy-lock pins plugin revisions; `clangd` comes from the system `clang` package, not Mason. Required extras also include `fd`, `tree-sitter-cli` and `curl`. `lua/plugins/markdown.lua` replaces `image.nvim`'s `from_url` with an in-config downloader (exit-code checked, retries, JPEG-trailing-data detection) and enables remote images only for Kitty's graphics protocol; `lua/plugins/lsp.lua` drives `vim.lsp.config`/`vim.lsp.enable` with the system `clangd` and a self-managed `jdtls`. Both are live configuration, not plugin churn — leave them in place |
 | obs-studio | `.config/obs-studio/{global.ini,user.ini,basic/scenes,basic/profiles,plugin_manager/modules.json}` | all | profiler logs (excluded) | `basic/profiles/*/service.json` holds the stream key and is deleted before publishing |
 | omp | `.omp/agent/config.yml`, `.omp/agent/models.yml`, `.omp/agent/themes/` | all three | everything else in `.omp/` | Only secret-free configuration is portable: `models.yml` must reference API keys by env var, custom themes stay JSON; `audit.sh` rejects any other `.omp` content |
 | pi | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` | all three | `auth.json`, `agent/sessions/`, `npm/node_modules/` | `auth.json` holds live OAuth tokens and an API key and is deleted by `sanitize.sh`; `deviceId` is stripped from `settings.json` as a machine identifier; the npm tree is a declaration only, never vendored; `audit.sh` rejects any other `.pi` content |
@@ -131,9 +152,9 @@ means upstream code that must stay untouched.
 | wallpapers | `Pictures/Wallpapers/` | images | — | `.comments/` metadata is runtime state; `sync-sddm-theme.sh` copies one into the SDDM theme |
 | wechat | `.local/share/applications/wechat.desktop` | yes | — | — |
 | xdg-user-dirs | `.config/user-dirs.dirs`, `.config/user-dirs.locale` | both | — | Renaming directories on an old install is a manual step; no script rewrites XDG dirs |
-| yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `init.lua`, `plugins/dirsize.yazi/` | — | Both TOMLs hold only overrides over the shipped presets (`prepend_*`/`append_*`), never full copies. `y` also writes `text/uri-list` to the Wayland clipboard through `wl-copy` (`wl-clipboard`). `[open].prepend_rules` pins `*.{toml,json,jsonc,json5,jsonl,ndjson}` to `neovim-open` ahead of every MIME rule (first match wins): libmagic reports a TOML that mentions markup in a comment or value as `text/html`, which would launch Chrome, plain JSON as `application/json`, which falls to the preset `edit` opener, and `.ndjson` as `application/x-ndjson`, which no preset rule covers. The markdown, HTML and PDF rules are unchanged |
+| yazi | `.config/yazi/` | `yazi.toml`, `keymap.toml`, `init.lua`, `plugins/dirsize.yazi/` | — | Both TOMLs hold only overrides over the shipped presets (`prepend_*`/`append_*`), never full copies. `y` also writes `text/uri-list` to the Wayland clipboard through `wl-copy` (`wl-clipboard`). `[open].prepend_rules` pins `*.{toml,json,jsonc,json5,jsonl,ndjson}` to `neovim-open` ahead of every MIME rule (first match wins): libmagic reports a TOML that mentions markup in a comment or value as `text/html`, which would launch the browser, plain JSON as `application/json`, which falls to the preset `edit` opener, and `.ndjson` as `application/x-ndjson`, which no preset rule covers. HTML/XHTML is opened by the `default-browser` opener (`run = 'gio open %s'`, `orphan = true`), i.e. whatever `xdg-mime` / `mimeapps.list` names as the system default — currently `zen.desktop` — so no browser binary path or Chrome flag is hard-coded and changing the default needs no Yazi edit. The markdown, HTML and PDF rules are otherwise unchanged |
 | zed | `.config/zed/settings.json`, `.config/zed/keymap.json` | both | — | `ui_font_family` is `Monaspace Radon`, provided by `otf-monaspace` in `packages/profiles/`; `ui_font_size` 22 applies to chrome only, buffers stay on `buffer_font_*`. The keymap exists to undo two Linux defaults: vim mode binds `ctrl-v` (`vim::PushLiteral` when inserting, `vim::ToggleVisualBlock` in normal mode) and `Editor && extension == md` binds `ctrl-shift-v` to `markdown::OpenPreview`, so `ctrl-v` is rebound to `editor::Paste` and the Markdown preview stays on `ctrl-k v`. `LOCAL_NOTEBOOK_DEV=1` is exported from `cfg/misc.kdl` for the niri session and from `.zshrc`; it unlocks Zed's native notebook editor and needs a Zed restart |
-| zen | `.config/zen/profiles.ini`, `.config/zen/<profile>/prefs.js`, `.config/zen/<profile>/zen-themes.json` | `prefs.js` (filtered) | `zen-themes.json` | `sanitize.sh` reduces `prefs.js` to a fixed allowlist and rewrites `profiles.ini` to a single default profile. Bookmarks, history, cookies, logins, sessions and extension storage are never declared. The profile directory name is generated by Zen; update `paths` if Zen creates a new one. |
+| zen | `.config/zen/profiles.ini`, `.config/zen/<profile>/prefs.js`, `.config/zen/<profile>/zen-themes.json` | `prefs.js` (filtered) | `zen-themes.json` | Stage only these three files in a 0700 temporary directory. `sanitize_zen_config` filters preferences to an allowlist and rewrites `profiles.ini` to one default profile before updating the snapshot. If Zen generates a new profile path, update `paths`; never capture raw preferences, bookmarks, history, cookies, logins, sessions or extension storage. Both profiles install the core-protected `zen-browser-bin`, available from the `cachyos` repository without an AUR build. It supplies `zen.desktop` and the `zen-browser` launcher. |
 
 ## Common traps and how they are handled
 
@@ -169,5 +190,10 @@ means upstream code that must stay untouched.
 - **`koreader-bin` overwrites the patched Lua files on upgrade.** The module
   must be re-run after every upgrade; `scripts/install-packages.sh` does it
   automatically whenever the package is present.
+- **`audit.sh`'s `google-chrome` entry is a path blacklist, not a dependency.**
+  It rejects a `google-chrome` directory inside the snapshot; deleting the name
+  would let a Chrome profile back into `configs/`. A package name appearing in
+  general-purpose statistics tooling is likewise not a runtime dependency, so
+  neither is removed just because the browser is no longer installed.
 - **Sudo may be unavailable to an agent.** `ensure_sudo` warns instead of
   hanging; unattended runs need a temporary NOPASSWD entry, removed afterwards.
