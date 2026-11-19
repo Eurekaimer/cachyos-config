@@ -439,7 +439,7 @@ return {
     ["readtimer"] = {},
     ["scroll_method"] = "classic",
     ["sdl_window"] = {
-        ["height"] = 2022,
+        ["height"] = 2112,
         ["left"] = 0,
         ["top"] = 0,
         ["width"] = 1884,

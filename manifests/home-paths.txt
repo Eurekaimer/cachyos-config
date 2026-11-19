@@ -50,6 +50,7 @@
 .local/share/io.github.clash-verge-rev.clash-verge-rev/profiles/Script.js
 .local/share/niri/hotkeys-zh.txt
 .local/share/noctalia/plugins/storage-gb
+.local/state/noctalia/community-palettes/Oxocarbon.json
 .local/state/noctalia/settings.toml
 .omp/agent/config.yml
 .omp/agent/models.yml

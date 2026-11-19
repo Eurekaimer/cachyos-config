@@ -2,20 +2,22 @@
 position = "top"
 # Compact bar with normally proportioned sans-serif text.
 thickness = 44
-radius = 12
+radius = 0
 enabled = true
 # Overlay auto-hide bar: no reserved exclusive zone, revealed from the top edge.
 auto_hide = true
 smart_auto_hide = false
 show_on_workspace_switch = true
 reserve_space = false
-background_opacity = 0.93
+background_opacity = 0.0
+shadow = false
+compositor_blur = false
 border_width = 0.0
-# Match the ordinary window gaps configured by Niri.
-margin_ends = 16
-margin_edge = 16
-padding = 5
-widget_spacing = 6
+# Flush to the screen; the Powerline joins need zero gap between groups.
+margin_ends = 0
+margin_edge = 0
+padding = 0
+widget_spacing = 0
 # Larger icons without larger text: 14px × 1.2 × 1.0 ≈ 16.8px.
 scale = 1.2
 font_scale = 1.0
@@ -24,13 +26,105 @@ font_weight = 400
 color = "on_surface_variant"
 icon_color = "primary"
 capsule_foreground = "on_surface_variant"
-capsule = true
-capsule_thickness = 0.72
+capsule = false
+capsule_thickness = 1.0
 capsule_padding = 6
 capsule_opacity = 1.0
-start = ["launcher", "clock", "cpu-usage", "cpu-temperature", "memory-usage", "disk-free"]
-center = ["workspaces", "audio-visualizer"]
-end = ["taskbar", "tray", "notifications", "battery", "volume", "bluetooth", "brightness", "control-center", "wallpaper"]
+start = ["group:time-band", "time-join", "group:left-band", "left-tip"]
+center = ["group:center-band"]
+end = ["right-tip", "group:right-band", "controls-join", "group:controls-band"]
+
+[[bar.main.capsule_group]]
+id = "time-band"
+members = ["launcher", "clock"]
+fill = "primary_container"
+foreground = "on_primary_container"
+radius = 0.0
+padding = 8.0
+widget_spacing = 6
+
+[[bar.main.capsule_group]]
+id = "left-band"
+members = ["cpu-usage", "cpu-temperature", "memory-usage", "disk-free"]
+fill = "surface_container_high"
+foreground = "on_surface"
+radius = 0.0
+padding = 6.0
+widget_spacing = 6
+opacity = 1.0
+
+[[bar.main.capsule_group]]
+id = "center-band"
+members = ["workspaces", "audio-visualizer"]
+fill = "secondary_container"
+foreground = "on_secondary_container"
+radius = 22.0
+padding = 12.0
+widget_spacing = 6
+opacity = 1.0
+
+[[bar.main.capsule_group]]
+id = "right-band"
+members = ["taskbar", "tray", "notifications", "battery", "volume", "bluetooth", "brightness"]
+fill = "surface_container_high"
+foreground = "on_surface"
+radius = 0.0
+padding = 6.0
+widget_spacing = 6
+opacity = 1.0
+
+[[bar.main.capsule_group]]
+id = "controls-band"
+members = ["control-center", "wallpaper"]
+fill = "tertiary_container"
+foreground = "on_tertiary_container"
+radius = 0.0
+padding = 8.0
+widget_spacing = 6
+
+[widget.left-tip]
+type = "custom_button"
+glyph = ""
+label = ""
+font_family = "Monaspace Neon"
+font_scale = 2.2
+color = "surface_container_high"
+interactive = false
+
+[widget.right-tip]
+type = "custom_button"
+glyph = ""
+label = ""
+font_family = "Monaspace Neon"
+font_scale = 2.2
+color = "surface_container_high"
+interactive = false
+
+[widget.time-join]
+type = "custom_button"
+glyph = ""
+label = ""
+font_family = "Monaspace Neon"
+font_scale = 2.2
+color = "primary_container"
+capsule = true
+capsule_fill = "surface_container_high"
+capsule_radius = 0.0
+capsule_padding = 0
+interactive = false
+
+[widget.controls-join]
+type = "custom_button"
+glyph = ""
+label = ""
+font_family = "Monaspace Neon"
+font_scale = 2.2
+color = "tertiary_container"
+capsule = true
+capsule_fill = "surface_container_high"
+capsule_radius = 0.0
+capsule_padding = 0
+interactive = false
 
 [bar.main.dead_zone.actions]
 right = "panel-toggle control-center home"

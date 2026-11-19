@@ -1,11 +1,11 @@
 modelRoles:
-  smol: commandcode/deepseek/deepseek-v4.1-flash-fast:high
-  default: commandcode/deepseek/deepseek-v4.1-flash-fast:max
+  smol: openai-codex/gpt-6.2-astra:high
+  default: openai-codex/gpt-6.2-astra:high
 symbolPreset: nerd
 theme:
   dark: shorin
   light: pearl
-setupVersion: 2
+setupVersion: 3
 dev:
   autoqaConsent: granted
 display:
@@ -18,7 +18,8 @@ composer:
   shape: claude
   tokenRate: true
 codexResets:
-  autoRedeem: "no"
+  autoRedeem5h: "no"
+  autoRedeemWeekly: "no"
 tui:
   codexResetFireworks: true
   resizeScrollback: rebuild
@@ -84,3 +85,5 @@ retry:
     default:
       - openai-codex/gpt-6.1-terra
       - commandcode/deepseek/deepseek-v4.1-flash-fast
+update:
+  auto: true

@@ -80,14 +80,11 @@ shell_mode = "light"
 source = "wallpaper"
 wallpaper_scheme = "m3-tonal-spot"
 
-[wallpaper]
-fill_mode = "fit"
+[wallpaper.default]
+path = "/home/eurekaimer/Pictures/Wallpapers/136296670_p0_master1200.jpg"
 
-    [wallpaper.default]
-    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+[wallpaper.last]
+path = "/home/eurekaimer/Pictures/Wallpapers/136296670_p0_master1200.jpg"
 
-    [wallpaper.last]
-    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
-
-    [wallpaper.monitors.DP-3]
-    path = "/home/eurekaimer/Pictures/Wallpapers/project_mifeng.png"
+[wallpaper.monitors.DP-3]
+path = "/home/eurekaimer/Pictures/Wallpapers/136296670_p0_master1200.jpg"

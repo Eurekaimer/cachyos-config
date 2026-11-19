@@ -1,3 +1,4 @@
 .config/noctalia
 .local/state/noctalia/settings.toml
+.local/state/noctalia/community-palettes/Oxocarbon.json
 .local/share/noctalia/plugins/storage-gb
