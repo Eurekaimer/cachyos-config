@@ -212,11 +212,10 @@ zoom
 # [14-media-notes] 下载、上传、笔记、电子书、音乐、录屏
 go-musicfox
 koreader-bin
-lektra-bin
+lektra-git
 obs-studio
 obsidian
 qbittorrent
-sioyek-git
 
 # [15-dev-toolchain] 开发工具链：语言运行时与语言服务器
 bun

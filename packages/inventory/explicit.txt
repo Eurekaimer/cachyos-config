@@ -178,7 +178,6 @@ rustup
 sddm
 shellcheck
 shelly
-sioyek-git
 smartmontools
 snapper
 sof-firmware

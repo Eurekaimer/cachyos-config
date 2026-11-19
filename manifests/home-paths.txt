@@ -27,7 +27,6 @@
 .config/obs-studio/global.ini
 .config/obs-studio/plugin_manager/modules.json
 .config/obs-studio/user.ini
-.config/sioyek
 .config/starship.toml
 .config/user-dirs.dirs
 .config/user-dirs.locale
@@ -43,7 +42,6 @@
 .local/bin/niri-hotkeys-zh
 .local/bin/niri-screenshot-window
 .local/bin/niri-stack-column
-.local/bin/sioyek
 .local/share/applications/neovim-markdown.desktop
 .local/share/applications/wechat.desktop
 .local/share/applications/wine.desktop

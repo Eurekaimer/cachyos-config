@@ -146,7 +146,6 @@ means upstream code that must stay untouched.
 | pi | `.pi/agent/settings.json`, `.pi/agent/models-store.json`, `.pi/agent/npm/package.json` | all three | `auth.json`, `agent/sessions/`, `npm/node_modules/` | `auth.json` holds live OAuth tokens and an API key and is deleted by `sanitize.sh`; `deviceId` is stripped from `settings.json` as a machine identifier; the npm tree is a declaration only, never vendored; `audit.sh` rejects any other `.pi` content |
 | qt | `.config/QtProject.conf` | yes | — | `history`, `lastVisited`, `qtVersion` lines leak paths and are deleted |
 | shell | `.zshrc`, `.zshenv`, `.bashrc`, `.bash_profile`, `.bash_logout` | all | — | Values of `*KEY*`/`*TOKEN*`/`*SECRET*`/`*PASSWORD*` exports are blanked; variable names stay so a restore reproduces the structure. `.zshenv` is captured because every zsh invocation reads it and it is where agent API keys are exported |
-| sioyek | `.local/bin/sioyek` | wrapper script | — | The ECDICT plugin integration itself is a module (`modules/sioyek-ecdict`) |
 | starship | `.config/starship.toml` | yes | — | — |
 | thunar | `.config/Thunar/uca.xml` | yes | — | — |
 | wallpapers | `Pictures/Wallpapers/` | images | — | `.comments/` metadata is runtime state; `sync-sddm-theme.sh` copies one into the SDDM theme |

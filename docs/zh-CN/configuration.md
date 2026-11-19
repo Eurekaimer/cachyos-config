@@ -36,7 +36,6 @@
 | Pi（pi coding agent） | `configs/apps/pi/` | `.pi/agent/settings.json`、`.pi/agent/models-store.json`、`.pi/agent/npm/package.json` |
 | Qt | `configs/apps/qt/` | `.config/QtProject.conf` |
 | Shell | `configs/apps/shell/` | `.zshrc`、`.zshenv`、`.bashrc`、`.bash_profile`、`.bash_logout` |
-| Sioyek | `configs/apps/sioyek/` | `.local/bin/sioyek`、`.config/sioyek/` |
 | Starship | `configs/apps/starship/` | `.config/starship.toml` |
 | Thunar | `configs/apps/thunar/` | `.config/Thunar/uca.xml` |
 | Wallpapers（壁纸） | `configs/apps/wallpapers/` | `Pictures/Wallpapers/` |

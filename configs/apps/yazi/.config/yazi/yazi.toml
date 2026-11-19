@@ -24,11 +24,11 @@ shell_offset  = [ 0, 2, 80, 3 ]
 default-browser = [
 	{ run = 'gio open %s', desc = "Open in default browser", orphan = true },
 ]
-# --new-instance gives each PDF its own window. Use the wrapper directly:
-# apps spawned by niri (Super+Y) have no ~/.local/bin in PATH, and the system
-# sioyek fails to present its first frame under Qt 6.11 + niri.
-sioyek-new = [
-	{ run = '~/.local/bin/sioyek --new-instance %s1', desc = "Open with Sioyek (new window)", orphan = true },
+# Each PDF gets its own window; --new-window also works when no instance is
+# running. lektra lives in /usr/bin, which is on PATH for Yazi from a terminal
+# and for the Super+Y wrapper.
+lektra-pdf = [
+	{ run = 'lektra --new-window %s1', desc = "Open PDF in Lektra (new window)", orphan = true },
 ]
 # Markdown and plain text always beat the content-sniffed MIME: `file` reports a
 # README full of <img>/<table> as text/html, and Yazi trusts that, so the .md
@@ -54,7 +54,7 @@ prepend_rules = [
 	{ use = "default-browser", mime = "text/html" },
 	{ use = "default-browser", mime = "application/xhtml+xml" },
 	{ use = "default-browser", url = "*.{html,htm,HTML,HTM,xhtml}" },
-	{ use = "sioyek-new", mime = "application/pdf" },
+	{ use = "lektra-pdf", mime = "application/pdf" },
 ]
 
 [plugin]
