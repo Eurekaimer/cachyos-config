@@ -327,7 +327,7 @@ return {
     ["dicts_disabled"] = {},
     ["dicts_order"] = {},
     ["dimension_units"] = "mm",
-    ["document_metadata_folder"] = "doc",
+    ["document_metadata_folder"] = "dir",
     ["duration_format"] = "classic",
     ["exporter"] = {
         ["markdown"] = {
@@ -345,7 +345,7 @@ return {
         [1] = "/home/eurekaimer/.config/koreader/plugins/",
     },
     ["fallback_font"] = "LXGW WenKai",
-    ["filemanagermenu_tab_index"] = 5,
+    ["filemanagermenu_tab_index"] = 2,
     ["folder_shortcuts"] = {},
     ["folder_shortcuts_settings"] = {},
     ["footer"] = {

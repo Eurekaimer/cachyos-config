@@ -1439,6 +1439,53 @@
         "type": "chat"
       },
       {
+        "id": "gpt-6-cyber",
+        "name": "GPT-6 Cyber",
+        "api": "openai-responses",
+        "provider": "openai",
+        "baseUrl": "https://api.openai.com/v1",
+        "reasoning": true,
+        "input": [
+          "text",
+          "image"
+        ],
+        "cost": {
+          "input": 20,
+          "output": 100,
+          "cacheRead": 2,
+          "cacheWrite": 25
+        },
+        "contextWindow": 1050000,
+        "maxTokens": 128000,
+        "thinkingLevelMap": {
+          "off": null,
+          "minimal": null,
+          "low": "low",
+          "medium": "medium",
+          "high": "high",
+          "xhigh": "xhigh",
+          "max": "max"
+        },
+        "compat": {
+          "supportsStrictMode": true,
+          "supportsOpenAIGrammarTools": true,
+          "supportsExplicitPromptCacheMode": true
+        },
+        "inputLimits": {
+          "maxRequestBytes": 536870912,
+          "images": {
+            "maxPerRequest": 1500,
+            "resize": {
+              "maxWidth": 2000,
+              "maxHeight": 2000,
+              "maxBytes": 4718592,
+              "jpegQuality": 80
+            }
+          }
+        },
+        "type": "chat"
+      },
+      {
         "id": "gpt-6-luna",
         "name": "GPT-6 Luna",
         "api": "openai-responses",
@@ -1648,6 +1695,126 @@
         "maxTokens": 128000,
         "thinkingLevelMap": {
           "off": "none",
+          "minimal": null,
+          "low": "low",
+          "medium": "medium",
+          "high": "high",
+          "xhigh": "xhigh",
+          "max": "max"
+        },
+        "compat": {
+          "supportsStrictMode": true,
+          "supportsOpenAIGrammarTools": true,
+          "supportsAdditionalTools": true,
+          "supportsToolSearch": true,
+          "supportsMidConvoSystemMessages": true,
+          "supportsExplicitPromptCacheMode": true,
+          "supportsMidConvoEffort": true
+        },
+        "inputLimits": {
+          "maxRequestBytes": 536870912,
+          "images": {
+            "maxPerRequest": 1500,
+            "resize": {
+              "maxWidth": 2000,
+              "maxHeight": 2000,
+              "maxBytes": 4718592,
+              "jpegQuality": 80
+            }
+          }
+        },
+        "type": "chat"
+      },
+      {
+        "id": "gpt-6.2-astra",
+        "name": "GPT-6.2 Astra",
+        "api": "openai-responses",
+        "provider": "openai",
+        "baseUrl": "https://api.openai.com/v1",
+        "reasoning": true,
+        "input": [
+          "text",
+          "image"
+        ],
+        "cost": {
+          "input": 8,
+          "output": 40,
+          "cacheRead": 0.4,
+          "cacheWrite": 10,
+          "tiers": [
+            {
+              "inputTokensAbove": 272000,
+              "input": 16,
+              "output": 60,
+              "cacheRead": 0.8,
+              "cacheWrite": 20
+            }
+          ]
+        },
+        "contextWindow": 272000,
+        "maxTokens": 128000,
+        "thinkingLevelMap": {
+          "off": null,
+          "minimal": null,
+          "low": "low",
+          "medium": "medium",
+          "high": "high",
+          "xhigh": "xhigh",
+          "max": "max"
+        },
+        "compat": {
+          "supportsStrictMode": true,
+          "supportsOpenAIGrammarTools": true,
+          "supportsAdditionalTools": true,
+          "supportsToolSearch": true,
+          "supportsMidConvoSystemMessages": true,
+          "supportsExplicitPromptCacheMode": true,
+          "supportsMidConvoEffort": true
+        },
+        "inputLimits": {
+          "maxRequestBytes": 536870912,
+          "images": {
+            "maxPerRequest": 1500,
+            "resize": {
+              "maxWidth": 2000,
+              "maxHeight": 2000,
+              "maxBytes": 4718592,
+              "jpegQuality": 80
+            }
+          }
+        },
+        "type": "chat"
+      },
+      {
+        "id": "gpt-6.2-sol",
+        "name": "GPT-6.2 Sol",
+        "api": "openai-responses",
+        "provider": "openai",
+        "baseUrl": "https://api.openai.com/v1",
+        "reasoning": true,
+        "input": [
+          "text",
+          "image"
+        ],
+        "cost": {
+          "input": 2,
+          "output": 10,
+          "cacheRead": 0.1,
+          "cacheWrite": 2.5,
+          "tiers": [
+            {
+              "inputTokensAbove": 272000,
+              "input": 4,
+              "output": 15,
+              "cacheRead": 0.2,
+              "cacheWrite": 5
+            }
+          ]
+        },
+        "contextWindow": 272000,
+        "maxTokens": 128000,
+        "thinkingLevelMap": {
+          "off": null,
           "minimal": null,
           "low": "low",
           "medium": "medium",
@@ -2065,8 +2232,8 @@
         "contextWindow": 922000
       }
     ],
-    "lastModified": 1794492059000,
-    "etag": "W/\"9cb1a79c50b9cf662b2087060a30e5dc\"",
-    "checkedAt": 1794497494533
+    "lastModified": 1795094583000,
+    "etag": "W/\"1923b86f1ae3c2f466dc0ea04b36ca9a\"",
+    "checkedAt": 1795164810219
   }
 }

@@ -1,6 +1,6 @@
 modelRoles:
   smol: openai-codex/gpt-6.2-astra:high
-  default: openai-codex/gpt-6.2-astra:high
+  default: commandcode/deepseek/deepseek-v4.1-flash-fast:max
 symbolPreset: nerd
 theme:
   dark: shorin
