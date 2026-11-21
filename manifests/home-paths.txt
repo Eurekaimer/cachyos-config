@@ -15,6 +15,7 @@
 .config/gtk-3.0
 .config/kitty
 .config/koreader
+.config/lektra
 .config/micro/colorschemes
 .config/micro/settings.json
 .config/mimeapps.list
