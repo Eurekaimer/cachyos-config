@@ -24,6 +24,10 @@ sanitize_runtime_state() {
     rm -rf -- "$root/.config/koreader/ota"
     rm -rf -- "$root/.config/koreader/screenshots"
     rm -f -- "$root/.config/koreader/history.lua"
+    # With document_metadata_folder = "dir" KOReader keeps every book's .sdr
+    # sidecar here instead of next to the file: reading position, highlights
+    # and the original path of each document, i.e. the whole library history.
+    rm -rf -- "$root/.config/koreader/docsettings"
     rm -f -- "$root/.config/koreader/settings/lookup_history.lua"
     # The Wikipedia lookup plugin keeps its own history: looked-up words plus the
     # book they came from, exactly the recent-file class of runtime state.
